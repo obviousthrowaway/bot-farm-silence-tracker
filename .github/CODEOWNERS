@@ -1,0 +1,36 @@
+# Code owners. @obviousthrowaway is the repository owner. If you publish your own copy,
+# replace it with your account (a user or a team) before applying the main branch's
+# ruleset with scripts/apply_repo_rules.sh. An owner GitHub cannot resolve owns nothing,
+# so no file would then need a code owner's review.
+#
+# The ruleset (.github/rulesets/main.json) requires pull requests with zero approvals
+# but "Require review from Code Owners", so:
+#
+# - a pull request that touches only the ownerless account records below needs no
+#   review; the Registry gate, a required check, validates and spot-checks them, and
+#   asks for the owner's approval of every high-impact change among them;
+# - a pull request that touches any other file needs the owner's approval.
+#
+# The last matching pattern wins. In these patterns "*" never matches "/".
+
+# Everything is the owner's: code, workflows, docs, the schema, CODEOWNERS itself.
+* @obviousthrowaway
+
+# Account records: registry/events/<event-id>/<platform>/<shard>.jsonl. No owner, so
+# no code owner review. The Registry gate enforces the data policy instead.
+/registry/events/*/*/*.jsonl
+
+# Evidence files (registry/events/<event-id>/evidence/<platform>/<id_b64>.md) stay
+# the owner's. This line comes after the records line, so it also wins for any file
+# directly under an evidence/ folder.
+/registry/events/*/evidence/ @obviousthrowaway
+
+# The schema and the outage events file (every event's cutoff decides which accounts
+# count as silent) stay the owner's.
+/registry/schema.json @obviousthrowaway
+/events.toml @obviousthrowaway
+
+# The checks that judge registry pull requests and the rules themselves.
+/.github/ @obviousthrowaway
+/scripts/apply_repo_rules.sh @obviousthrowaway
+/src/bot_farm_silence_tracker/registry/ @obviousthrowaway

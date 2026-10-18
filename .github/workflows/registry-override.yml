@@ -1,0 +1,76 @@
+name: Registry override
+
+# Keeps the registry-override label tied to the one head commit a maintainer
+# reviewed (see "Checks on registry pull requests" in the README). It runs on
+# pull_request_target, so this file comes from the base branch, never from the pull
+# request.
+#
+# - It has no concurrency group, so a later event never cancels it: the
+#   Registry gate workflow cancels its own runs when a newer event arrives, and
+#   these jobs must still run.
+# - Neither job checks out code or runs code from the pull request or the
+#   repository; each makes only GitHub API calls with the workflow's token, which has
+#   only the permissions those calls need.
+#
+# record-override: when the label is added, it writes a commit status with the
+# context registry-override/pr-<number> on the head commit named in the labeled
+# event, which is the head at the moment the label was added, and posts a comment
+# naming that commit. The gate honours the label on later events only when the
+# current head has that status, and on every event only when the head also has an
+# approving review of that same commit by the repository owner (admin access) who
+# is not the author. This job does not check reviews itself: the gate does, on every run.
+#
+# drop-stale-override: after a new push, it removes the label, so a maintainer adds
+# it again after reviewing the new commits. The gate ignores the label after a new
+# push even before it is removed.
+on:
+  pull_request_target:
+    types: [labeled, synchronize]
+
+permissions: {}
+
+jobs:
+  record-override:
+    if: >-
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'registry-override'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      statuses: write
+      pull-requests: write
+    steps:
+      - name: Record the labeled head commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          APPROVER: ${{ github.event.sender.login }}
+        run: |
+          gh api --method POST "repos/${REPOSITORY}/statuses/${HEAD_SHA}" \
+            -f state=success \
+            -f context="registry-override/pr-${PR_NUMBER}" \
+            -f description="The registry-override label was added for this commit by ${APPROVER}."
+          body="$(printf '%s\n\n%s' \
+            "The registry-override label was recorded for head commit ${HEAD_SHA} (added by ${APPROVER})." \
+            "The Registry gate honours it only while that commit is the head and it has an approving review of that same commit by the repository owner (admin access) who is not the author. A new push removes the label. If you approve the commit after adding the label, rerun the Registry gate.")"
+          gh api --method POST "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body"
+
+  drop-stale-override:
+    if: >-
+      github.event.action == 'synchronize' &&
+      contains(github.event.pull_request.labels.*.name, 'registry-override')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove the registry-override label after a new push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --method DELETE \
+            "repos/${REPOSITORY}/issues/${PR_NUMBER}/labels/registry-override"

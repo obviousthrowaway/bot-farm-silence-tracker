@@ -1,0 +1,13 @@
+#!/bin/sh
+# Runs for each platform the user ticked on the Customize step. It only records the
+# choice; the last package saves all of them at once through the program.
+set -u
+here="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=packaging/macos/scripts/common.sh
+. "$here/common.sh"
+home="$(pkg_home "${2:-}")"
+platform="$(cat "$here/platform")"
+file="$(choices_file "$home")"
+mkdir -p "$(dirname "$file")"
+printf '%s\n' "$platform" >>"$file"
+exit 0

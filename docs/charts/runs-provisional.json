@@ -1,0 +1,128 @@
+{
+  "event": "2026-10-takedown",
+  "as_of": "2026-10-17 14:42 UTC",
+  "cutoff": "2026-10-11 00:30 UTC",
+  "base_rate": {
+    "silent_3d": {
+      "events": 29088,
+      "eligible": 692252,
+      "weekly_rates": [
+        0.0461,
+        0.0387,
+        0.0413
+      ]
+    },
+    "silent_7d": {
+      "events": 5986,
+      "eligible": 692252,
+      "weekly_rates": [
+        0.0089,
+        0.0082,
+        0.0089
+      ]
+    }
+  },
+  "runs": [
+    {
+      "run_id": 1,
+      "status": "main sample complete",
+      "scored_through": "2026-10-14 07:10 UTC",
+      "planned": 10000,
+      "fetched": 9999,
+      "windows": [
+        {
+          "days": 3.28,
+          "eligible": 6399
+        }
+      ],
+      "eligible": 6399,
+      "silent": 288,
+      "independent_signal": 9,
+      "clusters_tested": 57,
+      "clusters_significant": 0,
+      "smallest_adjusted_p": 0.0115
+    },
+    {
+      "run_id": 2,
+      "status": "complete",
+      "scored_through": "2026-10-15 00:30 UTC",
+      "planned": 10000,
+      "fetched": 10000,
+      "windows": [
+        {
+          "days": 3.28,
+          "eligible": 1550
+        },
+        {
+          "days": 4.0,
+          "eligible": 4774
+        }
+      ],
+      "eligible": 6324,
+      "silent": 214,
+      "independent_signal": 6,
+      "clusters_tested": 38,
+      "clusters_significant": 0,
+      "smallest_adjusted_p": 0.4394,
+      "scan_console_silent": 205
+    },
+    {
+      "run_id": 3,
+      "status": "partial",
+      "scored_through": "2026-10-15 00:30 UTC",
+      "planned": 20000,
+      "fetched": 9119,
+      "windows": [
+        {
+          "days": 4.0,
+          "eligible": 5943
+        }
+      ],
+      "eligible": 5943,
+      "silent": 182,
+      "independent_signal": 7,
+      "clusters_tested": 30,
+      "clusters_significant": 0,
+      "smallest_adjusted_p": 0.9894
+    }
+  ],
+  "union": {
+    "distinct_accounts": 23631,
+    "eligible": 15002,
+    "silent": 550,
+    "independent_signal": 18,
+    "windows": [
+      {
+        "days": 3.28,
+        "eligible": 5027
+      },
+      {
+        "days": 4.0,
+        "eligible": 9975
+      }
+    ],
+    "rule": "key platform and account ID; for an account scored in more than one run, the record with the longest scored window (ties: lowest run id)",
+    "silent_first_run_rule": 563
+  },
+  "new_only": {
+    "label": "Run 3, accounts not in runs 1 or 2",
+    "distinct_accounts": 5924,
+    "eligible": 3879,
+    "silent": 123,
+    "independent_signal": 6,
+    "windows": [
+      {
+        "days": 4.0,
+        "eligible": 3879
+      }
+    ]
+  },
+  "overlap": {
+    "runs_1_and_2": 2292,
+    "run_3_in_runs_1_or_2": 3195,
+    "run_3_and_1": 2055,
+    "run_3_and_2": 2025,
+    "in_all_three": 885
+  },
+  "rule_note": "every row is scored as of its run's stored data horizon (strict), never up to a later reference time"
+}

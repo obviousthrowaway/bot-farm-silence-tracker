@@ -1,0 +1,34 @@
+# A copy of the repository's events.toml as released in v0.2.0, before markers: the
+# gate test compares the current file with it.
+#
+# Outage events: the cutoffs scans are measured against.
+#
+# Each [[event]] is one outage, such as the takedown of the bot data centers that ran a
+# group of accounts. Its records live in registry/events/<id>/ and its local scan cache
+# in <cache>/events/<id>/. See "Outage events" in the README.
+#
+# Rules (checked by the tests and by the registry gate):
+# - id: a lower-case slug, 3 to 64 of a-z 0-9 and -, unique, not starting with custom-.
+#   An id that starts with YYYY-MM- must match the cutoff's year and month.
+# - name: plain text; cutoff: a UTC ISO-8601 date and time, not in the future.
+# - Events are listed in cutoff order.
+# - baseline_days, min_silence_days (at least 1) and cliff_window_hours: write all three
+#   out (the algorithm's defaults are 30, 3 and 48). The gate refuses an event without
+#   them.
+# - Adding an event needs no label. Changing an existing event's name, cutoff or
+#   windows, renaming it, deleting it or moving legacy_event needs the
+#   registry-override label and an approving review of the head commit.
+
+default = "2026-10-takedown"
+# The event that the single cache database of versions before events belongs to.
+# Keep it when the default changes; moving it needs the registry-override label.
+legacy_event = "2026-10-takedown"
+
+[[event]]
+id = "2026-10-takedown"
+name = "October 2026 bot data center takedown"
+cutoff = "2026-10-10T00:00:00Z"
+baseline_days = 30
+min_silence_days = 3.0
+cliff_window_hours = 48.0
+notes = "The takedown of the bot data centers. Accounts that posted steadily before the cutoff and stopped at it are candidates for review."

@@ -1,0 +1,158 @@
+# Seed communities for Bot Farm Silence Tracker.
+#
+# IMPORTANT: this list is a STARTING POINT and should be curated before any real
+# study. It covers topics that documented influence operations run from bot data
+# centers have historically targeted (the war in Ukraine, NATO, US and European elections,
+# immigration, public health, energy and sanctions, and the Moldova, Georgia and
+# Baltic region). Presence on this list says nothing about the people who post in
+# these communities: the overwhelming majority are ordinary users.
+#
+# The dormancy signal that Bot Farm Silence Tracker looks for is BEHAVIORAL, not ideological.
+# It flags accounts that posted steadily and then all stopped together, and it
+# does not look at what an account says or which side it takes. Add communities
+# from across the political spectrum, and prefer a mix of high-volume and
+# niche communities so the sample is not dominated by a single viewpoint.
+
+reddit:
+  # Subreddit names without the "r/" prefix.
+  subreddits:
+    - worldnews
+    - ukraine
+    - UkrainianConflict
+    - geopolitics
+    - europe
+    - politics
+    - Conservative
+    - news
+    - conspiracy
+    - CombatFootage
+    - russia
+    - moldova
+    - Sakartvelo
+    - germany
+    - france
+    - immigration
+    - vaccines
+    - NATO
+    - europeanunion
+    - lithuania
+    - latvia
+    - estonia
+    - energy
+
+x:
+  # Search queries: hashtags and keyword phrases. Quote hashtags in YAML, because
+  # an unquoted "#" starts a comment. Mind the cost: X API reads are billed.
+  queries:
+    - "#Ukraine"
+    - "#NATO"
+    - "#Zelensky"
+    - "#StopFundingUkraine"
+    - "#Election2026"
+    - "#Midterms"
+    - "#Biolabs"
+    - "#Moldova"
+    - "#AfD"
+    - "#Georgia"
+    - "#Brussels"
+    - "Ukraine war"
+    - "Russia sanctions"
+    - "gas prices Europe"
+    - "EU migration"
+    - "vaccine mandate"
+    - "Bundestag election"
+
+bluesky:
+  # Search queries (hashtags and keyword phrases), the same topics as the other
+  # platforms. Quote hashtags in YAML, because an unquoted "#" starts a comment.
+  # Bluesky post search needs a login (see the README's Bluesky section), so without
+  # one only the lists below are used. With a login and these bundled seeds, discovery
+  # uses search only, unless --source-option list_mode=... asks for the lists too. An entry may also be a public feed or list
+  # (here, or under "feeds:" or "lists:"), as an AT-URI
+  # ("at://did:plc:.../app.bsky.feed.generator/...", "at://did:plc:.../app.bsky.graph.list/...")
+  # or a bsky.app URL ("https://bsky.app/profile/<handle>/feed/<name>",
+  # "https://bsky.app/profile/<handle>/lists/<id>"); a starter pack
+  # ("https://bsky.app/starter-pack/<handle>/<id>" or
+  # "at://did:plc:.../app.bsky.graph.starterpack/...") is read as its list. Feeds, lists
+  # and starter packs work without a login.
+  queries:
+    - "#Ukraine"
+    - "#NATO"
+    - "#Zelensky"
+    - "#StopFundingUkraine"
+    - "#Election2026"
+    - "#Midterms"
+    - "#Biolabs"
+    - "#Moldova"
+    - "#AfD"
+    - "#Georgia"
+    - "#Brussels"
+    - "Ukraine war"
+    - "Russia sanctions"
+    - "gas prices Europe"
+    - "EU migration"
+    - "vaccine mandate"
+    - "Bundestag election"
+  # Public curated lists (purpose app.bsky.graph.defs#curatelist), read without a login.
+  # By default (list_mode=repliers) their members are ANCHOR accounts, not the sample:
+  # discovery draws some members at random, reads a few of their posts from the
+  # baseline window, and pools the accounts that replied to those posts in the window.
+  # That frame, "accounts that replied in the window to these accounts", reaches
+  # ordinary users and amplification accounts. Busy threads contribute more accounts,
+  # but each of their repliers is less likely to be drawn, repliers of prolific anchors
+  # are under-represented, and the frame leans toward accounts that reply to prominent
+  # political accounts. Taken-down or deleted repliers are never found, because threads
+  # are read after the cutoff. With list_mode=members (opt-in)
+  # the members themselves are sampled instead, whenever they last posted. This frame
+  # cannot estimate how many bot accounts went dark; bots are rarely on curated lists of
+  # officials and outlets. Moderation (mute or block) lists are refused.
+  #
+  # Chosen and checked on 2026-10-12 with logged-out public.api.bsky.app requests only
+  # (getLists, searchActors, searchStarterPacks, then getList on each list below to
+  # confirm the curatelist purpose and the member count of that day).
+  #
+  # Balance: the set covers news organisations, journalists and elected officials in
+  # the UK, Canada and Europe, the Middle East and Africa, plus outlets and journalists
+  # from the US. No list of US elected officials is bundled. It is not balanced across
+  # the political spectrum: a public curated list of right-of-centre elected officials,
+  # parties or outlets appeared absent from Bluesky in a 2026-10-12 search (40
+  # requests); the lists that name conservatives were mostly moderation lists, which
+  # are refused, and most Conservative, Republican and Reform politicians are not on
+  # Bluesky. The only right-of-centre input is the journalists list from the author of
+  # the "Conservative not MAGA" starter pack. The UK MPs list and the two
+  # news-organisation lists make up about 75% of the entries (789 of 1,048), so the
+  # frame is weighted toward UK politics and news outlets. Add lists with
+  # --source-option seed_lists=at://... to widen it.
+  lists:
+    # "Verified media orgs", 315 members: news organisations that publish mostly
+    # links to news, verified by domain handle; the curator also runs the popular
+    # "News" feed. Mostly mainstream outlets; their leanings were not checked one by one.
+    - "at://did:plc:kkf4naxqmweop7dv4l2iqqf5/app.bsky.graph.list/3jzmo456b6j2t"
+    # "Verified journalists", 119 members: working journalists, same curator.
+    # Mainstream; individual reporters rather than outlets.
+    - "at://did:plc:kkf4naxqmweop7dv4l2iqqf5/app.bsky.graph.list/3jzmrhnxai422"
+    # "Verified EMEA Media Orgs", 108 members: news organisations from Europe, the
+    # Middle East and Africa (international coverage), same curator.
+    - "at://did:plc:kkf4naxqmweop7dv4l2iqqf5/app.bsky.graph.list/3kmsxmhakdw27"
+    # "UK MPs 2024-2026", 366 members: current UK MPs of every party with a Bluesky
+    # account. Elected officials; leans centre-left because most Conservative and
+    # Reform MPs are not on Bluesky.
+    - "at://did:plc:qqsyx7otajyfeteo655v37xd/app.bsky.graph.list/3laetww5nlb23"
+    # "Liberals (federal) prior to 2025 general election", 67 members: Canadian
+    # Liberal Party MPs as of early 2025. Elected officials of a centre and
+    # centre-left party, outside the US and UK.
+    - "at://did:plc:w3gyugjfj7lfkvj2uk4bhv6y/app.bsky.graph.list/3ldzt57qzjm2e"
+    # "Journalists", 36 members, curated by the author of the "Conservative not
+    # MAGA" starter pack. The only right-of-centre curator found; the members'
+    # own leanings were not checked.
+    - "at://did:plc:7ai6zszhcel25srpbmkqiiym/app.bsky.graph.list/3lb6arnmnrg2n"
+    # "UK Politics", 37 members: UK political journalists, politicos, commentators
+    # and players, from the curator of the popular "UK Politics" starter pack. Mixed.
+    - "at://did:plc:le3snqzui22uenjjk7v4btfb/app.bsky.graph.list/3l2x5gihtij2a"
+
+# Used by the synthetic "fake" platform only.
+fake:
+  communities:
+    - fake_worldnews
+    - fake_politics
+    - fake_europe

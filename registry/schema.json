@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One scanned account. id_b64 and username_b64 are URL-safe base64 without padding: obfuscation against casual search for a trusted research group, reversible by anyone, not anonymity. No scores are stored here; an evidence file may hold the signals.",
+  "properties": {
+    "baseline_active_days": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "baseline_posts": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "cliff": {
+      "type": "boolean"
+    },
+    "event_id": {
+      "description": "The outage event (an id of events.toml); equal to the name of the events/<event_id>/ folder holding the record.",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$",
+      "type": "string"
+    },
+    "evidence": {
+      "description": "Evidence file, relative to the event folder: evidence/<platform>/<id_b64>.md. Required for verified_inauthentic.",
+      "pattern": "^evidence/[a-z0-9-]+/[A-Za-z0-9_-]+\\.md$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "first_scanned_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$",
+      "type": "string"
+    },
+    "id_b64": {
+      "description": "Stable platform ID, URL-safe base64 without padding.",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "type": "string"
+    },
+    "last_activity_at": {
+      "description": "Newest own activity seen at scan time.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$",
+      "type": "string"
+    },
+    "last_scanned_at": {
+      "description": "Reference time (now) of the newest scan that saw the account.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$",
+      "type": "string"
+    },
+    "platform": {
+      "enum": [
+        "bluesky",
+        "reddit",
+        "reddit-archive",
+        "x"
+      ],
+      "type": "string"
+    },
+    "scan_window_end": {
+      "description": "Where the scanned data ended (the source's data horizon, or the scan time for a live source).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "scanned",
+        "candidate",
+        "verified_inauthentic",
+        "cleared"
+      ],
+      "type": "string"
+    },
+    "status_updated_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$",
+      "type": "string"
+    },
+    "tool_version": {
+      "pattern": "^[0-9A-Za-z.+-]+$",
+      "type": "string"
+    },
+    "username_b64": {
+      "description": "Handle at the last scan, URL-safe base64 without padding.",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "baseline_active_days",
+    "baseline_posts",
+    "cliff",
+    "event_id",
+    "evidence",
+    "first_scanned_at",
+    "id_b64",
+    "last_activity_at",
+    "last_scanned_at",
+    "platform",
+    "scan_window_end",
+    "status",
+    "status_updated_at",
+    "tool_version",
+    "username_b64"
+  ],
+  "title": "Registry record",
+  "type": "object"
+}

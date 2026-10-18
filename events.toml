@@ -1,0 +1,61 @@
+# Outage events: the cutoffs scans are measured against.
+#
+# Each [[event]] is one outage, such as the takedown of the bot data centers that ran a
+# group of accounts. Its records live in registry/events/<id>/ and its local scan cache
+# in <cache>/events/<id>/. See "Outage events" in the README.
+#
+# Rules (checked by the tests and by the registry gate):
+# - id: a lower-case slug, 3 to 64 of a-z 0-9 and -, unique, not starting with custom-.
+#   An id that starts with YYYY-MM- must match the cutoff's year and month.
+# - name: plain text; cutoff: a UTC ISO-8601 date and time, not in the future.
+# - Events are listed in cutoff order.
+# - baseline_days, min_silence_days (at least 1) and cliff_window_hours: write all three
+#   out (the algorithm's defaults are 30, 3 and 48). The gate refuses an event without
+#   them.
+# - [[event.markers]] (optional): earlier moments inside the same outage, such as
+#   strikes before the main collapse, in time order. Each has an id (a slug, unique in
+#   its event; "cutoff" is reserved for the main outage), a name, a time (UTC, to the
+#   minute, between cutoff - baseline_days and cutoff + min_silence_days), approximate
+#   (true when the time is a guess), a time_note, notes and optional plain-text
+#   sources. Times are as reported. An event with markers must set
+#   marker_margin_hours: its silence window starts that long before the earliest
+#   marker, and its baseline window ends there.
+# - Adding an event needs no label. Changing an existing event's name, cutoff or
+#   windows, renaming it, deleting it or moving legacy_event needs the
+#   registry-override label and an approving review of the head commit. So does
+#   changing a marker's time or approximate flag, removing a marker, or any marker
+#   change that moves the event's windows. Adding a marker that leaves the windows as
+#   they are, and changing a marker's name, time_note, notes or sources, need no label.
+
+default = "2026-10-takedown"
+# The event that the single cache database of versions before events belongs to.
+# Keep it when the default changes; moving it needs the registry-override label.
+legacy_event = "2026-10-takedown"
+
+[[event]]
+id = "2026-10-takedown"
+name = "October 2026 data center strikes"
+cutoff = "2026-10-11T00:30:00Z"
+baseline_days = 30
+min_silence_days = 3.0
+cliff_window_hours = 48.0
+marker_margin_hours = 12.0
+notes = "The reported near-total collapse of the Yandex network, starting at 00:30 UTC (03:30 Moscow time) on Sunday 11 October 2026; traffic reportedly fell about 94%. It followed two strikes on Yandex data centers earlier that week, which are the markers of this event. All times are as reported and not independently verified. Accounts that posted steadily before the first strike and stopped at one of these moments are candidates for review."
+
+[[event.markers]]
+id = "sasovo-hub-strike"
+name = "Sasovo hub strike"
+time = "2026-10-08T06:56:00Z"
+approximate = false
+time_note = "Reported time of first statements; strike was earlier overnight."
+notes = "An overnight strike on the Sasovo hub on Thursday 8 October 2026. The first official statements and emergency responses were reported around 06:56 UTC (09:56 Moscow time). Cloudflare data reportedly showed global HTTP request traffic from Yandex networks falling to about 57% of its recent peak. The facility (tens of thousands of servers, and two of the three Yandex AI supercomputers) was reportedly halted completely."
+sources = ["Cloudflare traffic data, as reported"]
+
+[[event.markers]]
+id = "kaluga-region-strike"
+name = "Kaluga region strike"
+time = "2026-10-09T00:00:00Z"
+approximate = true
+time_note = "Early morning; the exact time is unknown. Damage was confirmed later that day."
+notes = "An early-morning strike in the Kaluga region on Friday 9 October 2026 that reportedly knocked out several modules of the largest Yandex campus (63 megawatts). Yandex Cloud reportedly went into a restricted 'limited mode' with at least 84 core services offline, which set up the 94% crash on Sunday."
+sources = ["TASS", "Reuters"]

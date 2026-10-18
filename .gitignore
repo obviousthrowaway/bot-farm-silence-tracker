@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+*.db
+results*.csv
+results*.json
+bot-farm-silence-tracker-run-*
+dist-bin/
+dist-installers/
+build-bin/
+build-gui/
+# Private outputs with real account names (export-ids, report --registry).
+report-drafts/
+*-ids.csv
+*-ids.json

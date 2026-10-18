@@ -1,0 +1,179 @@
+name: Registry chart
+
+# Redraws the README charts (docs/charts/*.svg, see "Registry chart" in the README)
+# when registry data reaches main, but only data that passed the Registry gate, whose
+# spot-check re-fetches records from the live sources.
+#
+# - Trust: the jobs run main's own code. A push is redrawn only when it is the merge of
+#   one or more pull requests into main, and the latest Registry gate run on each of
+#   their head commits succeeded (event pull_request_target, path
+#   .github/workflows/registry-gate.yml). A direct push, or a merge with the gate
+#   failed, missing or bypassed, leaves the charts as they are: the decide job writes
+#   the reason to its summary and the job still succeeds. The rule is
+#   src/bot_farm_silence_tracker/registry/chart_trust.py.
+# - A manual run (workflow_dispatch) redraws from the current head of main only, and
+#   still validates the registry first. On any other branch the jobs do not run.
+# - Permissions: decide reads the API and draws with a read-only token; publish has
+#   contents: write and pull-requests: write, runs no repository code, commits only
+#   the drawn SVGs in docs/charts/ with the github-actions[bot] identity to the
+#   registry-charts branch, and opens a pull request from it into main (the ruleset
+#   of main, .github/rulesets/main.json, lets nothing push to main directly; GitHub
+#   does not accept the GitHub Actions app as a bypass actor of a ruleset in a
+#   repository owned by a user). Credentials are never persisted in a checkout.
+# - No loop: the commit touches docs/charts/ only, which the paths filter leaves
+#   out, and pushes and pull requests made with the workflow's token start no
+#   workflow runs.
+# - Concurrency: runs queue (cancel-in-progress: false), so two redraws never race.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "registry/**"
+      - "events.toml"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: registry-chart
+  cancel-in-progress: false
+
+jobs:
+  decide:
+    # A manual run on another branch would check out and run that branch's code, so
+    # it does not run at all.
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      update: ${{ steps.decision.outputs.update }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The pull requests merged as this commit, and the workflow runs on their heads.
+      - name: Read the pull requests and their gate runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${REPOSITORY}/commits/${SHA}/pulls?per_page=100" > "$RUNNER_TEMP/pulls.json"
+          : > "$RUNNER_TEMP/runs.jsonl"
+          jq -r --arg sha "$SHA" '.[] | select(.merged_at != null and .merge_commit_sha == $sha) | .head.sha' \
+            "$RUNNER_TEMP/pulls.json" | sort -u |
+            while IFS= read -r head; do
+              case "$head" in
+                *[!0-9a-f]* | "") continue ;;
+              esac
+              gh api --paginate "repos/${REPOSITORY}/actions/runs?head_sha=${head}&event=pull_request_target&per_page=100" \
+                --jq '.workflow_runs[] | {id, event, path, head_sha, status, conclusion, created_at}' \
+                >> "$RUNNER_TEMP/runs.jsonl"
+            done
+          gh api "repos/${REPOSITORY}/commits/${DEFAULT_BRANCH}" --jq .sha > "$RUNNER_TEMP/main-head"
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: false
+      - run: uv sync --locked
+      - name: Decide
+        id: decision
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          .venv/bin/bot-farm-silence-tracker registry chart-decision
+          --event-name "$EVENT_NAME" --ref "$REF" --sha "$SHA"
+          --default-branch "$DEFAULT_BRANCH"
+          --main-head "$(cat "$RUNNER_TEMP/main-head")"
+          --pulls "$RUNNER_TEMP/pulls.json" --runs "$RUNNER_TEMP/runs.jsonl"
+          --output "$GITHUB_OUTPUT" --summary "$GITHUB_STEP_SUMMARY"
+      - name: Validate the registry
+        if: steps.decision.outputs.update == 'true'
+        run: .venv/bin/bot-farm-silence-tracker registry validate
+      - name: Draw the charts
+        if: steps.decision.outputs.update == 'true'
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          .venv/bin/bot-farm-silence-tracker registry chart --out "$RUNNER_TEMP/charts" --commit "$SHA"
+      - if: steps.decision.outputs.update == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: registry-charts
+          path: ${{ runner.temp }}/charts/*.svg
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: decide
+    if: needs.decide.outputs.update == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: registry-charts
+          path: ${{ runner.temp }}/charts
+      # Only docs/charts/*.svg is written. The ruleset of main requires a pull
+      # request for every change, so the commit goes to the registry-charts branch
+      # (rebuilt from the current head of main on every run) and a pull request
+      # from it is opened, or the open one is updated. The token authenticates the
+      # push alone and is not stored. If GitHub Actions may not create pull requests
+      # in this repository, the summary names the branch to open one from by hand.
+      - name: Propose the charts in a pull request
+        env:
+          TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+          SHA: ${{ github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          BRANCH: registry-charts
+        run: |
+          set -euo pipefail
+          mkdir -p docs/charts
+          find docs/charts -maxdepth 1 -name '*.svg' -delete
+          cp "$RUNNER_TEMP"/charts/*.svg docs/charts/
+          git add -A docs/charts
+          if git diff --cached --quiet; then
+            echo "The charts are unchanged." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898+github-actions[bot]@users.noreply.github.com' \
+            commit -q -m "Update registry charts for ${SHA:0:7}"
+          auth="$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" \
+            push --force origin "HEAD:refs/heads/${BRANCH}"
+          open_pr="$(gh pr list -R "$REPOSITORY" --head "$BRANCH" --base "$DEFAULT_BRANCH" \
+            --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$open_pr" ]; then
+            echo "Updated pull request #${open_pr} with the charts for ${SHA:0:7}." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          body="$(printf '%s\n\n%s' \
+            "The Registry chart workflow redrew docs/charts/ for ${SHA}. Only docs/charts/*.svg changes." \
+            "Pull requests opened by GitHub Actions start no workflow runs, so the required checks do not report here: the repository owner merges this with the ruleset's administrator bypass, or closes and reopens it to run the checks first.")"
+          if gh pr create -R "$REPOSITORY" --head "$BRANCH" --base "$DEFAULT_BRANCH" \
+              --title "Update registry charts for ${SHA:0:7}" --body "$body"; then
+            echo "Opened a pull request with the charts for ${SHA:0:7}." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Could not open a pull request (GitHub Actions may not be allowed to create pull requests here). Open one from the ${BRANCH} branch by hand."
+            echo "The charts for ${SHA:0:7} are on the ${BRANCH} branch; open a pull request from it by hand: ${SERVER_URL}/${REPOSITORY}/compare/${DEFAULT_BRANCH}...${BRANCH}" >> "$GITHUB_STEP_SUMMARY"
+          fi

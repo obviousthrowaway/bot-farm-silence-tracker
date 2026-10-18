@@ -1,0 +1,164 @@
+name: Installers
+
+# Builds and test-installs the double-click installers: the macOS installer package
+# (.pkg, one per architecture) and the Windows Setup.exe (Inno Setup).
+#
+# On pull requests and pushes to main it builds the command-line program itself first.
+# The release workflow calls it with "release: true" instead; it then uses the programs
+# that the release's "binary" job built, and its uploaded installers become release files
+# (the release's checksums job adds them to SHA256SUMS.txt, and they are attested).
+#
+# The desktop app files are the release workflow's "gui" job outputs
+# (bot-farm-silence-tracker-macos-arm64.app.zip, bot-farm-silence-tracker-macos-x64.app.zip
+# and bot-farm-silence-tracker-gui-windows-x64.exe). In release mode they are downloaded and
+# the job fails when one is missing, so a release can never ship a placeholder. Outside a
+# release (pull requests and pushes) a stand-in app made from the command-line program is
+# built into its own folder under a different name, only so the installers can be tested.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      release:
+        description: Use the programs built by the calling release workflow.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  macos-pkg:
+    name: macos-pkg (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14 # Apple silicon
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+    env:
+      CLI: bot-farm-silence-tracker-macos-${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Version
+        run: |
+          version="$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' src/bot_farm_silence_tracker/__init__.py)"
+          test -n "$version"
+          echo "VERSION=$version" >>"$GITHUB_ENV"
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        if: ${{ !inputs.release }}
+      - name: Build the command-line program
+        if: ${{ !inputs.release }}
+        run: ./packaging/build_binary.sh "$CLI"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ inputs.release }}
+        with:
+          name: ${{ env.CLI }}
+          path: dist-bin
+      - name: Stand-in app (test builds only, never used for a release)
+        if: ${{ !inputs.release }}
+        run: |
+          ./packaging/macos/make_placeholder_app.sh "dist-bin/$CLI" "dist-standin/$CLI.standin.app.zip"
+          echo "APP_ZIP=dist-standin/$CLI.standin.app.zip" >>"$GITHUB_ENV"
+      - name: Download the desktop app built by the release workflow
+        if: ${{ inputs.release }}
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: bot-farm-silence-tracker-macos-${{ matrix.arch }}.app.zip
+          path: dist-gui
+      - name: Check the desktop app is the real one
+        if: ${{ inputs.release }}
+        run: |
+          zip="dist-gui/bot-farm-silence-tracker-macos-${{ matrix.arch }}.app.zip"
+          if [ ! -s "$zip" ]; then
+            echo "::error::$zip is missing. The release workflow's gui job must upload it before the installers are built."
+            exit 1
+          fi
+          if unzip -p "$zip" '*/Contents/Info.plist' | grep -aq 'bot-farm-silence-tracker.placeholder'; then
+            echo "::error::$zip is the stand-in app, not the desktop app."
+            exit 1
+          fi
+          echo "APP_ZIP=$zip" >>"$GITHUB_ENV"
+      - name: Build the installer package
+        run: |
+          ./packaging/macos/build_pkg.sh "$VERSION" "${{ matrix.arch }}" "dist-bin/$CLI" \
+            "$APP_ZIP" dist-installers
+          echo "PKG=bot-farm-silence-tracker-$VERSION-macos-${{ matrix.arch }}.pkg" >>"$GITHUB_ENV"
+      - name: Install it for this user, check it, upgrade it and uninstall it
+        run: ./packaging/macos/test_pkg.sh "dist-installers/$PKG"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ env.PKG }}
+          path: dist-installers/${{ env.PKG }}
+
+  windows-setup:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CLI: bot-farm-silence-tracker-windows-x64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Version
+        run: |
+          $line = Select-String -Path src/bot_farm_silence_tracker/__init__.py -Pattern '^__version__ = "(.*)"$'
+          $version = $line.Matches[0].Groups[1].Value
+          if (-not $version) { throw 'No __version__ found' }
+          "VERSION=$version" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "SETUP=bot-farm-silence-tracker-$version-windows-x64-setup.exe" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        if: ${{ !inputs.release }}
+      - name: Build the command-line program
+        if: ${{ !inputs.release }}
+        shell: bash
+        run: ./packaging/build_binary.sh "$CLI"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ inputs.release }}
+        with:
+          name: ${{ env.CLI }}
+          path: dist-bin
+      - name: Stand-in desktop app (test builds only, never used for a release)
+        if: ${{ !inputs.release }}
+        run: |
+          New-Item -ItemType Directory -Force dist-standin | Out-Null
+          Copy-Item "dist-bin/$env:CLI.exe" dist-standin/bot-farm-silence-tracker-gui-windows-x64.standin.exe
+          "GUI_EXE=dist-standin/bot-farm-silence-tracker-gui-windows-x64.standin.exe" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Download the desktop app built by the release workflow
+        if: ${{ inputs.release }}
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: bot-farm-silence-tracker-gui-windows-x64.exe
+          path: dist-gui
+      - name: Check the desktop app is there
+        if: ${{ inputs.release }}
+        run: |
+          $gui = 'dist-gui/bot-farm-silence-tracker-gui-windows-x64.exe'
+          if (-not (Test-Path -LiteralPath $gui) -or (Get-Item -LiteralPath $gui).Length -eq 0) {
+            throw "$gui is missing. The release workflow's gui job must upload it before the installers are built."
+          }
+          "GUI_EXE=$gui" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Install Inno Setup (pinned, checksum verified)
+        run: |
+          $iscc = & ./packaging/windows/install_inno_setup.ps1 -Destination "$env:RUNNER_TEMP\innosetup" | Select-Object -Last 1
+          "ISCC=$iscc" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Build Setup.exe
+        run: |
+          ./packaging/windows/build_setup.ps1 -Iscc $env:ISCC -Version $env:VERSION `
+            -CliExe "dist-bin/$env:CLI.exe" -GuiExe $env:GUI_EXE `
+            -OutputDir dist-installers
+      - name: Install it silently, check it, upgrade it and uninstall it
+        run: ./packaging/windows/test_setup.ps1 -Setup "dist-installers/$env:SETUP"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ env.SETUP }}
+          path: dist-installers/${{ env.SETUP }}

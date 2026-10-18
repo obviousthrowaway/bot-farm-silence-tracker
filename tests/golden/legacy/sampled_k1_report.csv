@@ -1,0 +1,24 @@
+# Candidates for manual review — not a determination that any account is a bot.
+# PLACEBO: no placebo comparison: two-phase runs (--baseline-sample-rate) fetch only some accounts in full, so there is no simple sample to compare.
+# OUTAGE: the outage also cut off ordinary users of the affected services, and it came at night local time. A stop at it means the account was affected by the reported outage, not that it is automated: a synchronized stop is not evidence of automation on its own. See the independent_signals column and the placebo line.
+# ESTIMATES (two-phase sampling, --baseline-sample-rate 0.3; totals and the rate are Horvitz-Thompson estimates with conservative 95% intervals that cover the phase-2 subsampling only, conditional on the phase-1 classification):
+# Strata (accounts / fully fetched): A 143/37, B 38/38, C 104/35, U 15/15 (A active after the cutoff, B cliff candidates, C silent through the window, U unavailable)
+# Cliff accounts (exact for the pre-check snapshot): 11
+# 0 of 72 sampled A/C accounts disagreed with their pre-check; up to 10 unsampled accounts may also have changed (95%), so the cliff count could be low by at most 10.
+# Eligible accounts (estimate): 47.67 (95% CI 32 to 71)
+# Eligible, silent since the cutoff but not a cliff (estimate): 6.67 (95% CI 2 to 21)
+# Eligible, active after the cutoff (estimate): 30 (95% CI 16 to 52)
+# Cliff rate among eligible (estimate): 23.08% (95% CI 15.49% to 34.38%)
+# run_id=1 platform=fake status=complete cutoff=2026-10-10T00:00:00+00:00 now=2026-10-14T00:00:00+00:00 effective_now=2026-10-14T00:00:00+00:00 horizon=None baseline_days=30 min_silence_days=3.0 min_active_days=12 min_posts=20 cliff_window_hours=48.0 sync_minutes=30.0 recent_days=7.0 max_weekly_cv=1.0 placebo_weeks=0 fetch_start=2026-09-10T00:00:00+00:00 days_since_cutoff=4.0 provisional=False seed=1 seeds_sha256=3b713b6520e69bb59f17e8fdb096d952bdd1e1a50a5e0e9d114b649baa448f26 now_given=True scan_tool_version=<version> tool_version=<version>
+rank,handle,user_id,platform,score,provisional,cluster_id,cluster_size,status,baseline_posts,active_days,active_day_ratio,posts_per_day,interarrival_cv,last_activity,silence_hours,p_silence,posts_after_cutoff,account_age_days_at_cutoff,hour_entropy,truncated,partial_reason,data_end,stratum,inclusion_prob,weight,fetch_status,weekly_cv,recent_posts,cluster_p_adjusted,signals,independent_signals
+1,fake_user_005084,fake_005084,fake,0.8668,False,3,3,active,151,30,1.0,5.0333,0.0844,2026-10-09T12:28:57+00:00,107.52,1.611e-10,0,37.3,4.5123,False,,,B,1.0,1.0,,0.0202,35,0.0494,regular_timing;round_the_clock,2
+2,fake_user_005483,fake_005483,fake,0.864,False,4,2,active,208,30,1.0,6.9333,0.0851,2026-10-09T20:47:23+00:00,99.21,3.571e-13,0,98.2,4.5697,False,,,B,1.0,1.0,,0.0089,49,,regular_timing;round_the_clock,2
+3,fake_user_004639,fake_004639,fake,0.8635,False,3,3,active,119,30,1.0,3.9667,0.0919,2026-10-09T12:22:37+00:00,107.62,1.883e-08,0,130.4,4.4,False,,,B,1.0,1.0,,0.0393,26,0.0494,regular_timing;round_the_clock,2
+4,fake_user_002866,fake_002866,fake,0.8614,False,4,2,active,180,30,1.0,6.0,0.0845,2026-10-09T20:59:04+00:00,99.02,1.776e-11,0,57.0,4.4232,False,,,B,1.0,1.0,,0.0168,43,,regular_timing;round_the_clock,2
+5,fake_user_002024,fake_002024,fake,0.8575,False,3,3,active,90,30,1.0,3.0,0.0935,2026-10-09T12:20:28+00:00,107.66,1.431e-06,0,62.0,4.3637,False,,,B,1.0,1.0,,0.0,21,0.0494,regular_timing;round_the_clock,2
+6,fake_user_002937,fake_002937,fake,0.7726,False,2,2,active,143,29,0.9667,4.7667,0.087,2026-10-08T17:53:35+00:00,126.11,1.326e-11,0,76.9,4.4681,False,,,B,1.0,1.0,,0.0748,29,,regular_timing;round_the_clock,2
+7,fake_user_003751,fake_003751,fake,0.7312,False,1,2,active,196,29,0.9667,6.5333,0.0857,2026-10-08T04:07:25+00:00,139.88,2.905e-17,0,42.7,4.5403,False,,,B,1.0,1.0,,0.1209,36,,regular_timing;round_the_clock,2
+8,fake_user_003394,fake_003394,fake,0.728,False,1,2,active,141,29,0.9667,4.7,0.088,2026-10-08T03:53:47+00:00,140.1,1.214e-12,0,110.7,4.4351,False,,,B,1.0,1.0,,0.1044,27,,regular_timing;round_the_clock,2
+9,fake_user_004385,fake_004385,fake,0.6932,False,,1,active,167,29,0.9667,5.5667,0.0844,2026-10-08T01:52:22+00:00,142.13,4.822e-15,0,100.9,4.49,False,,,B,1.0,1.0,,0.1308,30,,regular_timing;round_the_clock,2
+10,fake_user_003822,fake_003822,fake,0.484,False,2,2,active,41,14,0.4667,1.3667,1.5222,2026-10-08T18:07:20+00:00,125.88,0.0007708,0,308.1,3.3657,False,,,B,1.0,1.0,,0.4736,8,,,0
+11,fake_user_001932,fake_001932,fake,0.4139,False,,1,active,36,13,0.4333,1.2,2.3894,2026-10-08T16:04:30+00:00,127.92,0.001668,0,2488.0,3.318,False,,,B,1.0,1.0,,0.5303,12,,,0

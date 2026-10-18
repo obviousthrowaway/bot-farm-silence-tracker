@@ -1,0 +1,43 @@
+#!/bin/sh
+# Runs last. Saves the ticked platforms through the program's "config set-platforms"
+# command; this script never writes the config file itself. When only the default
+# (Reddit archive) is ticked, or nothing, a platform list saved earlier is kept, so an
+# upgrade that keeps the default choices does not undo the user's own settings.
+set -u
+here="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=packaging/macos/scripts/common.sh
+. "$here/common.sh"
+home="$(pkg_home "${2:-}")"
+cli="$home/.local/bin/$TOOL_NAME"
+file="$(choices_file "$home")"
+list=""
+if [ -f "$file" ]; then
+    list="$(awk 'NF && !seen[$0]++' "$file" | paste -s -d , -)"
+    rm -f "$file"
+    rmdir "$(dirname "$file")" 2>/dev/null || :
+fi
+kept=0
+if [ -z "$list" ] || [ "$list" = "$DEFAULT_PLATFORM" ]; then
+    set -- config set-platforms --if-unset "$DEFAULT_PLATFORM"
+    kept=1
+else
+    set -- config set-platforms "$list"
+fi
+log "saving the platform choice: ${list:-$DEFAULT_PLATFORM}"
+output="$(HOME="$home" "$cli" "$@" </dev/null 2>&1)"
+status=$?
+[ -z "$output" ] || printf '%s\n' "$output"
+if [ "$status" -ne 0 ]; then
+    log "warning: could not save the platform choice. Run: $TOOL_NAME config set-platforms ${list:-$DEFAULT_PLATFORM}"
+elif [ "$kept" = 1 ]; then
+    # Installer.app shows no text from a script. This line goes to the Installer Log
+    # (Window > Installer Log) and /var/log/install.log; the conclusion page says the
+    # same thing for every install, because it cannot depend on what happened here.
+    case "$output" in
+        *"Kept the platforms already"*)
+            log "only the default platform was ticked, so the platforms you saved earlier were kept."
+            log "to change them, run: $TOOL_NAME config set-platforms reddit-archive,bluesky"
+            ;;
+    esac
+fi
+exit 0

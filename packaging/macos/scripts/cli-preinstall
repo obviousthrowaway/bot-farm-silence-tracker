@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runs before the command-line program is copied. Clears platform choices left behind by
+# an installation that was stopped part way, so only this installation's choices count.
+set -u
+here="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=packaging/macos/scripts/common.sh
+. "$here/common.sh"
+home="$(pkg_home "${2:-}")"
+rm -f "$(choices_file "$home")"
+exit 0

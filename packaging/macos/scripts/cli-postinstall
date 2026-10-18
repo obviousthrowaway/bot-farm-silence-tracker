@@ -1,0 +1,19 @@
+#!/bin/sh
+# Runs after the command-line program is in ~/.local/bin: checks that it starts on this
+# Mac (a failure here fails the installation) and adds ~/.local/bin to the PATH of the
+# user's shell, like install.sh does.
+set -u
+here="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=packaging/macos/scripts/common.sh
+. "$here/common.sh"
+home="$(pkg_home "${2:-}")"
+bin_dir="$home/.local/bin"
+cli="$bin_dir/$TOOL_NAME"
+chmod 755 "$cli" "$bin_dir/$TOOL_NAME-uninstall"
+log "checking that $cli runs"
+if ! HOME="$home" "$cli" --version </dev/null; then
+    log "error: $cli does not run on this Mac"
+    exit 1
+fi
+add_to_path "$home" "$bin_dir"
+exit 0

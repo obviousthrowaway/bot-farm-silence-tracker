@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Installer wizard for Bot Farm Silence Tracker. build_pkg.sh fills in the version and the
+  architecture. It installs for the current user only (no administrator password):
+  the app to ~/Applications and the command-line program to ~/.local/bin.
+-->
+<installer-gui-script minSpecVersion="2">
+    <title>Bot Farm Silence Tracker</title>
+    <welcome file="welcome.html" mime-type="text/html"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+    <options customize="always" require-scripts="false" hostArchitectures="@HOST_ARCH@"/>
+    <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="false"/>
+    <volume-check>
+        <allowed-os-versions>
+            <os-version min="12.0"/>
+        </allowed-os-versions>
+    </volume-check>
+
+    <!-- Packages install in this order; "finish" must come last. -->
+    <choices-outline>
+        <line choice="program"/>
+        <line choice="reddit-archive"/>
+        <line choice="bluesky"/>
+        <line choice="x"/>
+        <line choice="reddit"/>
+        <line choice="finish"/>
+    </choices-outline>
+
+    <choice id="program" title="Bot Farm Silence Tracker (required)"
+            description="The app, in the Applications folder of your home folder, and the bot-farm-silence-tracker command for Terminal, in ~/.local/bin."
+            start_selected="true" start_enabled="false">
+        <pkg-ref id="bot-farm-silence-tracker.app"/>
+        <pkg-ref id="bot-farm-silence-tracker.cli"/>
+    </choice>
+    <choice id="reddit-archive" title="Scan Reddit (Arctic Shift archive)"
+            description="Reddit through the public Arctic Shift archive. No account or key needed. Recommended."
+            start_selected="true">
+        <pkg-ref id="bot-farm-silence-tracker.platform.reddit-archive"/>
+    </choice>
+    <choice id="bluesky" title="Scan Bluesky"
+            description="Bluesky through its public API. No account needed for the default mode."
+            start_selected="false">
+        <pkg-ref id="bot-farm-silence-tracker.platform.bluesky"/>
+    </choice>
+    <choice id="x" title="Scan X (needs a paid API token)"
+            description="X through its official API. You need your own paid API bearer token, set later in your environment; this installer never asks for it."
+            start_selected="false">
+        <pkg-ref id="bot-farm-silence-tracker.platform.x"/>
+    </choice>
+    <choice id="reddit" title="Scan Reddit (official API)"
+            description="Reddit through its official API. Needs approved Reddit API credentials, set later in your environment; this installer never asks for them."
+            start_selected="false">
+        <pkg-ref id="bot-farm-silence-tracker.platform.reddit"/>
+    </choice>
+    <choice id="finish" title="Save settings" description="Saves the platform choice."
+            start_selected="true" start_enabled="false" start_visible="false">
+        <pkg-ref id="bot-farm-silence-tracker.finish"/>
+    </choice>
+
+    <pkg-ref id="bot-farm-silence-tracker.app" version="@VERSION@" onConclusion="none">app.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.cli" version="@VERSION@" onConclusion="none">cli.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.platform.reddit-archive" version="@VERSION@" onConclusion="none">platform-reddit-archive.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.platform.bluesky" version="@VERSION@" onConclusion="none">platform-bluesky.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.platform.x" version="@VERSION@" onConclusion="none">platform-x.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.platform.reddit" version="@VERSION@" onConclusion="none">platform-reddit.pkg</pkg-ref>
+    <pkg-ref id="bot-farm-silence-tracker.finish" version="@VERSION@" onConclusion="none">finish.pkg</pkg-ref>
+</installer-gui-script>

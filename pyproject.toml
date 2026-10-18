@@ -1,0 +1,73 @@
+[project]
+name = "bot-farm-silence-tracker"
+dynamic = ["version"]
+description = "Sample social accounts and flag steady posters that went silent at an outage event's cutoff."
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = ["disinformation", "bot-detection", "osint", "reddit", "research"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "rich>=13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/obviousthrowaway/bot-farm-silence-tracker"
+Repository = "https://github.com/obviousthrowaway/bot-farm-silence-tracker"
+Issues = "https://github.com/obviousthrowaway/bot-farm-silence-tracker/issues"
+
+[project.scripts]
+bot-farm-silence-tracker = "bot_farm_silence_tracker.cli:run"
+
+[project.optional-dependencies]
+# The desktop app (`bot-farm-silence-tracker gui`). Pinned with its dependencies; the
+# standalone binaries always include it.
+gui = [
+    "customtkinter==5.2.2",
+    "darkdetect==0.8.0",
+    "packaging==26.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/bot_farm_silence_tracker/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bot_farm_silence_tracker"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"config/seeds.yaml" = "bot_farm_silence_tracker/_data/seeds.yaml"
+"events.toml" = "bot_farm_silence_tracker/_data/events.toml"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: long statistical tests, run only with RUN_SLOW_TESTS=1",
+]
