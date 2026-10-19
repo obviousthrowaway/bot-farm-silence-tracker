@@ -2421,7 +2421,11 @@ def registry_add(
         bool,
         typer.Option(
             "--flagged-only",
-            help="Write only flagged accounts (cliff or candidate); count the rest.",
+            help=(
+                "Skip accounts whose new record is unflagged (no cliff, not candidate) "
+                "unless they already have a flagged record, which is updated as usual; "
+                "count the skipped ones. Every built record is still validated first."
+            ),
         ),
     ] = False,
 ) -> None:
@@ -2436,9 +2440,11 @@ def registry_add(
     Reddit and X: not checked, the verifier resolves it); else ``scanned``. Existing
     records of the same event are updated by a newer scan; ``verified_inauthentic``
     and ``cleared`` are never changed. Opted-out and unavailable accounts are left out.
-    With ``--flagged-only``, only accounts whose record has ``cliff`` true or is a
-    ``candidate`` are written; the other fully scanned accounts are skipped and counted
-    in the summary, and an existing record of one of them is not changed.
+    With ``--flagged-only``, an account whose new record has ``cliff`` false and is not a
+    ``candidate`` is skipped and counted in the summary, unless the registry already has
+    a flagged record of it: that one is merged as usual, so a newer scan can demote it.
+    An existing unflagged record of a skipped account is not changed. Every built record
+    is validated before the skip, so one invalid unflagged record still aborts the run.
     """
     from bot_farm_silence_tracker.registry.build import add_run
 
@@ -2471,8 +2477,9 @@ def registry_add(
     if flagged_only:
         typer.echo(
             f"Skipped as unflagged (--flagged-only): {stats.skipped_unflagged} fully scanned "
-            f"accounts with no cliff and no candidate status, of which "
-            f"{stats.skipped_unflagged_registered} already have a record that was left as it is."
+            f"accounts with no cliff and no candidate status and no flagged record, of which "
+            f"{stats.skipped_unflagged_registered} already have an unflagged record that was "
+            f"left as it is."
         )
     if stats.live_blocked:
         kept = ", ".join(f"{count} {status}" for status, count in stats.live_blocked.items())

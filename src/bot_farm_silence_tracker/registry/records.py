@@ -40,7 +40,8 @@ a record cannot claim one account's ID with another account's name:
 
 Usernames must have their platform's syntax (:func:`username_errors`): a Bluesky
 handle is a lower-case atproto domain name of at most 253 characters, a Reddit name
-3 to 20 of ``A-Z a-z 0-9 _ -``, and an X username 1 to 15 of ``A-Z a-z 0-9 _``. So
+3 to 20 of ``A-Z a-z 0-9 _ -`` (or a subreddit's system account, ``<subreddit>-ModTeam``,
+whose base is 3 to 21 of ``A-Z a-z 0-9 _``), and an X username 1 to 15 of ``A-Z a-z 0-9 _``. So
 a name can never carry Markdown, a link or a line break into a summary or a draft.
 
 Time rules
@@ -131,6 +132,10 @@ BSKY_HANDLE_MAX = 253
 #: ``<subreddit>-ModTeam``. A subreddit name is 3 to 21 letters, digits and underscores
 #: (no hyphen), so a ModTeam account can have a longer name than a user.
 _REDDIT_NAME = r"[A-Za-z0-9_-]{3,20}|[A-Za-z0-9_]{3,21}-ModTeam"
+#: The same for the ID of a ``reddit`` record, which is the lower-cased name. It has no
+#: ignore-case flag: that would let non-ASCII letters that fold to ASCII ones (the Kelvin
+#: sign, the long s, the dotted capital I) pass.
+_REDDIT_ID = r"[a-z0-9_-]{3,20}|[a-z0-9_]{3,21}-modteam"
 _X_NAME = r"[A-Za-z0-9_]{1,15}"
 _SHARD = r"^[0-9a-f]{2}$"
 
@@ -382,7 +387,7 @@ def valid_user_id(platform: str, user_id: str) -> bool:
     if platform == "reddit":
         # The ID of a ``reddit`` record is the lower-cased username, so the suffix
         # of a ModTeam account is ``-modteam`` there.
-        return bool(re.fullmatch(_REDDIT_NAME, user_id, re.IGNORECASE))
+        return bool(re.fullmatch(_REDDIT_ID, user_id))
     return valid_username(platform, user_id)
 
 

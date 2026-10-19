@@ -317,7 +317,8 @@ class AddStats:
     #: Accounts the live profile check kept from becoming candidates, by its status.
     live_blocked: dict[str, int] = field(default_factory=dict)
     #: With ``flagged_only``: fully scanned accounts not written because they are neither
-    #: a cliff nor a candidate, and how many of them already have a record (left as it is).
+    #: a cliff nor a candidate and have no flagged record yet, and how many of them already
+    #: have an unflagged record (left as it is).
     skipped_unflagged: int = 0
     skipped_unflagged_registered: int = 0
 
@@ -338,9 +339,12 @@ def add_run(
     """Merge the records of ``run_id`` into its event's folder of the registry at
     ``root``. ``live`` is the live profile check (see :func:`run_records`).
 
-    With ``flagged_only``, only the flagged records are written (``cliff`` true, or
-    ``candidate``, see :func:`is_flagged`); the other fully scanned accounts are counted in
-    ``skipped_unflagged`` and an existing record of one of them is left as it is.
+    With ``flagged_only``, an account whose new record is unflagged (``cliff`` false and
+    not ``candidate``, see :func:`is_flagged`) is skipped and counted in
+    ``skipped_unflagged``, unless the registry already holds a flagged record of it: that
+    one is merged as usual, so a newer scan can still demote it. An existing unflagged
+    record of a skipped account is left as it is. Every built record is validated before
+    the skip, so one invalid unflagged record still aborts the run.
     """
     built = run_records(storage, run_id, events, live)
     for record in built.records:
@@ -361,7 +365,7 @@ def add_run(
     for record in built.records:
         key = record_key(record)
         old = existing.get(key)
-        if flagged_only and not is_flagged(record):
+        if flagged_only and not is_flagged(record) and (old is None or not is_flagged(old)):
             stats.skipped_unflagged += 1
             if old is not None:
                 stats.skipped_unflagged_registered += 1

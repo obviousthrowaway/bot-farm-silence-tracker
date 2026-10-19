@@ -386,6 +386,18 @@ def test_reddit_usernames_allow_modteam_system_accounts(platform: str, name: str
     assert R.valid_username(platform, name) is ok
 
 
+@pytest.mark.parametrize("name", ["Kabc", "abc\u017f", "\u0130bc", "\u212abc", "abc-ModTeam", "ab"])
+def test_reddit_user_ids_are_lower_case_ascii_only(name: str) -> None:
+    # An ignore-case match would let the Kelvin sign, the long s and the dotted capital I
+    # through, because they fold to ASCII letters.
+    assert not R.valid_user_id("reddit", name)
+
+
+def test_reddit_user_ids_accept_a_lower_case_modteam_account() -> None:
+    assert R.valid_user_id("reddit", "europeanunion-modteam")
+    assert R.valid_user_id("reddit", "abc_def-1")
+
+
 def test_a_modteam_account_makes_a_valid_record_on_both_reddit_platforms() -> None:
     name = "europeanunion-ModTeam"
     archive = arch(name)

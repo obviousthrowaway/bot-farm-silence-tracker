@@ -39,6 +39,7 @@ from bot_farm_silence_tracker.registry.records import (
     load_records,
     merge_records,
     record_errors,
+    record_key,
     record_path,
     schema_text,
     shard_of,
@@ -502,7 +503,7 @@ def test_flagged_only_writes_cliff_and_candidate_records_and_counts_the_rest(
     assert result.exit_code == 0, result.output
     assert f"{len(flagged)} added" in result.output
     assert f"Skipped as unflagged (--flagged-only): {other} fully scanned accounts" in result.output
-    assert "0 already have a record" in result.output
+    assert "0 already have an unflagged record" in result.output
     records = load_records(root)
     assert {(r["platform"], r["id_b64"]) for r in records.values()} == {
         (r["platform"], r["id_b64"]) for r in flagged
@@ -528,23 +529,66 @@ def test_without_flagged_only_every_fully_scanned_account_is_written(
     assert len(load_records(root)) == len(built.records)
 
 
+def _add_args(db: Path, root: Path, run_id: int) -> list[str]:
+    return ["registry", "add", "--run-id", str(run_id), "--db", str(db), "--registry", str(root),
+            "--no-live-check"]  # fmt: skip
+
+
+def _unflagged_keys(db: Path, run_id: int) -> set[tuple[str, str, str]]:
+    with Storage(db) as storage:
+        built = run_records(storage, run_id, EVENTS)
+    return {record_key(r) for r in built.records if r not in _flagged(built.records)}
+
+
 def test_flagged_only_leaves_an_existing_unflagged_record_as_it_is(
     db: Path, tmp_path: Path
 ) -> None:
     root = tmp_path / "registry"
-    args = ["registry", "add", "--run-id", "1", "--db", str(db), "--registry", str(root),
-            "--no-live-check"]  # fmt: skip
-    assert runner.invoke(app, args).exit_code == 0
-    before = {p: p.read_bytes() for p in root.rglob("*.jsonl")}
-    with Storage(db) as storage:
-        built = run_records(storage, 1, EVENTS)
-    other = len(built.records) - len(_flagged(built.records))
-    again = runner.invoke(app, [*args, "--flagged-only"])
+    assert runner.invoke(app, _add_args(db, root, 1)).exit_code == 0
+    before = load_records(root)
+    unflagged = _unflagged_keys(db, 2)
+    assert unflagged and unflagged <= set(before)
+    again = runner.invoke(app, [*_add_args(db, root, 2), "--flagged-only"])
     assert again.exit_code == 0, again.output
-    assert f"{other} fully scanned accounts" in again.output
-    assert f"of which {other} already have a record" in again.output
-    assert "0 files changed" in again.output
-    assert {p: p.read_bytes() for p in root.rglob("*.jsonl")} == before
+    assert f"{len(unflagged)} fully scanned accounts" in again.output
+    assert f"of which {len(unflagged)} already have an unflagged record" in again.output
+    after = load_records(root)
+    for key in unflagged:
+        assert after[key] == before[key]
+        assert after[key]["last_scanned_at"] == "2026-10-14T00:00:00+00:00"
+    # Without the flag the same second run does update them, so the check above bites.
+    plain_root = tmp_path / "plain"
+    assert runner.invoke(app, _add_args(db, plain_root, 1)).exit_code == 0
+    assert runner.invoke(app, _add_args(db, plain_root, 2)).exit_code == 0
+    plain = load_records(plain_root)
+    assert any(plain[key]["last_scanned_at"] != before[key]["last_scanned_at"] for key in unflagged)
+
+
+def test_flagged_only_still_demotes_an_existing_flagged_record(db: Path, tmp_path: Path) -> None:
+    root = tmp_path / "registry"
+    assert runner.invoke(app, _add_args(db, root, 1)).exit_code == 0
+    records = load_records(root)
+    victim = sorted(_unflagged_keys(db, 2))[0]
+    # The registry holds a stale accusation: run 2's scan of this account is unflagged.
+    records[victim] = {
+        **records[victim],
+        "cliff": True,
+        "status": STATUS_CANDIDATE,
+        "last_activity_at": isoformat(
+            datetime.fromisoformat(records[victim]["scan_window_end"]) - timedelta(days=4)
+        ),
+        "status_updated_at": "2026-10-14T00:00:00+00:00",
+    }
+    write_records(root, records.values())
+    assert load_records(root)[victim]["status"] == STATUS_CANDIDATE
+    result = runner.invoke(app, [*_add_args(db, root, 2), "--flagged-only"])
+    assert result.exit_code == 0, result.output
+    assert "1 back to scanned" in result.output
+    demoted = load_records(root)[victim]
+    assert demoted["status"] == STATUS_SCANNED
+    assert demoted["cliff"] is False
+    assert demoted["last_scanned_at"] == "2026-10-16T00:00:00+00:00"
+    assert validate_registry(root) == []
 
 
 def test_flagged_only_output_passes_registry_validate(db: Path, tmp_path: Path) -> None:

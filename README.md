@@ -2305,16 +2305,20 @@ Records hold no scores. An evidence file may list the signals.
    confirm, and so are accounts that were skipped, failed, only pre-checked, or showed
    no activity in the window.
 
-   To write only the flagged accounts, add `--flagged-only`:
+   To leave the unflagged accounts out, add `--flagged-only`:
 
    ```bash
    bot-farm-silence-tracker registry add --run-id 7 --event <event-id> --registry registry --flagged-only
    ```
 
-   Flagged means the record's `cliff` is true or it becomes a `candidate`. The other
-   fully scanned accounts (`scanned`, with `cliff` false) are not written, and the
-   summary says how many were skipped as unflagged and how many of those already have a
-   record, which is left exactly as it is (it is not updated or moved back by this run).
+   Flagged means the record's `cliff` is true or it becomes a `candidate`. An account
+   whose new record is not flagged (`scanned`, with `cliff` false) is skipped and
+   counted in the summary, unless the registry already holds a flagged record of it:
+   that record is merged as usual, so a newer scan can still move it back to `scanned`
+   and no stale accusation stays. Of the skipped accounts, the summary also says how
+   many already have an unflagged record, which is left exactly as it is. Every built
+   record is validated before the skip, so one invalid unflagged record still aborts a
+   `--flagged-only` run.
    The accounts left out as usual (opted out, unavailable, not fully scanned, no
    activity, stale data) are still counted under "Left out". The live profile check,
    the statuses, the file format and the `registry validate`, `registry verify` and
@@ -2476,7 +2480,8 @@ secrets, and no cache. It then:
    atproto domain name of at most 253 characters, a Reddit name has 3 to 20 of
    `A-Z a-z 0-9 _ -` or is a subreddit's system account, 3 to 21 of `A-Z a-z 0-9 _`
    followed by `-ModTeam` (exactly that case, for example `europeanunion-ModTeam`), and
-   an X username 1 to 15 of `A-Z a-z 0-9 _`. Record files may be at most 5 MB, evidence files 200 KB, and record lines 8 KB.
+   an X username 1 to 15 of `A-Z a-z 0-9 _`. Record files may be at most 5 MB,
+   evidence files 200 KB, and record lines 8 KB.
 4. Spot-checks the changed records against the live sources, by ID, through the same
    adapters a scan uses, each with its own event's cutoff: the Arctic Shift archive for `reddit-archive` and the public
    Bluesky API for `bluesky`. With 15 or fewer changed records it checks all of them.
