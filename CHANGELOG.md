@@ -5,6 +5,7 @@ fails when the section for the tag's version is missing.
 
 ## [Unreleased]
 
+- Run 1's scored accounts are published in `docs/data/run-1-scored-accounts.csv` (9,999 public Reddit usernames with their last activity time and eligible and silent flags, scored at the run's stored horizon), with a description of the columns, the scoring rules and the caveats in `docs/data/README.md`.
 - Run chart follow-up: the new-only row label now states its silence window like the other rows, and the README notes that the shared-account window effect (0.96 points) is larger than the matched-base adjustment (0.6 points) and that run 2's 214 is scored to its stored horizon (206 when re-scored to the cutoff window).
 - The README now includes a provisional chart of runs 1 to 3 (run 3 partial), with the ordinary-week base rates, a rough base rate matched to each run's silence window, and 95% intervals, drawn by `scripts/render_run_chart.py` from a file of aggregate counts (`docs/charts/runs-provisional.json`).
 - The chart and the README also show a row over all distinct accounts across the runs (each account counted once, using its record with the longest scored window) and a row for the accounts of run 3 that are not in runs 1 or 2, because the runs share accounts and must never be added together.
