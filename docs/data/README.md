@@ -2,18 +2,22 @@
 
 This folder holds the account-level results of run 1, the first 10,000-account Reddit scan of the default outage event (`2026-10-takedown`). The data is published so that other researchers can check and reproduce the counts reported in the main README.
 
+This is a provisional result of a single run, observed 3.3 days after the cutoff. It is not a verdict about any account or about the outage, and the 7-day test is still pending.
+
 The list contains public Reddit usernames only. It holds no post text, no subreddit names and no activity counts. If you would like your account removed from this list, please open an issue in this repository and it will be taken out.
 
 ## The file
 
 `run-1-scored-accounts.csv` is a UTF-8 CSV file with one row per scored account and a header row. It has 9,999 rows, sorted by `user_id`. The run drew 10,000 accounts; one account could not be fetched from the archive, so it was not scored and is not in the file.
 
+Eleven rows are Reddit moderation-team system accounts, whose names end in `-ModTeam` (for example `CombatFootage-ModTeam` and `europeanunion-ModTeam`). These accounts post notices on behalf of a subreddit's moderators rather than for a person. Ten of them are eligible and none of them is silent.
+
 The columns are:
 
 - `platform`: the data source. It is `reddit-archive` on every row, which means public Reddit activity read through the Arctic Shift archive.
 - `user_id`: the account's identifier as the tool stores it. For this source it is the Reddit username.
 - `username`: the public Reddit username, exactly as stored.
-- `last_activity_utc`: the time of the account's latest post or comment that the archive returned, at or before the account's data end (defined below), in ISO 8601 UTC. Only activity from the start of the fetch window, 2026-09-07T18:56:00Z, is counted. The field is empty when no activity was found in that range; this is the case for 3 accounts.
+- `last_activity_utc`: the time of the account's latest post or comment that the archive returned, at or before the account's data end (defined below), written in ISO 8601 with a +00:00 offset (for example `2026-10-14T05:54:13+00:00`). Only activity from the start of the fetch window, 2026-09-07T18:56:00Z, is counted. The field is empty when no activity was found in that range; this is the case for 3 accounts.
 - `eligible`: 1 when the account passed the tool's steady-poster test, otherwise 0.
 - `silent`: 1 when an eligible account made no post or comment between the cutoff and its data end, otherwise 0. An account that is not eligible always has 0.
 
@@ -46,9 +50,11 @@ The following totals were recomputed from the CSV file itself:
 
 An earlier provisional local list of run 1's silent accounts also had 287 entries, but it is not the same set. It differs by one account in each direction. That list was built before the archive backfilled some late activity, and it counted activity after the horizon as evidence that an account was not silent. The file here follows the strict-horizon rule described above.
 
+The main README reports run 1 as 288 silent accounts out of 6,399 eligible accounts (4.50%), while this file has 287 out of 6,398 (4.49%). The difference comes from two accounts that were also drawn by a later run, which fetched them from the archive again on 2026-10-18 and replaced their cached histories. For one of them, the archive returned a comment made shortly before run 1's horizon that it had not returned at the first fetch, so that account is no longer silent. For the other, the archive returned no posts or comments at all at the second fetch, although it had returned a steady history at the first, so that account is no longer eligible. The main README's figures were computed from the cache before these re-fetches. They will be refreshed together with the 7-day rescore.
+
 ## What these results do and do not mean
 
-A value of 1 in `silent` means only that an eligible account made no post or comment that the archive holds between the cutoff and its data end. It is not evidence that the account is automated or inauthentic. Ordinary users stop posting for many reasons, and in an ordinary week several percent of steady posters go quiet for three days. The outage itself also cut off ordinary users of the affected services. Many of the accounts marked silent here posted again after the horizon.
+A value of 1 in `silent` means only that an eligible account made no post or comment that the archive holds between the cutoff and its data end. It is not evidence that the account is automated or inauthentic. Ordinary users stop posting for many reasons, and in an ordinary week several percent of steady posters go quiet for three days. The outage itself also cut off ordinary users of the affected services. In a local spot check, 300 accounts were drawn at random from the silent accounts of runs 1 to 3 and fetched again on 2026-10-18, and 182 of them (60.7%, 95% Wilson interval 55.0% to 66.0%) had posted or commented after their run's horizon. The spot-check files contain usernames from other runs and are not published.
 
 The archive can lag behind Reddit by hours or days, and it can have ingestion gaps. It can also miss content that was deleted or removed, and it cannot tell a suspended account from a silent one. An account can therefore appear silent here when it was not.
 
@@ -62,6 +68,6 @@ Every row can be checked against the public Arctic Shift archive (https://github
 2. Apply the eligibility test to the activity in the baseline, and the silence test to the activity from the cutoff to the horizon, with the rules above.
 3. Compare the result with the row. Expect some differences: the archive may have backfilled activity since the run was fetched, and it may have dropped content that was deleted since then.
 
-To repeat the whole scan with the tool, run `bot-farm-silence-tracker scan --platform reddit-archive --n 10000 --seed 1638893776` under the default event. The run was scanned with version 0.2.0 and scored with the parameters above. A new scan discovers accounts from the archive as it is at that time, so its sample may not match this one exactly.
+To repeat the whole scan with the tool, run `bot-farm-silence-tracker scan --platform reddit-archive --n 10000 --seed 1638893776` under the default event. The tool version stored with the run is 0.2.0, and this file was scored with the parameters above. A new scan discovers accounts from the archive as it is at that time, so its sample may not match this one exactly.
 
 Please be kind to the archive: it is a free community service, so keep the request rate low (the tool uses 0.5 requests per second by default) and respect its rate-limit headers.
