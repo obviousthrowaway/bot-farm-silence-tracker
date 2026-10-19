@@ -1920,7 +1920,8 @@ budget stops as a stale source, before it fetches anything.
   several hours are caught.
 - *No suspension status.* The archive cannot tell a suspended account from a silent
   one, so this source never reports `suspended`, `deleted` or `private`. Accounts just
-  look silent, which makes the suspension confound in the main limitations list worse.
+  look silent, which makes the suspension confound in the main limitations list worse. `report --last-seen` (see
+  above) shows whether a silent account was seen again, which is still not its status.
 - *Coverage gaps.* The archive is community-run. Some periods, subreddits and users are
   missing or were removed on request, and a gap looks like silence. A short run of
   low counts for one subreddit across many accounts can be a gap, not behavior.
@@ -1930,6 +1931,68 @@ budget stops as a stale source, before it fetches anything.
 - *Slow author queries.* Very active authors can make the archive time out. The steps
   under "Rate behavior" usually get through; if not, that one account is recorded as an
   error and can be retried with `--from-run`.
+
+#### Last seen in the archive (`report --last-seen`)
+
+The archive keeps no account state, so a silent account may have paused, been closed,
+suspended or deleted, or simply been abandoned. `report --last-seen` is an optional,
+opt-in check that narrows this down a little. For each silent account it asks the archive
+for the newest post and the newest comment from the end of the scored window up to the
+time of the check, and adds the result to the report:
+
+```bash
+uv run bot-farm-silence-tracker report --run-id 1 --last-seen --out results.csv
+```
+
+It uses the same one-row existence query as the two-phase pre-check (`sort=desc`,
+`limit=1`, `fields=created_utc`), so it costs two requests per account. It uses the
+adapter's own rate limit (0.5 requests per second by default), back-off and User-Agent,
+and the run's stored `--source-option` values. For 30 silent accounts that is about 60
+requests, or about two minutes. A check of every account (`--last-seen-scope all`) costs
+two requests for each of them, about 3 hours for 5,400 accounts. The check stops, and
+marks the accounts it did not reach `inconclusive`, when the archive keeps timing out for
+several accounts in a row or the request budget is used up (six requests per account).
+
+Without `--last-seen` nothing changes: `report` sends no request and its columns stay as
+they were. With it, these columns follow all the others:
+
+- `newest_activity_utc`: the newest post or comment found after the window, or empty.
+- `newest_activity_kind`: `post` or `comment` (`comment` when both have the same time).
+- `last_seen_status`:
+  - `active_after_window`: the account posted or commented again, so it was not closed
+    at that time, and went quiet only for the window.
+  - `no_activity_found`: the archive holds nothing newer. The account may be closed,
+    suspended, deleted or abandoned, and the archive cannot tell which. It is also what
+    an account looks like when its newest days have not been loaded into the archive yet,
+    or its data was removed on request.
+  - `inconclusive`: the archive did not answer (a timeout on every retry, the overload
+    guard, or the request budget). This says nothing about the account, and it is never
+    counted as silence or closure. Run the command again to ask once more.
+  - Empty: the row was not asked about (for example an unavailable account listed with
+    `--include-unavailable`).
+- `scored_silent`: whether the account scored as silent in the run.
+
+**This is not a closure verdict.** It reports the newest activity the archive holds,
+nothing about account state; use it only to tell accounts that returned from accounts
+that were not seen again. The CSV and JSON outputs say so in their notice, and the JSON
+output adds a `last_seen` block with the counts, the request count and the time of the
+check (no account names).
+
+Options:
+
+- `--last-seen-scope silent` (the default) asks about the accounts the report lists as
+  silent. `--last-seen-scope all` asks about every account the scan observed and lists
+  those that are not silent after the silent ones, with an empty `rank` and
+  `scored_silent` false. Opted-out, unavailable and failed accounts are never asked about.
+- `--last-seen-cache FILE` is where the answers are kept as they come in (default: the
+  output file's name plus `.last-seen.jsonl`). An interrupted check continues from it,
+  and a rerun within 24 hours of an answer, for the same run, does not ask again. Delete
+  the file to ask again. It holds account names, like the output.
+
+The command only reads the run's database and never writes it (it also works on a
+read-only copy). Only the output file and the answer cache are written. The search starts
+at the end of the data each account's score used (`data_end` when it is set, else the
+run's stored reference time), and ends at the time of the check.
 
 ### Bluesky
 

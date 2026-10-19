@@ -29,12 +29,14 @@ from rich.table import Table
 from bot_farm_silence_tracker import __version__
 from bot_farm_silence_tracker import config as user_config
 from bot_farm_silence_tracker import events as outage_events
+from bot_farm_silence_tracker import last_seen as last_seen_check
 from bot_farm_silence_tracker.controls import (
     DEFAULT_PLACEBO_WEEKS,
     MAX_PLACEBO_WEEKS,
     MIN_PLACEBO_WEEKS,
 )
 from bot_farm_silence_tracker.keepawake import keep_awake
+from bot_farm_silence_tracker.last_seen import LastSeenReport
 from bot_farm_silence_tracker.ledger import SpendLedger
 from bot_farm_silence_tracker.models import Account
 from bot_farm_silence_tracker.network import format_network, network_report
@@ -556,18 +558,24 @@ def _warn_provisional(outcome: ScanOutcome) -> None:
         typer.secho(banner, fg=typer.colors.YELLOW, err=True)
 
 
+def _output_path(outcome: ScanOutcome, out: Path | None, fmt: str | None) -> Path:
+    resolved = _resolve_format(fmt, out)
+    return out or Path(f"bot-farm-silence-tracker-run-{outcome.run_id}.{resolved}")
+
+
 def _write_output(
     outcome: ScanOutcome,
     platform: str,
     out: Path | None,
     fmt: str | None,
     include_unavailable: bool,
+    last_seen: LastSeenReport | None = None,
 ) -> Path:
     resolved = _resolve_format(fmt, out)
-    path = out or Path(f"bot-farm-silence-tracker-run-{outcome.run_id}.{resolved}")
+    path = _output_path(outcome, out, fmt)
     path.parent.mkdir(parents=True, exist_ok=True)
     writer = write_json if resolved == "json" else write_csv
-    count = writer(path, outcome, platform, include_unavailable)
+    count = writer(path, outcome, platform, include_unavailable, last_seen)
     typer.echo(f"Wrote {count} rows to {path}")
     return path
 
@@ -2048,22 +2056,60 @@ def report(
     db: DbOption = None,
     include_unavailable: Annotated[bool, typer.Option("--include-unavailable")] = False,
     hide_handles: HideHandlesOption = False,
+    last_seen: Annotated[
+        bool,
+        typer.Option(
+            "--last-seen",
+            help="Opt in to network requests: ask the archive for the newest post and comment "
+            "of each silent account after the scored window (2 requests per account), and add "
+            "the columns newest_activity_utc, newest_activity_kind, last_seen_status and "
+            "scored_silent. Reddit archive runs only. Not a closure verdict: the archive keeps "
+            "no account state. The database is not written.",
+        ),
+    ] = False,
+    last_seen_scope: Annotated[
+        str | None,
+        typer.Option(
+            "--last-seen-scope",
+            help="With --last-seen: silent (the accounts the report lists as silent) or all "
+            "(every account the scan observed, listed after the silent ones) "
+            "[default: silent].",
+        ),
+    ] = None,
+    last_seen_cache: Annotated[
+        Path | None,
+        typer.Option(
+            "--last-seen-cache",
+            help="With --last-seen: file that keeps the archive's answers so an interrupted "
+            "check continues and a rerun within 24 hours asks nothing again "
+            "[default: the output file's name plus .last-seen.jsonl]. It holds account names.",
+        ),
+    ] = None,
 ) -> None:
     """Re-score a previous run from the cache (no network). Cutoff and window are fixed.
 
     The run is read from its event's database (``--event``, or ``--db``); a run of
     another event is refused. Works on a read-only database: :class:`Storage` then
-    opens it read-only and skips migrations.
+    opens it read-only and skips migrations. Only ``--last-seen`` sends requests
+    (to the archive, politely); it never writes the database.
     """
     redactor = _start_hiding(hide_handles)
     chosen_event, event_named = _resolve_event(event)
     if registry is not None:
         if run_id is not None:
             raise _fail("use either --run-id or --registry, not both")
+        if last_seen or last_seen_scope is not None or last_seen_cache is not None:
+            raise _fail("--last-seen applies to --run-id, not to --registry")
         _report_drafts(
             registry, status, platform, out, include_unverified, allow_inside_repo, chosen_event
         )
         return
+    if not last_seen and (last_seen_scope is not None or last_seen_cache is not None):
+        raise _fail("--last-seen-scope and --last-seen-cache need --last-seen")
+    try:
+        scope = last_seen_check.validate_scope(last_seen_scope or last_seen_check.SCOPE_SILENT)
+    except ValueError as exc:
+        raise _fail(str(exc)) from None
     if run_id is None:
         raise _fail("give --run-id (re-score a run) or --registry (report drafts)")
     _resolve_format(fmt, out)
@@ -2106,6 +2152,11 @@ def report(
             raise _fail(str(exc)) from None
         run = storage.get_run(run_id)
     platform = run["platform"] if run else "unknown"
+    if last_seen and platform not in last_seen_check.PLATFORMS:
+        raise _fail(
+            f"--last-seen needs a run of the Reddit archive (reddit-archive); run {run_id} "
+            f"is a {platform} run"
+        )
     typer.echo(NOTICE, err=True)
     _print_event(own_event)
     lookback = stored_active_within((run or {}).get("params") or {})
@@ -2117,7 +2168,87 @@ def report(
     _print_warnings(outcome.warnings)
     _warn_provisional(outcome)
     _print_summary(outcome, platform, hide_handles=hide_handles)
-    _write_output(outcome, platform, out, fmt, include_unavailable)
+    seen: LastSeenReport | None = None
+    if last_seen:
+        path = _output_path(outcome, out, fmt)
+        seen = _run_last_seen(
+            outcome,
+            run or {},
+            scope,
+            last_seen_cache or path.with_name(path.name + ".last-seen.jsonl"),
+        )
+    _write_output(outcome, platform, out, fmt, include_unavailable, seen)
+
+
+#: Requests allowed per account in a last-seen check: two queries, and room for retries.
+LAST_SEEN_REQUESTS_PER_ACCOUNT = 6
+
+
+def _run_last_seen(
+    outcome: ScanOutcome, run: dict[str, Any], scope: str, cache_path: Path
+) -> LastSeenReport:
+    """Ask the archive when the run's silent (or all) accounts were last seen.
+
+    Builds the adapter as the scan does (same pacing, back-off and User-Agent, the run's
+    stored non-secret options) without a database or a spend ledger, so nothing is
+    written but the answer cache.
+    """
+    platform = str(run.get("platform") or "unknown")
+    targets = last_seen_check.select_targets(outcome.results, scope)
+    cache = last_seen_check.AnswerCache(cache_path, outcome.run_id)
+    until = utcnow()
+    typer.echo(
+        f"Last seen: asking the archive about {len(targets)} accounts (scope {scope}), "
+        f"about {2 * len(targets)} requests at the archive's polite rate. Answers are kept "
+        f"in {cache_path}, so an interrupted check continues.",
+        err=True,
+    )
+    source_cls = load_source_class(platform)
+    http = HttpClient(
+        max_requests=LAST_SEEN_REQUESTS_PER_ACCOUNT * len(targets) + 10,
+        requests_per_second=source_cls.default_rps,
+        burst=source_cls.default_burst,
+        timeout=source_cls.default_timeout,
+    )
+    config = SourceConfig(
+        http=http,
+        credentials={},
+        now=until,
+        cutoff=outcome.params.cutoff,
+        options=dict((run.get("params") or {}).get("source_options") or {}),
+    )
+    try:
+        source = source_cls(config)
+    except (KeyError, TypeError, ValueError) as exc:
+        http.close()
+        raise _fail(f"invalid adapter configuration: {exc}") from None
+    try:
+        report = last_seen_check.run_check(
+            source,
+            outcome.params,
+            targets,
+            scope=scope,
+            until=until,
+            cache=cache,
+            requests_made=lambda: http.requests_made,
+        )
+    finally:
+        source.close()
+    counts = report.counts()
+    typer.echo(
+        f"Last seen: {report.requests} requests, {report.reused} answers reused; "
+        + ", ".join(f"{n} {name}" for name, n in counts.items())
+        + ". This is not a closure verdict: the archive keeps no account state.",
+        err=True,
+    )
+    if report.stopped:
+        _print_warnings(
+            [
+                f"the last-seen check stopped early ({report.stopped}); the accounts it did "
+                "not reach are inconclusive. Run it again to continue from the saved answers."
+            ]
+        )
+    return report
 
 
 @app.command()

@@ -10,6 +10,9 @@ from typing import Any
 from bot_farm_silence_tracker import __version__
 from bot_farm_silence_tracker.controls import placebo_lines
 from bot_farm_silence_tracker.early_exit import format_estimate_lines
+from bot_farm_silence_tracker.last_seen import COLUMNS as LAST_SEEN_COLUMNS
+from bot_farm_silence_tracker.last_seen import NOTICE as LAST_SEEN_NOTICE
+from bot_farm_silence_tracker.last_seen import LastSeenReport
 from bot_farm_silence_tracker.models import STATUS_OPTED_OUT
 from bot_farm_silence_tracker.pipeline import ScanOutcome
 from bot_farm_silence_tracker.scoring import (
@@ -137,14 +140,16 @@ COLUMNS = [
 SAMPLING_COLUMNS = ["stratum", "inclusion_prob", "weight", "fetch_status"]
 
 
-def columns_for(outcome: ScanOutcome) -> list[str]:
+def columns_for(outcome: ScanOutcome, last_seen: LastSeenReport | None = None) -> list[str]:
     """The CSV columns of ``outcome``.
 
     :data:`COLUMNS`, then the adapter's extra columns (``Source.extra_columns``, for
     example Bluesky's ``reposts_after_cutoff`` and ``deactivated``), then the
     sampling ones if sampled, then the method's (:data:`~bot_farm_silence_tracker.
     scoring.METHOD_COLUMNS`), then the marker ones
-    (:data:`~bot_farm_silence_tracker.scoring.MARKER_COLUMNS`) for a run with markers.
+    (:data:`~bot_farm_silence_tracker.scoring.MARKER_COLUMNS`) for a run with markers,
+    then the last-seen ones (:data:`~bot_farm_silence_tracker.last_seen.COLUMNS`) when
+    ``report --last-seen`` asked for them.
     """
     columns = [*COLUMNS, *outcome.extra_columns]
     if outcome.summary.get("sampling"):
@@ -153,6 +158,9 @@ def columns_for(outcome: ScanOutcome) -> list[str]:
     if outcome.params.markers:
         # Appended last, so the columns of a run without markers never change.
         columns += MARKER_COLUMNS
+    if last_seen is not None:
+        # Appended after everything else, so a report without --last-seen never changes.
+        columns += LAST_SEEN_COLUMNS
     return columns
 
 
@@ -162,10 +170,16 @@ def estimate_lines(outcome: ScanOutcome) -> list[str]:
     return format_estimate_lines(sampling) if sampling else []
 
 
-def select_rows(outcome: ScanOutcome, include_unavailable: bool = False) -> list[dict[str, Any]]:
+def select_rows(
+    outcome: ScanOutcome,
+    include_unavailable: bool = False,
+    last_seen: LastSeenReport | None = None,
+) -> list[dict[str, Any]]:
     """Return ranked output rows: cliff candidates, then optionally unavailable accounts.
 
-    An opted-out account is never a row (see :attr:`ScanOutcome.unavailable`).
+    An opted-out account is never a row (see :attr:`ScanOutcome.unavailable`). With a
+    ``last_seen`` check, each row also carries its answer, and an account that was asked
+    about but is not a candidate (``--last-seen-scope all``) follows with an empty rank.
     """
     chosen: list[AccountResult] = [r for r in outcome.candidates if r.status != STATUS_OPTED_OUT]
     if include_unavailable:
@@ -176,6 +190,20 @@ def select_rows(outcome: ScanOutcome, include_unavailable: bool = False) -> list
         rows.append(
             {"rank": rank_no, **result.to_row(outcome.extra_columns, marker_columns=markers)}
         )
+    if last_seen is None:
+        return rows
+    listed = {r.user_id for r in chosen}
+    others = sorted(
+        (r for r in outcome.results if r.user_id in last_seen.answers and r.user_id not in listed),
+        key=lambda r: r.user_id,
+    )
+    for result in others:
+        rows.append({"rank": None, **result.to_row(outcome.extra_columns, marker_columns=markers)})
+    by_id = {r.user_id: r for r in outcome.results}
+    for row in rows:
+        answer = last_seen.answers.get(row["user_id"])
+        row.update(answer.columns() if answer else dict.fromkeys(LAST_SEEN_COLUMNS[:3]))
+        row["scored_silent"] = by_id[row["user_id"]].cliff
     return rows
 
 
@@ -234,10 +262,14 @@ def _run_meta(outcome: ScanOutcome, platform: str) -> dict[str, Any]:
 
 
 def write_csv(
-    path: Path, outcome: ScanOutcome, platform: str, include_unavailable: bool = False
+    path: Path,
+    outcome: ScanOutcome,
+    platform: str,
+    include_unavailable: bool = False,
+    last_seen: LastSeenReport | None = None,
 ) -> int:
     """Write candidates as CSV with ``#`` comment lines up top. Returns the row count."""
-    rows = select_rows(outcome, include_unavailable)
+    rows = select_rows(outcome, include_unavailable, last_seen)
     meta = _run_meta(outcome, platform)
     with path.open("w", newline="", encoding="utf-8") as fh:
         fh.write(f"# {NOTICE}\n")
@@ -256,18 +288,27 @@ def write_csv(
             fh.write(f"# {marker_note}\n")
         for line in estimate_lines(outcome):
             fh.write(f"# {line}\n")
+        if last_seen is not None:
+            fh.write(f"# {LAST_SEEN_NOTICE}\n")
+            fh.write(
+                "# last_seen " + " ".join(f"{k}={v}" for k, v in last_seen.to_dict().items()) + "\n"
+            )
         fh.write("# " + " ".join(f"{k}={v}" for k, v in meta.items()) + "\n")
-        writer = csv.DictWriter(fh, fieldnames=columns_for(outcome))
+        writer = csv.DictWriter(fh, fieldnames=columns_for(outcome, last_seen))
         writer.writeheader()
         writer.writerows(rows)
     return len(rows)
 
 
 def write_json(
-    path: Path, outcome: ScanOutcome, platform: str, include_unavailable: bool = False
+    path: Path,
+    outcome: ScanOutcome,
+    platform: str,
+    include_unavailable: bool = False,
+    last_seen: LastSeenReport | None = None,
 ) -> int:
     """Write candidates as JSON with a notice, run metadata and summary. Returns row count."""
-    rows = select_rows(outcome, include_unavailable)
+    rows = select_rows(outcome, include_unavailable, last_seen)
     meta = _run_meta(outcome, platform)
     payload = {
         "notice": NOTICE,
@@ -278,6 +319,11 @@ def write_json(
         **({"account_notices": notes} if (notes := account_notices(outcome)) else {}),
         **({"estimates": estimate_lines(outcome)} if outcome.summary.get("sampling") else {}),
         **({"markers_notice": note} if (note := markers_notice(outcome.params)) else {}),
+        **(
+            {"last_seen_notice": LAST_SEEN_NOTICE, "last_seen": last_seen.to_dict()}
+            if last_seen is not None
+            else {}
+        ),
         "run": meta,
         "summary": outcome.summary,
         "candidates": rows,
