@@ -1,5 +1,19 @@
 # Bot Farm Silence Tracker
 
+## TL;DR
+
+> ### **3.51%** of steady Reddit posters went silent after the reported data center outage cutoff, which is not above an ordinary week.
+>
+> - **698 of 19,868** eligible accounts, counted once each across runs 1 to 3 (95% Wilson interval **3.27% to 3.78%**). Run 4 is still being scanned and is not included.
+> - Silent means no post or comment from the cutoff (2026-10-11 00:30 UTC) to about 3.3 to 4.0 days later. The 7-day test is still pending.
+> - An ordinary week gives 4.20% for 3 days of silence, so there is no evidence of an excess yet.
+> - These are flagged accounts, not a count of bots. Silence alone is not proof that an account is a potential bot account, and the outage also cut off ordinary users.
+> - A second event, the reported strike on a VK data center (cutoff about 2026-10-17 23:50 UTC, unverified), is pending.
+>
+> As of 2026-10-19.
+
+This TL;DR is the strict-horizon union of runs 1 to 3 over 19,868 eligible accounts, with each account scored once, on its longest scored window, and each run's activity counted only up to its stored data horizon. Older figures further down were scored earlier and will be refreshed with the 7-day rescore.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/charts/runs-provisional-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="docs/charts/runs-provisional-light.svg">
