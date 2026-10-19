@@ -717,6 +717,10 @@ class RedditArchiveSource(Source):
             if not isinstance(rows, list):
                 raise SourceError(f"unexpected response shape from the archive for {path}")
             self._note_ok()
+            if params.get("limit") == 1:
+                # An existence query asked for one row, so any returned row, even an
+                # unusable one, means something exists. Keep it as an empty row.
+                return [row if isinstance(row, dict) else {} for row in rows]
             return [row for row in rows if isinstance(row, dict)]
         if status == 422:
             kind = self._slow_kind(response)
@@ -2186,7 +2190,11 @@ class RedditArchiveSource(Source):
         stamps = [ts for row in rows if (ts := _as_datetime(row.get("created_utc"))) is not None]
         covered = datetime.fromtimestamp(narrower + 1, tz=UTC) if narrowed else since
         newest = max((ts for ts in stamps if since <= ts < until), default=None)
-        return NewestActivity(newest, covered)
+        # With ``limit=1`` a returned row is the newest the archive holds in the window.
+        # If none of the returned rows is readable and inside ``[since, until)``, the
+        # query did not show whether there is activity; that is not "no activity".
+        unreadable = bool(rows) and newest is None
+        return NewestActivity(newest, covered, unreadable)
 
     def precheck_finished(self, account: Account, errors: Sequence[SourceError]) -> None:
         """Count one account's pre-check toward the ``precheck`` slow-query guard.

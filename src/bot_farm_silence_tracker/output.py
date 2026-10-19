@@ -24,6 +24,12 @@ from bot_farm_silence_tracker.scoring import (
 from bot_farm_silence_tracker.timeutil import isoformat
 
 NOTICE = "Candidates for manual review — not a determination that any account is a bot."
+LAST_SEEN_OTHERS_NOTICE = (
+    "LAST SEEN, ALL ACCOUNTS: rows with scored_silent False and an empty rank are accounts "
+    "the scan observed that did not score as silent. They are listed only to show when "
+    "they were last seen. They are not candidates for manual review, and the notice on "
+    "the first line does not apply to them."
+)
 PROVISIONAL_NOTICE = (
     "PROVISIONAL: less than the minimum silence period has passed since the cutoff, "
     "so silence may just mean the account has not posted yet."
@@ -290,8 +296,12 @@ def write_csv(
             fh.write(f"# {line}\n")
         if last_seen is not None:
             fh.write(f"# {LAST_SEEN_NOTICE}\n")
+            if any(r.get("rank") is None for r in rows):
+                fh.write(f"# {LAST_SEEN_OTHERS_NOTICE}\n")
             fh.write(
-                "# last_seen " + " ".join(f"{k}={v}" for k, v in last_seen.to_dict().items()) + "\n"
+                "# last_seen "
+                + " ".join(f"{k}={json.dumps(v)}" for k, v in last_seen.to_dict().items())
+                + "\n"
             )
         fh.write("# " + " ".join(f"{k}={v}" for k, v in meta.items()) + "\n")
         writer = csv.DictWriter(fh, fieldnames=columns_for(outcome, last_seen))
@@ -310,6 +320,10 @@ def write_json(
     """Write candidates as JSON with a notice, run metadata and summary. Returns row count."""
     rows = select_rows(outcome, include_unavailable, last_seen)
     meta = _run_meta(outcome, platform)
+    # An account that did not score as silent (``--last-seen-scope all``) has no rank. It
+    # is not a candidate, so it goes under its own key and ``candidates`` keeps its meaning.
+    candidates = [r for r in rows if r.get("rank") is not None or last_seen is None]
+    others = [r for r in rows if r.get("rank") is None and last_seen is not None]
     payload = {
         "notice": NOTICE,
         "placebo_notice": placebo_notice(outcome),
@@ -326,7 +340,8 @@ def write_json(
         ),
         "run": meta,
         "summary": outcome.summary,
-        "candidates": rows,
+        "candidates": candidates,
+        **({"last_seen_other_accounts": others} if last_seen is not None else {}),
     }
     # newline="\n": the same bytes on every platform (Windows text mode writes CRLF).
     with path.open("w", encoding="utf-8", newline="\n") as fh:

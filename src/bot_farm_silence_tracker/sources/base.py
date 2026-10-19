@@ -292,10 +292,15 @@ class NewestActivity:
             when the whole window was answered, and is later when the source had to
             narrow the query (then ``None`` says nothing about ``[since,
             covered_since)``).
+        unreadable: The source got a row back but could not use it (no readable
+            timestamp inside the window), so ``newest=None`` does not mean there
+            is no activity. The two-phase pre-check ignores it; ``report --last-seen``
+            treats the answer as inconclusive.
     """
 
     newest: datetime | None
     covered_since: datetime
+    unreadable: bool = False
 
 
 class Source(abc.ABC):

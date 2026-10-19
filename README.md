@@ -1921,7 +1921,7 @@ budget stops as a stale source, before it fetches anything.
 - *No suspension status.* The archive cannot tell a suspended account from a silent
   one, so this source never reports `suspended`, `deleted` or `private`. Accounts just
   look silent, which makes the suspension confound in the main limitations list worse. `report --last-seen` (see
-  above) shows whether a silent account was seen again, which is still not its status.
+  below) shows whether a silent account was seen again, which is still not its status.
 - *Coverage gaps.* The archive is community-run. Some periods, subreddits and users are
   missing or were removed on request, and a gap looks like silence. A short run of
   low counts for one subreddit across many accounts can be a gap, not behavior.
@@ -1947,11 +1947,23 @@ uv run bot-farm-silence-tracker report --run-id 1 --last-seen --out results.csv
 It uses the same one-row existence query as the two-phase pre-check (`sort=desc`,
 `limit=1`, `fields=created_utc`), so it costs two requests per account. It uses the
 adapter's own rate limit (0.5 requests per second by default), back-off and User-Agent,
-and the run's stored `--source-option` values. For 30 silent accounts that is about 60
+and the run's stored `--source-option` values, except `max_rps`: a faster rate chosen for
+the scan is not reused, so the check always goes at the default pace. That pace is
+the check's own. If a scan is running against the same archive at the same time, the two
+add up, so run the check when no scan is running. For 30 silent accounts that is about 60
 requests, or about two minutes. A check of every account (`--last-seen-scope all`) costs
-two requests for each of them, about 3 hours for 5,400 accounts. The check stops, and
-marks the accounts it did not reach `inconclusive`, when the archive keeps timing out for
-several accounts in a row or the request budget is used up (six requests per account).
+two requests for each of them: 5,400 accounts need 10,800 requests, which at 0.5 requests
+per second is 21,600 seconds, about 6 hours.
+
+The check marks the accounts it did not reach `inconclusive` and stops when any of these
+happens: the archive keeps timing out for several accounts in a row (the adapter's
+overload guard), the archive fails every query (for example with HTTP 500 or 503) for
+three accounts in a row, or the request budget is used up. The budget is one pool shared by
+all accounts, not a limit per account: it is six requests for each account that has to be
+asked (accounts answered from the answer cache are not counted), plus ten more. Activity
+that was found before such a stop is never lost: an account for which one kind of query
+already found activity is reported as `active_after_window` even if the other query was
+the one that hit the stop.
 
 Without `--last-seen` nothing changes: `report` sends no request and its columns stay as
 they were. With it, these columns follow all the others:
@@ -1965,8 +1977,11 @@ they were. With it, these columns follow all the others:
     suspended, deleted or abandoned, and the archive cannot tell which. It is also what
     an account looks like when its newest days have not been loaded into the archive yet,
     or its data was removed on request.
-  - `inconclusive`: the archive did not answer (a timeout on every retry, the overload
-    guard, or the request budget). This says nothing about the account, and it is never
+  - `inconclusive`: the archive did not answer (a timeout or an error on every retry,
+    a row that could not be read, the overload guard, or the request budget). A query
+    that returns a row the check cannot read is inconclusive, not silence, because the
+    query asks for one row and a returned row means the archive holds something. This says
+    nothing about the account, and it is never
     counted as silence or closure. Run the command again to ask once more.
   - Empty: the row was not asked about (for example an unavailable account listed with
     `--include-unavailable`).
@@ -1981,16 +1996,29 @@ check (no account names).
 Options:
 
 - `--last-seen-scope silent` (the default) asks about the accounts the report lists as
-  silent. `--last-seen-scope all` asks about every account the scan observed and lists
-  those that are not silent after the silent ones, with an empty `rank` and
-  `scored_silent` false. Opted-out, unavailable and failed accounts are never asked about.
+  silent. `--last-seen-scope all` asks about every account the scan observed. The accounts
+  that are not silent are not candidates. In the JSON report they are listed under
+  `last_seen_other_accounts`, and `candidates` holds only the ranked silent accounts as
+  before. In the CSV report they follow the silent ones with an empty `rank` and
+  `scored_silent` false, and a comment line at the top says that these rows are not
+  candidates. Opted-out, unavailable and failed accounts are never asked about.
 - `--last-seen-cache FILE` is where the answers are kept as they come in (default: the
   output file's name plus `.last-seen.jsonl`). An interrupted check continues from it,
-  and a rerun within 24 hours of an answer, for the same run, does not ask again. Delete
-  the file to ask again. It holds account names, like the output.
+  and a rerun within 24 hours of an answer, for the same run of the same database and the
+  same start of the search, does not ask again. Delete the file to ask again. The file is
+  tested for writing before any request is sent. Only conclusive answers are saved, and the
+  file is never compacted, so it only grows by the answers of each check. It holds account
+  names, like the output.
+- `--trust-env` (or `BOT_FARM_SILENCE_TRACKER_TRUST_ENV=1`) makes the check use the
+  proxy and CA bundle settings from the environment, as for a scan, and prints the same
+  warning. Without it the check connects directly and trusts only its bundled CA
+  certificates.
 
-The command only reads the run's database and never writes it (it also works on a
-read-only copy). Only the output file and the answer cache are written. The search starts
+The command opens the run's database read-only and never writes it: it runs no migration
+and does not touch the spend ledger (it also works on a read-only copy). Only the output
+file and the answer cache are written. When the database is in WAL mode, SQLite itself may
+create an empty `-wal` file and a `-shm` file next to it, or update the `-shm` file of a
+database that a scan has open; the database file and the log are not changed. The search starts
 at the end of the data each account's score used (`data_end` when it is set, else the
 run's stored reference time), and ends at the time of the check.
 

@@ -15,7 +15,9 @@ it writes is an optional answer cache (a JSON Lines file) so an interrupted chec
 continue without asking again. It uses the same existence query as the two-phase
 pre-check (:meth:`~bot_farm_silence_tracker.sources.base.Source.newest_activity`,
 ``sort=desc``, ``limit=1``), so it costs two requests per account (one per kind) and
-goes through the adapter's own rate limit, back-off and User-Agent.
+goes through the adapter's own rate limit, back-off and User-Agent. The check's
+requests share one pooled budget, and the check stops when the archive fails every
+query for several accounts in a row.
 """
 
 from __future__ import annotations
@@ -50,6 +52,10 @@ COLUMNS = ["newest_activity_utc", "newest_activity_kind", "last_seen_status", "s
 
 #: A cached answer is reused for this long; after that the account is asked again.
 REUSE_FOR = timedelta(hours=24)
+
+#: The check stops after this many accounts in a row for which every query failed
+#: (for example HTTP 500 or 503 from the archive), whatever the adapter's own guard does.
+MAX_FAILED_IN_A_ROW = 3
 
 NOTICE = (
     "LAST SEEN: newest_activity_utc is the newest post or comment the archive holds for "
@@ -115,13 +121,26 @@ class AnswerCache:
     """Answers of an earlier, possibly interrupted check, in a JSON Lines file.
 
     Each answer is appended as soon as it is known. Only conclusive answers of the same
-    run, for the same start, and not older than :data:`REUSE_FOR` are reused. A damaged
-    line is skipped, so the file can be cut off at any point.
+    run in the same database (``db_id``), for the same start, and not older than
+    :data:`REUSE_FOR` are reused. An answer that claims to be from the future is not
+    reused. A damaged line is skipped, so the file can be cut off at any point. The file
+    is not compacted on load: it only grows by the answers of each check.
     """
 
-    def __init__(self, path: Path, run_id: int) -> None:
+    def __init__(self, path: Path, run_id: int, db_id: str | None = None) -> None:
         self.path = path
         self.run_id = run_id
+        self.db_id = db_id or ""
+
+    def ensure_writable(self) -> None:
+        """Open the file for appending, so an unwritable path fails before any request.
+
+        Raises:
+            OSError: the file or its folder cannot be created or written.
+        """
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with self.path.open("a", encoding="utf-8", newline="\n"):
+            pass
 
     def load(self, now: datetime) -> dict[str, LastSeen]:
         found: dict[str, LastSeen] = {}
@@ -132,19 +151,20 @@ class AnswerCache:
         for line in lines:
             try:
                 data = json.loads(line)
-                if data.get("run_id") != self.run_id:
+                if data.get("run_id") != self.run_id or (data.get("db_id") or "") != self.db_id:
                     continue
                 answer = LastSeen.from_json(data)
             except (ValueError, KeyError, TypeError, AttributeError):
                 continue
-            if answer.status != INCONCLUSIVE and now - answer.checked <= REUSE_FOR:
+            if answer.status != INCONCLUSIVE and timedelta(0) <= now - answer.checked <= REUSE_FOR:
                 found[answer.user_id] = answer
         return found
 
     def add(self, answer: LastSeen) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        record = {**answer.to_json(self.run_id), "db_id": self.db_id}
         with self.path.open("a", encoding="utf-8", newline="\n") as fh:
-            fh.write(json.dumps(answer.to_json(self.run_id)) + "\n")
+            fh.write(json.dumps(record) + "\n")
 
 
 @dataclass
@@ -199,29 +219,34 @@ def window_end(result: AccountResult, params: ScoringParams) -> datetime:
     return ensure_utc(result.data_end or params.effective_now)
 
 
-def check_account(
-    source: Source, account: Account, since: datetime, until: datetime, checked: datetime
-) -> LastSeen:
-    """Ask for the newest post and the newest comment of one account after ``since``.
+class StoppedAfterAnswer(Exception):
+    """A fatal error ended the check of one account after activity was already found.
 
-    A query that fails (for example the archive timed out on every retry) makes the
-    answer ``inconclusive`` unless the other kind found activity: found activity is a
-    fact, a missing answer is not. A query that had to be narrowed to a later start
-    counts as failed when it found nothing, because it did not cover the whole span.
-
-    Raises:
-        FATAL_SOURCE_ERRORS (budget used up, authentication, rate-limit guard): the
-            caller stops the check; the answers so far stay valid.
+    Found activity always wins, so the answer is kept; the caller records it and then
+    stops the check with ``error`` as the reason.
     """
+
+    def __init__(self, answer: LastSeen, error: BaseException) -> None:
+        super().__init__(str(error))
+        self.answer = answer
+        self.error = error
+
+
+def _check(
+    source: Source, account: Account, since: datetime, until: datetime, checked: datetime
+) -> tuple[LastSeen, bool]:
+    """:func:`check_account`, and whether every query of the account failed."""
     newest: datetime | None = None
     kind: str | None = None
     errors: list[SourceError] = []
     partial = False
+    fatal: SourceError | None = None
     for query_kind in source.precheck_kinds:
         try:
             found = source.newest_activity(account, query_kind, since, until)
-        except FATAL_SOURCE_ERRORS:
-            raise
+        except FATAL_SOURCE_ERRORS as exc:
+            fatal = exc
+            break
         except SourceError as exc:  # Includes SlowQueryError and read timeouts.
             errors.append(exc)
             continue
@@ -231,16 +256,64 @@ def check_account(
             stamp = ensure_utc(found.newest)
             if newest is None or stamp > newest:
                 newest, kind = stamp, query_kind
-    # The adapter's overload guard counts an account once, whichever query failed; it
-    # raises (a fatal error) when too many accounts in a row failed.
-    source.precheck_finished(account, errors)
+        elif found.unreadable:
+            # A row came back that cannot be read: that is not "no activity".
+            errors.append(SourceError("the archive returned a row without a usable timestamp"))
+    if fatal is None:
+        # The adapter's overload guard counts an account once, whichever query failed;
+        # it raises (a fatal error) when too many accounts in a row failed.
+        try:
+            source.precheck_finished(account, errors)
+        except FATAL_SOURCE_ERRORS as exc:
+            fatal = exc
     if newest is not None:
         status = ACTIVE_AFTER_WINDOW
-    elif errors or partial:
+    elif errors or partial or fatal is not None:
         status = INCONCLUSIVE
     else:
         status = NO_ACTIVITY_FOUND
-    return LastSeen(account.user_id, status, newest, kind, since, checked)
+    answer = LastSeen(account.user_id, status, newest, kind, since, checked)
+    if fatal is not None:
+        if newest is None:
+            raise fatal
+        raise StoppedAfterAnswer(answer, fatal) from fatal
+    return answer, bool(errors) and len(errors) >= len(source.precheck_kinds) and newest is None
+
+
+def check_account(
+    source: Source, account: Account, since: datetime, until: datetime, checked: datetime
+) -> LastSeen:
+    """Ask for the newest post and the newest comment of one account after ``since``.
+
+    A query that fails (for example the archive timed out on every retry) makes the
+    answer ``inconclusive`` unless the other kind found activity: found activity is a
+    fact, a missing answer is not. A query that had to be narrowed to a later start
+    counts as failed when it found nothing, because it did not cover the whole span. So
+    does a query whose returned row could not be read.
+
+    Raises:
+        FATAL_SOURCE_ERRORS (budget used up, authentication, rate-limit guard) when no
+            activity was found yet: the caller stops the check; the answers so far stay
+            valid.
+        StoppedAfterAnswer: the same errors after activity was found. The answer is in
+            the exception, because found activity always wins.
+    """
+    return _check(source, account, since, until, checked)[0]
+
+
+def uncached_count(
+    targets: Sequence[AccountResult],
+    params: ScoringParams,
+    cache: AnswerCache,
+    until: datetime,
+) -> int:
+    """How many targets the cache cannot answer (the ones that cost requests)."""
+    cached = cache.load(ensure_utc(until))
+    return sum(
+        1
+        for r in targets
+        if (prev := cached.get(r.user_id)) is None or prev.since != window_end(r, params)
+    )
 
 
 def run_check(
@@ -257,12 +330,15 @@ def run_check(
 
     ``requests_made`` is a callable giving the number of requests sent so far.
     When a fatal error ends the check early (the request budget, the overload guard),
-    the accounts not reached are recorded as ``inconclusive`` and ``stopped`` says why.
+    or the archive failed every query for :data:`MAX_FAILED_IN_A_ROW` accounts in a
+    row, the accounts not reached are recorded as ``inconclusive`` and ``stopped`` says
+    why. An account for which activity was found before the error keeps that answer.
     """
     until = ensure_utc(until)
     report = LastSeenReport(scope=scope, until=until)
     cached = cache.load(until) if cache is not None else {}
     stop: str | None = None
+    failed_in_a_row = 0
     for result in targets:
         since = window_end(result, params)
         previous = cached.get(result.user_id)
@@ -277,15 +353,28 @@ def run_check(
             continue
         account = Account(result.platform, result.user_id, result.handle)
         try:
-            answer = check_account(source, account, since, until, until)
+            answer, all_failed = _check(source, account, since, until, until)
+        except StoppedAfterAnswer as stopped:
+            stop = f"{type(stopped.error).__name__}: {stopped.error}"
+            report.answers[result.user_id] = stopped.answer
+            if cache is not None:
+                cache.add(stopped.answer)
+            continue
         except FATAL_SOURCE_ERRORS as exc:
             stop = f"{type(exc).__name__}: {exc}"
-            answer = LastSeen(result.user_id, INCONCLUSIVE, None, None, since, until)
-            report.answers[result.user_id] = answer
+            report.answers[result.user_id] = LastSeen(
+                result.user_id, INCONCLUSIVE, None, None, since, until
+            )
             continue
         report.answers[result.user_id] = answer
         if cache is not None and answer.status != INCONCLUSIVE:
             cache.add(answer)
+        failed_in_a_row = failed_in_a_row + 1 if all_failed else 0
+        if failed_in_a_row >= MAX_FAILED_IN_A_ROW:
+            stop = (
+                f"the archive failed every query for {MAX_FAILED_IN_A_ROW} accounts in a row "
+                "(it may be down or overloaded)"
+            )
     report.stopped = stop
     if requests_made is not None:
         report.requests = requests_made()

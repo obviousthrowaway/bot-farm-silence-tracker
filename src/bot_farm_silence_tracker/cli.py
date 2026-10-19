@@ -2061,7 +2061,9 @@ def report(
         typer.Option(
             "--last-seen",
             help="Opt in to network requests: ask the archive for the newest post and comment "
-            "of each silent account after the scored window (2 requests per account), and add "
+            "of each silent account after the scored window (2 requests per account, paced at "
+            "the archive's default rate; it adds to any scan running against the same "
+            "archive), and add "
             "the columns newest_activity_utc, newest_activity_kind, last_seen_status and "
             "scored_silent. Reddit archive runs only. Not a closure verdict: the archive keeps "
             "no account state. The database is not written.",
@@ -2072,8 +2074,8 @@ def report(
         typer.Option(
             "--last-seen-scope",
             help="With --last-seen: silent (the accounts the report lists as silent) or all "
-            "(every account the scan observed, listed after the silent ones) "
-            "[default: silent].",
+            "(every account the scan observed; the others are not candidates: JSON lists them "
+            "under last_seen_other_accounts) [default: silent].",
         ),
     ] = None,
     last_seen_cache: Annotated[
@@ -2085,6 +2087,16 @@ def report(
             "[default: the output file's name plus .last-seen.jsonl]. It holds account names.",
         ),
     ] = None,
+    trust_env: Annotated[
+        bool,
+        typer.Option(
+            "--trust-env",
+            envvar=f"{ENV_PREFIX}TRUST_ENV",
+            help="With --last-seen: use the proxy (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY) and CA "
+            "bundle (SSL_CERT_FILE, SSL_CERT_DIR) settings from the environment, as for a "
+            f"scan. Off by default. Same as {ENV_PREFIX}TRUST_ENV=1.",
+        ),
+    ] = False,
 ) -> None:
     """Re-score a previous run from the cache (no network). Cutoff and window are fixed.
 
@@ -2114,7 +2126,9 @@ def report(
         raise _fail("give --run-id (re-score a run) or --registry (report drafts)")
     _resolve_format(fmt, out)
     db = _event_db(db, chosen_event)
-    with Storage(db) as storage:
+    # --last-seen sends requests, so the database is opened read-only: no pragma, schema
+    # script, migration, db_id or spend.db sync may run against it.
+    with Storage(db, read_only=last_seen) as storage:
         stored = storage.get_run(run_id)
         own_event = (
             _check_run_event(stored, run_id, chosen_event, event_named, db)
@@ -2151,6 +2165,7 @@ def report(
         except (LookupError, ValueError) as exc:
             raise _fail(str(exc)) from None
         run = storage.get_run(run_id)
+        db_id = storage.db_id
     platform = run["platform"] if run else "unknown"
     if last_seen and platform not in last_seen_check.PLATFORMS:
         raise _fail(
@@ -2176,46 +2191,73 @@ def report(
             run or {},
             scope,
             last_seen_cache or path.with_name(path.name + ".last-seen.jsonl"),
+            db_id=db_id,
+            trust_env=trust_env,
         )
     _write_output(outcome, platform, out, fmt, include_unavailable, seen)
 
 
-#: Requests allowed per account in a last-seen check: two queries, and room for retries.
+#: Requests in a last-seen check's pooled budget, per account that needs asking: two
+#: queries, and room for retries. The budget is shared by all accounts, plus 10 extra.
 LAST_SEEN_REQUESTS_PER_ACCOUNT = 6
 
 
 def _run_last_seen(
-    outcome: ScanOutcome, run: dict[str, Any], scope: str, cache_path: Path
+    outcome: ScanOutcome,
+    run: dict[str, Any],
+    scope: str,
+    cache_path: Path,
+    *,
+    db_id: str | None,
+    trust_env: bool,
 ) -> LastSeenReport:
     """Ask the archive when the run's silent (or all) accounts were last seen.
 
     Builds the adapter as the scan does (same pacing, back-off and User-Agent, the run's
     stored non-secret options) without a database or a spend ledger, so nothing is
-    written but the answer cache.
+    written but the answer cache. The stored ``max_rps`` is dropped, so the check goes at
+    the archive's default rate whatever the scan used.
     """
     platform = str(run.get("platform") or "unknown")
     targets = last_seen_check.select_targets(outcome.results, scope)
-    cache = last_seen_check.AnswerCache(cache_path, outcome.run_id)
+    cache = last_seen_check.AnswerCache(cache_path, outcome.run_id, db_id)
+    try:
+        cache.ensure_writable()
+    except OSError as exc:
+        raise _fail(f"cannot write the --last-seen-cache file {cache_path}: {exc}") from None
     until = utcnow()
+    asking = last_seen_check.uncached_count(targets, outcome.params, cache, until)
     typer.echo(
-        f"Last seen: asking the archive about {len(targets)} accounts (scope {scope}), "
-        f"about {2 * len(targets)} requests at the archive's polite rate. Answers are kept "
-        f"in {cache_path}, so an interrupted check continues.",
+        f"Last seen: asking the archive about {asking} of {len(targets)} accounts "
+        f"(scope {scope}; the rest are answered from the cache), about {2 * asking} "
+        f"requests at the archive's polite rate. Answers are kept in {cache_path}, so an "
+        "interrupted check continues.",
         err=True,
     )
     source_cls = load_source_class(platform)
+    if trust_env:
+        typer.secho(
+            "warning: --trust-env is on: a proxy from the environment sees every host "
+            "this check contacts, and a CA from SSL_CERT_FILE or SSL_CERT_DIR could let "
+            "it read the requests.",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
     http = HttpClient(
-        max_requests=LAST_SEEN_REQUESTS_PER_ACCOUNT * len(targets) + 10,
+        max_requests=LAST_SEEN_REQUESTS_PER_ACCOUNT * asking + 10,
         requests_per_second=source_cls.default_rps,
         burst=source_cls.default_burst,
         timeout=source_cls.default_timeout,
+        trust_env=trust_env,
     )
+    options = dict((run.get("params") or {}).get("source_options") or {})
+    options.pop("max_rps", None)
     config = SourceConfig(
         http=http,
         credentials={},
         now=until,
         cutoff=outcome.params.cutoff,
-        options=dict((run.get("params") or {}).get("source_options") or {}),
+        options=options,
     )
     try:
         source = source_cls(config)
