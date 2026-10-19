@@ -354,6 +354,50 @@ def test_ids_are_bound_to_names(platform: str, user_id: str, username: str, ok: 
     assert (R.record_errors(record) == []) is ok
 
 
+@pytest.mark.parametrize(
+    ("name", "ok"),
+    [
+        ("alice", True),
+        ("a-b_c", True),
+        ("a" * 20, True),
+        ("europeanunion-ModTeam", True),  # 21 characters: a subreddit's system account.
+        ("abc-ModTeam", True),
+        ("a_b" * 7 + "-ModTeam", True),  # A 21-character subreddit name, the longest.
+        ("a" * 22, False),
+        ("a" * 21, False),
+        ("a" * 22 + "-ModTeam", False),  # A subreddit name has at most 21 characters.
+        ("ab-ModTeam", True),  # Short enough to be an ordinary username.
+        ("europeanunion-modteam", False),  # The suffix is case-sensitive.
+        ("europeanunion-MODTEAM", False),
+        ("europeanunion-ModTeam2", False),
+        ("a-b-c-d-e-f-g-h-ModTeam", False),  # A subreddit name has no hyphen.
+        ("europeanunion_ModTeam", False),
+        ("-ModTeam", True),  # Eight characters of the ordinary username alphabet.
+        ("", False),
+        ("ab", False),
+        ("bad name", False),
+        ("bad.name", False),
+        ("bad/name", False),
+        ("bad$name-ModTeam", False),
+    ],
+)
+@pytest.mark.parametrize("platform", ["reddit", "reddit-archive"])
+def test_reddit_usernames_allow_modteam_system_accounts(platform: str, name: str, ok: bool) -> None:
+    assert R.valid_username(platform, name) is ok
+
+
+def test_a_modteam_account_makes_a_valid_record_on_both_reddit_platforms() -> None:
+    name = "europeanunion-ModTeam"
+    archive = arch(name)
+    assert R.record_errors(archive) == []
+    reddit = rec(platform="reddit", id_b64=R.b64e(name.lower()), username_b64=R.b64e(name))
+    assert R.record_errors(reddit) == []
+    assert R.valid_user_id("reddit", name.lower())
+    assert "u/europeanunion-ModTeam" in render_reddit(reddit, None)
+    bad = rec(platform="reddit", id_b64=R.b64e("a" * 22), username_b64=R.b64e("a" * 22))
+    assert R.record_errors(bad) != []
+
+
 def test_drafts_name_the_account_by_its_id() -> None:
     reddit = render_reddit(
         rec(platform="reddit", id_b64=R.b64e("alice"), username_b64=R.b64e("Alice")), None
@@ -612,6 +656,15 @@ def test_gate_fails_tampering(tmp_path: Path, case: str) -> None:
     assert not result.ok, render_gate(result)
     labelled = repo.gate(honest(*rows), labels=(V.OVERRIDE_LABEL,))
     assert labelled.ok is (case in ("deletion", "downgrade"))
+
+
+def test_gate_accepts_a_modteam_account_record(tmp_path: Path) -> None:
+    repo = GateRepo(tmp_path / "r", [])
+    row = arch("europeanunion-ModTeam", status="scanned")
+    R.write_records(repo.path / "registry", [row])
+    repo.commit()
+    result = repo.gate(honest(row))
+    assert result.ok, render_gate(result)
 
 
 def test_gate_reads_the_event_payload_and_never_checks_out_the_head(tmp_path: Path) -> None:

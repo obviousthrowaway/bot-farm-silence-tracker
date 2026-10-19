@@ -127,7 +127,10 @@ _DID = r"^did:(plc|web):[A-Za-z0-9._:%-]+$"
 #: The atproto handle syntax (lower case, as the AppView returns handles).
 _BSKY_HANDLE = r"([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}"
 BSKY_HANDLE_MAX = 253
-_REDDIT_NAME = r"[A-Za-z0-9_-]{3,20}"
+#: A Reddit username (3 to 20 characters), or the name of a subreddit's system account,
+#: ``<subreddit>-ModTeam``. A subreddit name is 3 to 21 letters, digits and underscores
+#: (no hyphen), so a ModTeam account can have a longer name than a user.
+_REDDIT_NAME = r"[A-Za-z0-9_-]{3,20}|[A-Za-z0-9_]{3,21}-ModTeam"
 _X_NAME = r"[A-Za-z0-9_]{1,15}"
 _SHARD = r"^[0-9a-f]{2}$"
 
@@ -376,6 +379,10 @@ def valid_user_id(platform: str, user_id: str) -> bool:
         return bool(re.fullmatch(_DID, user_id))
     if platform == "x":
         return bool(re.fullmatch(r"[0-9]{1,30}", user_id))
+    if platform == "reddit":
+        # The ID of a ``reddit`` record is the lower-cased username, so the suffix
+        # of a ModTeam account is ``-modteam`` there.
+        return bool(re.fullmatch(_REDDIT_NAME, user_id, re.IGNORECASE))
     return valid_username(platform, user_id)
 
 

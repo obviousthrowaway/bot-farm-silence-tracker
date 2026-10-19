@@ -2417,6 +2417,13 @@ def registry_add(
     registry: RegistryOption = None,
     db: DbOption = None,
     no_live_check: NoLiveCheckOption = False,
+    flagged_only: Annotated[
+        bool,
+        typer.Option(
+            "--flagged-only",
+            help="Write only flagged accounts (cliff or candidate); count the rest.",
+        ),
+    ] = False,
 ) -> None:
     """Merge a run's scanned accounts into its event's folder of the registry.
 
@@ -2429,6 +2436,9 @@ def registry_add(
     Reddit and X: not checked, the verifier resolves it); else ``scanned``. Existing
     records of the same event are updated by a newer scan; ``verified_inauthentic``
     and ``cleared`` are never changed. Opted-out and unavailable accounts are left out.
+    With ``--flagged-only``, only accounts whose record has ``cliff`` true or is a
+    ``candidate`` are written; the other fully scanned accounts are skipped and counted
+    in the summary, and an existing record of one of them is not changed.
     """
     from bot_farm_silence_tracker.registry.build import add_run
 
@@ -2443,7 +2453,7 @@ def registry_add(
         catalog = _shared_event(own, root)
         try:
             with _live_check(no_live_check) as live:
-                stats = add_run(root, storage, run_id, catalog, live)
+                stats = add_run(root, storage, run_id, catalog, live, flagged_only=flagged_only)
         except (LookupError, ValueError) as exc:
             raise _fail(str(exc)) from None
     typer.echo(
@@ -2458,6 +2468,12 @@ def registry_add(
             f"{count} {reason.replace('_', ' ')}" for reason, count in stats.excluded.items()
         )
         typer.echo(f"Left out: {left}.")
+    if flagged_only:
+        typer.echo(
+            f"Skipped as unflagged (--flagged-only): {stats.skipped_unflagged} fully scanned "
+            f"accounts with no cliff and no candidate status, of which "
+            f"{stats.skipped_unflagged_registered} already have a record that was left as it is."
+        )
     if stats.live_blocked:
         kept = ", ".join(f"{count} {status}" for status, count in stats.live_blocked.items())
         typer.secho(

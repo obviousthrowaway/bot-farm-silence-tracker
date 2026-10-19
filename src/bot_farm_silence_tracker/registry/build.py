@@ -316,6 +316,15 @@ class AddStats:
     notes: list[str] = field(default_factory=list)
     #: Accounts the live profile check kept from becoming candidates, by its status.
     live_blocked: dict[str, int] = field(default_factory=dict)
+    #: With ``flagged_only``: fully scanned accounts not written because they are neither
+    #: a cliff nor a candidate, and how many of them already have a record (left as it is).
+    skipped_unflagged: int = 0
+    skipped_unflagged_registered: int = 0
+
+
+def is_flagged(record: dict[str, Any]) -> bool:
+    """Whether a record is flagged: ``cliff`` is true, or it is a ``candidate``."""
+    return bool(record["cliff"]) or record["status"] == STATUS_CANDIDATE
 
 
 def add_run(
@@ -324,9 +333,15 @@ def add_run(
     run_id: int,
     events: EventCatalog,
     live: Check = no_live_check,
+    flagged_only: bool = False,
 ) -> AddStats:
     """Merge the records of ``run_id`` into its event's folder of the registry at
-    ``root``. ``live`` is the live profile check (see :func:`run_records`)."""
+    ``root``. ``live`` is the live profile check (see :func:`run_records`).
+
+    With ``flagged_only``, only the flagged records are written (``cliff`` true, or
+    ``candidate``, see :func:`is_flagged`); the other fully scanned accounts are counted in
+    ``skipped_unflagged`` and an existing record of one of them is left as it is.
+    """
     built = run_records(storage, run_id, events, live)
     for record in built.records:
         errors = record_errors(record, events=events)
@@ -346,6 +361,11 @@ def add_run(
     for record in built.records:
         key = record_key(record)
         old = existing.get(key)
+        if flagged_only and not is_flagged(record):
+            stats.skipped_unflagged += 1
+            if old is not None:
+                stats.skipped_unflagged_registered += 1
+            continue
         if old is None:
             existing[key] = record
             stats.added += 1

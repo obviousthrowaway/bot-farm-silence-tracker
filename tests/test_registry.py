@@ -481,6 +481,84 @@ def test_add_builds_valid_deterministic_records(db: Path, tmp_path: Path) -> Non
     assert {p: p.read_bytes() for p in root.rglob("*.jsonl")} == snapshot
 
 
+def _flagged(built_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [r for r in built_records if r["cliff"] or r["status"] == STATUS_CANDIDATE]
+
+
+def test_flagged_only_writes_cliff_and_candidate_records_and_counts_the_rest(
+    db: Path, tmp_path: Path
+) -> None:
+    with Storage(db) as storage:
+        built = run_records(storage, 1, EVENTS)
+    flagged = _flagged(built.records)
+    other = len(built.records) - len(flagged)
+    assert flagged and other > 0  # The fixture has both kinds.
+    root = tmp_path / "registry"
+    result = runner.invoke(
+        app,
+        ["registry", "add", "--run-id", "1", "--db", str(db), "--registry", str(root),
+         "--no-live-check", "--flagged-only"],
+    )  # fmt: skip
+    assert result.exit_code == 0, result.output
+    assert f"{len(flagged)} added" in result.output
+    assert f"Skipped as unflagged (--flagged-only): {other} fully scanned accounts" in result.output
+    assert "0 already have a record" in result.output
+    records = load_records(root)
+    assert {(r["platform"], r["id_b64"]) for r in records.values()} == {
+        (r["platform"], r["id_b64"]) for r in flagged
+    }
+    assert all(r["cliff"] or r["status"] == STATUS_CANDIDATE for r in records.values())
+    # The file format and the checks are the same as without the flag.
+    assert validate_registry(root) == []
+
+
+def test_without_flagged_only_every_fully_scanned_account_is_written(
+    db: Path, tmp_path: Path
+) -> None:
+    with Storage(db) as storage:
+        built = run_records(storage, 1, EVENTS)
+    root = tmp_path / "registry"
+    result = runner.invoke(
+        app,
+        ["registry", "add", "--run-id", "1", "--db", str(db), "--registry", str(root),
+         "--no-live-check"],
+    )  # fmt: skip
+    assert result.exit_code == 0, result.output
+    assert "Skipped as unflagged" not in result.output
+    assert len(load_records(root)) == len(built.records)
+
+
+def test_flagged_only_leaves_an_existing_unflagged_record_as_it_is(
+    db: Path, tmp_path: Path
+) -> None:
+    root = tmp_path / "registry"
+    args = ["registry", "add", "--run-id", "1", "--db", str(db), "--registry", str(root),
+            "--no-live-check"]  # fmt: skip
+    assert runner.invoke(app, args).exit_code == 0
+    before = {p: p.read_bytes() for p in root.rglob("*.jsonl")}
+    with Storage(db) as storage:
+        built = run_records(storage, 1, EVENTS)
+    other = len(built.records) - len(_flagged(built.records))
+    again = runner.invoke(app, [*args, "--flagged-only"])
+    assert again.exit_code == 0, again.output
+    assert f"{other} fully scanned accounts" in again.output
+    assert f"of which {other} already have a record" in again.output
+    assert "0 files changed" in again.output
+    assert {p: p.read_bytes() for p in root.rglob("*.jsonl")} == before
+
+
+def test_flagged_only_output_passes_registry_validate(db: Path, tmp_path: Path) -> None:
+    root = tmp_path / "registry"
+    result = runner.invoke(
+        app,
+        ["registry", "add", "--run-id", "1", "--db", str(db), "--registry", str(root),
+         "--no-live-check", "--flagged-only"],
+    )  # fmt: skip
+    assert result.exit_code == 0, result.output
+    validated = runner.invoke(app, ["registry", "validate", "--registry", str(root)])
+    assert validated.exit_code == 0, validated.output
+
+
 def test_add_excludes_opted_out_accounts(db: Path, tmp_path: Path) -> None:
     with Storage(db) as storage:
         built = run_records(storage, 1, EVENTS)
