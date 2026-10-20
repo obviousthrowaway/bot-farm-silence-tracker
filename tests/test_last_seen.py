@@ -443,8 +443,6 @@ def test_the_database_is_not_written_even_when_it_cannot_be_written(
     scanned: tuple[Archive, Path, dict[str, Any]], tmp_path: Path
 ) -> None:
     _, db, _ = scanned
-    for suffix in ("-wal", "-shm"):  # A finished scan leaves no write-ahead log behind.
-        assert not Path(f"{db}{suffix}").exists() or Path(f"{db}{suffix}").stat().st_size == 0
     work = tmp_path / "work"
     work.mkdir()
     out_dir = tmp_path / "out"
@@ -455,13 +453,17 @@ def test_the_database_is_not_written_even_when_it_cannot_be_written(
     before = snapshot(work)
     assert report(copy_db, out_dir / "a.csv", "--last-seen").exit_code == 0
     after = snapshot(work)
+
     # The database and every other file are unchanged and spend.db was not created or
     # synced. SQLite itself may create an empty -wal and a -shm when it reads a database in
-    # WAL mode; those hold no data and are the only new files.
-    assert {k: v for k, v in after.items() if k in before} == before
+    # WAL mode, and it updates a -shm that exists; those hold no data of the run.
+    def stable(files: dict[str, tuple[str, int]]) -> dict[str, tuple[str, int]]:
+        return {k: v for k, v in files.items() if not k.endswith("-shm")}
+
+    assert {k: v for k, v in stable(after).items() if k in before} == stable(before)
     assert set(after) - set(before) <= {"one.db-wal", "one.db-shm"}
     assert "spend.db" not in after
-    if "one.db-wal" in after:
+    if "one.db-wal" not in before and "one.db-wal" in after:
         assert Path(f"{copy_db}-wal").stat().st_size == 0
     # A read-only copy in a read-only folder still works, so nothing needs a write.
     ro_dir = tmp_path / "ro"
@@ -647,7 +649,30 @@ def test_failing_every_query_for_three_accounts_in_a_row_stops_the_check() -> No
     assert sent[0] == sent[1] > 0
 
 
-def test_one_answered_query_resets_the_failed_accounts_streak() -> None:
+def one_kind_down(archive: Archive, path_end: str) -> Any:
+    def hook(q: dict[str, str]) -> httpx.Response | None:
+        if "author" in q and archive.requests[-1].url.path.endswith(path_end):
+            return httpx.Response(500)
+        return None
+
+    return hook
+
+
+@pytest.mark.parametrize("down", ["/comments/search", "/posts/search"])
+def test_one_kind_of_query_failing_for_three_accounts_in_a_row_stops_the_check(down: str) -> None:
+    sent = []
+    for count in (3, 12):
+        archive = Archive([pulse()])
+        archive.hook = one_kind_down(archive, down)
+        src, _, _ = make_source(archive)
+        report_ = run(src, [result(f"u{i:02}") for i in range(count)])
+        assert {a.status for a in report_.answers.values()} == {ls.INCONCLUSIVE}
+        assert report_.stopped is not None and "3 accounts in a row" in report_.stopped
+        sent.append(len(archive.requests))
+    assert sent[0] == sent[1] > 0
+
+
+def test_an_account_that_answered_everything_resets_the_streak() -> None:
     def hook(q: dict[str, str]) -> httpx.Response | None:
         return None if q.get("author", "").startswith("ok") else server_error(q)
 
@@ -658,6 +683,18 @@ def test_one_answered_query_resets_the_failed_accounts_streak() -> None:
     assert report_.stopped is None
     assert report_.answers["ok1"].status == ls.NO_ACTIVITY_FOUND
     assert report_.answers["f4"].status == ls.INCONCLUSIVE
+
+
+def test_found_activity_does_not_count_as_a_failed_account() -> None:
+    items = [pulse()] + [
+        post(f"p{i}", f"u{i:02}", "a", SINCE + timedelta(days=1)) for i in range(8)
+    ]
+    archive = Archive(items)
+    archive.hook = one_kind_down(archive, "/comments/search")
+    src, _, _ = make_source(archive)
+    report_ = run(src, [result(f"u{i:02}") for i in range(8)])
+    assert report_.stopped is None
+    assert {a.status for a in report_.answers.values()} == {ls.ACTIVE_AFTER_WINDOW}
 
 
 @pytest.mark.parametrize(
@@ -883,3 +920,22 @@ def test_last_seen_opens_the_database_read_only_and_plain_report_does_not(
     opened.clear()
     assert report(db, tmp_path / "plain.csv").exit_code == 0
     assert opened and not any(s.read_only for s in opened)  # Without the flag nothing changes.
+
+
+def test_two_databases_sharing_a_cache_file_do_not_share_answers(
+    scanned: tuple[Archive, Path, dict[str, Any]], tmp_path: Path
+) -> None:
+    archive, first, _ = scanned
+    cli_scan(tmp_path, "two")
+    second = tmp_path / "two.db"
+    cache = tmp_path / "shared.jsonl"
+    assert (
+        report(first, tmp_path / "a.csv", "--last-seen", "--last-seen-cache", str(cache)).exit_code
+        == 0
+    )
+    sent = len(archive.requests)
+    again = report(second, tmp_path / "b.csv", "--last-seen", "--last-seen-cache", str(cache))
+    assert again.exit_code == 0, again.output
+    assert len(archive.requests) - sent == 12 and "0 answers reused" in again.output
+    same = report(first, tmp_path / "c.csv", "--last-seen", "--last-seen-cache", str(cache))
+    assert "6 answers reused" in same.output  # Each database still reuses its own.

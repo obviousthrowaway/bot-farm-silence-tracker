@@ -1957,8 +1957,8 @@ per second is 21,600 seconds, about 6 hours.
 
 The check marks the accounts it did not reach `inconclusive` and stops when any of these
 happens: the archive keeps timing out for several accounts in a row (the adapter's
-overload guard), the archive fails every query (for example with HTTP 500 or 503) for
-three accounts in a row, or the request budget is used up. The budget is one pool shared by
+overload guard), a query fails (for example with HTTP 500 or 503) and finds no activity for
+three accounts in a row, even if only one kind of query (comments or posts) fails, or the request budget is used up. The budget is one pool shared by
 all accounts, not a limit per account: it is six requests for each account that has to be
 asked (accounts answered from the answer cache are not counted), plus ten more. Activity
 that was found before such a stop is never lost: an account for which one kind of query

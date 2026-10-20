@@ -53,8 +53,9 @@ COLUMNS = ["newest_activity_utc", "newest_activity_kind", "last_seen_status", "s
 #: A cached answer is reused for this long; after that the account is asked again.
 REUSE_FOR = timedelta(hours=24)
 
-#: The check stops after this many accounts in a row for which every query failed
-#: (for example HTTP 500 or 503 from the archive), whatever the adapter's own guard does.
+#: The check stops after this many accounts in a row with a failed query and no activity
+#: found (for example HTTP 500 or 503 from the archive, even for one kind only),
+#: whatever the adapter's own guard does.
 MAX_FAILED_IN_A_ROW = 3
 
 NOTICE = (
@@ -235,7 +236,8 @@ class StoppedAfterAnswer(Exception):
 def _check(
     source: Source, account: Account, since: datetime, until: datetime, checked: datetime
 ) -> tuple[LastSeen, bool]:
-    """:func:`check_account`, and whether every query of the account failed."""
+    """:func:`check_account`, and whether the account counts as failed: a query errored and
+    no activity was found, so the answer is inconclusive. Found activity never counts."""
     newest: datetime | None = None
     kind: str | None = None
     errors: list[SourceError] = []
@@ -277,7 +279,7 @@ def _check(
         if newest is None:
             raise fatal
         raise StoppedAfterAnswer(answer, fatal) from fatal
-    return answer, bool(errors) and len(errors) >= len(source.precheck_kinds) and newest is None
+    return answer, bool(errors) and newest is None
 
 
 def check_account(
@@ -285,11 +287,12 @@ def check_account(
 ) -> LastSeen:
     """Ask for the newest post and the newest comment of one account after ``since``.
 
-    A query that fails (for example the archive timed out on every retry) makes the
-    answer ``inconclusive`` unless the other kind found activity: found activity is a
-    fact, a missing answer is not. A query that had to be narrowed to a later start
-    counts as failed when it found nothing, because it did not cover the whole span. So
-    does a query whose returned row could not be read.
+    Found activity always wins: if either kind of query found a post or comment, the
+    answer is ``active_after_window``. Otherwise the answer is ``inconclusive`` when a
+    query failed (for example the archive timed out on every retry), when a returned
+    row could not be read, or when a query had to be narrowed to a later start and so
+    did not cover the whole span. It is ``no_activity_found`` only when every query ran
+    over the whole span and found nothing.
 
     Raises:
         FATAL_SOURCE_ERRORS (budget used up, authentication, rate-limit guard) when no
@@ -330,9 +333,9 @@ def run_check(
 
     ``requests_made`` is a callable giving the number of requests sent so far.
     When a fatal error ends the check early (the request budget, the overload guard),
-    or the archive failed every query for :data:`MAX_FAILED_IN_A_ROW` accounts in a
-    row, the accounts not reached are recorded as ``inconclusive`` and ``stopped`` says
-    why. An account for which activity was found before the error keeps that answer.
+    or :data:`MAX_FAILED_IN_A_ROW` accounts in a row had a failed query and no activity,
+    the accounts not reached are recorded as ``inconclusive`` and ``stopped`` says why.
+    An account for which activity was found before the error keeps that answer.
     """
     until = ensure_utc(until)
     report = LastSeenReport(scope=scope, until=until)
@@ -353,7 +356,7 @@ def run_check(
             continue
         account = Account(result.platform, result.user_id, result.handle)
         try:
-            answer, all_failed = _check(source, account, since, until, until)
+            answer, failed_without_activity = _check(source, account, since, until, until)
         except StoppedAfterAnswer as stopped:
             stop = f"{type(stopped.error).__name__}: {stopped.error}"
             report.answers[result.user_id] = stopped.answer
@@ -369,10 +372,10 @@ def run_check(
         report.answers[result.user_id] = answer
         if cache is not None and answer.status != INCONCLUSIVE:
             cache.add(answer)
-        failed_in_a_row = failed_in_a_row + 1 if all_failed else 0
+        failed_in_a_row = failed_in_a_row + 1 if failed_without_activity else 0
         if failed_in_a_row >= MAX_FAILED_IN_A_ROW:
             stop = (
-                f"the archive failed every query for {MAX_FAILED_IN_A_ROW} accounts in a row "
+                f"the archive failed a query for {MAX_FAILED_IN_A_ROW} accounts in a row "
                 "(it may be down or overloaded)"
             )
     report.stopped = stop
