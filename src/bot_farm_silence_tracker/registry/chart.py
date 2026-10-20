@@ -7,15 +7,17 @@ by hand with no plotting library, so the standalone binaries can produce it too.
 
 What is charted
 ---------------
-The records of one event that claim silence and that no reviewer has cleared:
+The records of one event that were flagged for review and that no reviewer has
+cleared:
 
 * ``verified_inauthentic``: a person checked the evidence ("verified");
-* ``candidate``: an automatic label, a cliff with at least one signal;
-* ``scanned`` with ``cliff`` set: an automatic label, silent since the takedown.
+* ``candidate``: an automatic label, a cliff with at least one signal, which needs
+  human review.
 
 Each record's ``last_activity_at`` is its stop: the newest activity the scan saw, so
-the account has had no activity since. ``cleared`` records and ``scanned`` records
-without a cliff are left out; the cleared ones are counted in the header.
+the account had no activity seen up to its last scan. ``scanned`` records are left
+out, with or without a cliff, because the scan only recorded them and nothing marked
+them for review. ``cleared`` records are left out too and counted in the header.
 
 The chart has two panels. The main panel is the cumulative number of these accounts
 by stop time, stacked by platform, from the start of the event's baseline window to
@@ -53,7 +55,6 @@ from bot_farm_silence_tracker.registry.records import (
     PLATFORMS,
     STATUS_CANDIDATE,
     STATUS_CLEARED,
-    STATUS_SCANNED,
     STATUS_VERIFIED,
     RegistryTree,
     validate_registry,
@@ -69,11 +70,9 @@ THEMES = ("light", "dark")
 #: Status groups, in the order the header lists them.
 GROUP_VERIFIED = "verified"
 GROUP_CANDIDATE = "candidate"
-GROUP_SILENT = "silent"
 GROUP_LABELS = {
     GROUP_VERIFIED: "verified by a person",
     GROUP_CANDIDATE: "candidate (automatic)",
-    GROUP_SILENT: "silent since takedown (automatic)",
 }
 PLATFORM_LABELS = {
     "bluesky": "Bluesky",
@@ -154,14 +153,16 @@ def _day(moment: datetime | date) -> str:
 
 
 def group_of(record: dict[str, Any]) -> str | None:
-    """The status group a record is charted in, or ``None`` when it is left out."""
+    """The status group a record is charted in, or ``None`` when it is left out.
+
+    A ``scanned`` record is never charted, even with ``cliff`` set: it was scanned, not
+    marked for review, so it is not counted as a potential bot account.
+    """
     status = record["status"]
     if status == STATUS_VERIFIED:
         return GROUP_VERIFIED
     if status == STATUS_CANDIDATE:
         return GROUP_CANDIDATE
-    if status == STATUS_SCANNED and record["cliff"]:
-        return GROUP_SILENT
     return None
 
 
@@ -304,7 +305,7 @@ def render_svg(data: ChartData, theme: str = "light") -> str:
     svg.text(
         LEFT - 40,
         y,
-        "Registry accounts with no activity since they stopped posting, cumulative by "
+        "Registry accounts with no activity seen up to their last scan, cumulative by "
         "stop time. Event " + event.id + ".",
         size=13,
         fill=pal["text2"],
@@ -568,8 +569,8 @@ def render_svg(data: ChartData, theme: str = "light") -> str:
     svg.text(
         LEFT - 40,
         y,
-        "Silence alone is not proof that an account is a bot. “Candidate” and "
-        "“silent since takedown” are automatic labels",
+        "Silence alone is not proof that an account is a bot. “Candidate” is an automatic "
+        "label that marks leads for human review;",
         size=13,
         fill=pal["text"],
     )
@@ -577,8 +578,8 @@ def render_svg(data: ChartData, theme: str = "light") -> str:
     svg.text(
         LEFT - 40,
         y,
-        "that mark leads for human review; only “verified” means a person checked "
-        "the evidence. Dashed lines are approximate times.",
+        "only “verified” means a person checked the evidence. Scanned records are not "
+        "charted. Dashed lines are approximate times.",
         size=13,
         fill=pal["text"],
     )

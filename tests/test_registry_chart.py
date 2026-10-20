@@ -18,9 +18,12 @@ from bot_farm_silence_tracker.cli import app
 from bot_farm_silence_tracker.events import EventMarker, OutageEvent
 from bot_farm_silence_tracker.registry.chart import (
     EMPTY_TITLE,
+    GROUP_CANDIDATE,
+    GROUP_VERIFIED,
     ChartError,
     chart_data,
     esc,
+    group_of,
     render_svg,
     write_charts,
 )
@@ -152,7 +155,7 @@ def multi_platform() -> list[dict[str, Any]]:
         rec(STRIKES, "bluesky", *bsky[0], second + timedelta(minutes=10)),
         rec(STRIKES, "bluesky", *bsky[1], cut - timedelta(minutes=15)),
         rec(STRIKES, "x", *ACCOUNTS["x"][0], cut + timedelta(hours=2), status="scanned"),
-        rec(STRIKES, "x", "9876543210", x[0][1] + "b", cut - timedelta(days=40), status="scanned"),
+        rec(STRIKES, "x", "9876543210", x[0][1] + "b", cut - timedelta(days=40)),
     ]
 
 
@@ -198,20 +201,63 @@ def test_empty_state(tmp_path: Path) -> None:
 
 def test_counts_status_split_and_markers(tmp_path: Path) -> None:
     text = render_case(tmp_path, "multi_markers")["fixture-strikes-light.svg"]
-    # 3 candidates + 1 verified + 3 scanned cliffs; cleared and non-cliff left out.
+    # 4 candidates + 1 verified; cleared and every scanned record (cliff or not) left out.
     assert (
-        "7 potential bot accounts: 1 verified by a person, 3 candidate (automatic), 3 silent "
-        "since takedown (automatic); 1 cleared by a reviewer (not charted)."
+        "5 potential bot accounts: 1 verified by a person, 4 candidate (automatic); "
+        "1 cleared by a reviewer (not charted)."
     ) in text
-    assert "Reddit (archive) 3" in text and "Bluesky 2" in text and "X 2" in text
+    assert "silent since takedown" not in text
+    assert "Reddit (archive) 2" in text and "Bluesky 2" in text and "X 1" in text
     assert "from 9 records in fixture-strikes" in text
     assert "Second strike, Oct 8 18:00 UTC (approx.)" in text
     assert text.count('stroke-dasharray="5 4"') == 2  # the approximate marker, both panels
     # Histogram bucketed by the nearest anchor.
-    assert "First strike 2" in text and "Second strike 2" in text
+    assert "First strike 2" in text and "Second strike 1" in text
     assert "Silence alone is not proof" in text
     assert "1 earlier" in text  # the stop 40 days before the cutoff is outside the range
     assert " bots" not in text.replace("potential bot accounts", "")
+
+
+def test_scanned_cliff_records_are_not_charted(tmp_path: Path) -> None:
+    # Scanned records with a cliff were scanned, not marked for review: the chart shows
+    # none of them, so a registry holding only such records draws the empty chart.
+    cut = MAIN.cutoff
+    names = ACCOUNTS["reddit-archive"]
+    records = [
+        rec(MAIN, "reddit-archive", *names[i], cut - timedelta(hours=i + 1), status="scanned")
+        for i in range(3)
+    ]
+    assert all(group_of(r) is None for r in records)
+    data = chart_data(MAIN, records, as_of=AS_OF, commit=COMMIT)
+    assert data.empty and data.records == 3 and data.cleared == 0
+    text = write_and_read(tmp_path, records)
+    assert EMPTY_TITLE in text
+    assert "0 potential bot accounts: 0 verified by a person, 0 candidate (automatic)." in text
+    assert "from 3 records in fixture-main" in text
+    assert "silent since takedown" not in text
+
+
+def test_group_of_by_status() -> None:
+    stop = MAIN.cutoff - timedelta(hours=1)
+    user_id, username = ACCOUNTS["reddit-archive"][0]
+
+    def group(status: str, cliff: bool = True) -> str | None:
+        return group_of(
+            rec(MAIN, "reddit-archive", user_id, username, stop, status=status, cliff=cliff)
+        )
+
+    assert group("verified_inauthentic") == GROUP_VERIFIED
+    assert group("candidate") == GROUP_CANDIDATE
+    assert group("scanned") is None
+    assert group("scanned", cliff=False) is None
+    assert group("cleared") is None
+
+
+def write_and_read(tmp_path: Path, records: list[dict[str, Any]]) -> str:
+    root = registry(tmp_path, records)
+    out = tmp_path / "out"
+    write_charts(root, out, as_of=AS_OF, commit=COMMIT, event_ids=[MAIN.id], now=NOW)
+    return (out / f"{MAIN.id}-light.svg").read_text(encoding="utf-8")
 
 
 def test_no_identities_in_output(tmp_path: Path) -> None:

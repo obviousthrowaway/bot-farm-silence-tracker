@@ -75,16 +75,19 @@ account becomes a candidate for review (see [Method](#method) and
 
 ## Shared registry chart
 
-The registry is empty until flagged accounts pass review, so 0 is expected here.
+The chart counts only `candidate` (automatic, awaiting review) and
+`verified_inauthentic` records. The registry holds only `scanned` records so far, so
+0 is expected here.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/charts/default-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="docs/charts/default-light.svg">
-  <img alt="Chart: potential bot accounts in the shared registry that have not posted since the default outage event, cumulative over time by platform, with a histogram of their stop times around the cutoff and its markers. Silence alone is not proof that an account is a bot." src="docs/charts/default-light.svg">
+  <img alt="Chart: potential bot accounts in the shared registry with no activity seen up to their last scan, cumulative over time by platform, with a histogram of their stop times around the cutoff of the default outage event and its markers. Silence alone is not proof that an account is a bot." src="docs/charts/default-light.svg">
 </picture>
 
-Potential bot accounts in the [shared registry](#shared-registry) that have posted
-nothing since the reported outage of the default event, redrawn each time registry
+Potential bot accounts in the [shared registry](#shared-registry) with no activity
+seen up to their last scan, by when they stopped around the reported outage of the
+default event, redrawn each time registry
 data that passed the [checks on registry pull requests](#checks-on-registry-pull-requests)
 is merged (see [Method](#method) and [Registry chart](#registry-chart)); silence alone
 is not proof that an account is a bot, and the outage also silenced ordinary users of
@@ -2764,17 +2767,19 @@ rules as the gate and then writes `docs/charts/<event>-light.svg` and
 the default event. It shows counts only, never a username, handle or ID. For the event
 it shows:
 
-- the cumulative number of accounts with no activity since they stopped, by stop
-  time and stacked by platform, from the start of the baseline window to the day it
+- the cumulative number of accounts with no activity seen up to their last scan, by
+  stop time and stacked by platform, from the start of the baseline window to the day it
   was drawn, with a line at the cutoff and at each marker (dashed when the marker's
   time is approximate);
 - a histogram of the stop times in hours relative to the cutoff, each bar split by
   the marker (or the main outage) the stop is nearest to, so accounts that stopped
   together show as a spike;
 - the counts by status: "verified" (`verified_inauthentic`, a person checked the
-  evidence), and the automatic labels "candidate" (`candidate`) and "silent since
-  takedown" (`scanned` with `cliff`). `cleared` records and `scanned` records without a
-  cliff are not charted.
+  evidence) and the automatic label "candidate" (`candidate`, a lead for human
+  review). `cleared` records and all `scanned` records, with or without a cliff, are
+  not charted: a `scanned` record was only scanned, not marked for review. A `scanned`
+  record with `cliff` set still counts as flagged for `registry add --flagged-only`
+  (`--flagged-only` keeps it, but it is not charted).
 
 The same registry, events file, date and commit always give the same bytes. Run it
 locally with `bot-farm-silence-tracker registry chart --as-of 2026-10-14`.

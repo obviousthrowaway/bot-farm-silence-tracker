@@ -1,26 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="801" viewBox="0 0 960 801" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Helvetica, Arial, sans-serif">
 <title id="t">Potential bot accounts silent since the Fixture strikes outage</title>
-<desc id="d">7 potential bot accounts: 1 verified by a person, 3 candidate (automatic), 3 silent since takedown (automatic); 1 cleared by a reviewer (not charted). By platform: 2 on Bluesky, 3 on Reddit (archive), 2 on X. Cutoff Oct 10 18:30 UTC; marker First strike Oct 8 00:56 UTC; marker Second strike Oct 8 18:00 UTC.</desc>
+<desc id="d">5 potential bot accounts: 1 verified by a person, 4 candidate (automatic); 1 cleared by a reviewer (not charted). By platform: 2 on Bluesky, 2 on Reddit (archive), 1 on X. Cutoff Oct 10 18:30 UTC; marker First strike Oct 8 00:56 UTC; marker Second strike Oct 8 18:00 UTC.</desc>
 <rect width="960" height="801" rx="8" fill="#1a1a19"/>
 <text x="24.0" y="34.0" font-size="20" fill="#ffffff" font-weight="bold">Potential bot accounts silent since the Fixture strikes outage</text>
-<text x="24.0" y="56.0" font-size="13" fill="#c3c2b7">Registry accounts with no activity since they stopped posting, cumulative by stop time. Event fixture-strikes.</text>
-<text x="24.0" y="80.0" font-size="14" fill="#ffffff">7 potential bot accounts: 1 verified by a person, 3 candidate (automatic), 3 silent since takedown (automatic); 1 cleared by a reviewer (not charted).</text>
+<text x="24.0" y="56.0" font-size="13" fill="#c3c2b7">Registry accounts with no activity seen up to their last scan, cumulative by stop time. Event fixture-strikes.</text>
+<text x="24.0" y="80.0" font-size="14" fill="#ffffff">5 potential bot accounts: 1 verified by a person, 4 candidate (automatic); 1 cleared by a reviewer (not charted).</text>
 <rect x="24.0" y="92.0" width="12" height="12" rx="2" fill="#3987e5"/>
 <text x="42.0" y="102.0" font-size="13" fill="#ffffff">Bluesky 2</text>
 <rect x="138.0" y="92.0" width="12" height="12" rx="2" fill="#199e70"/>
-<text x="156.0" y="102.0" font-size="13" fill="#ffffff">Reddit (archive) 3</text>
+<text x="156.0" y="102.0" font-size="13" fill="#ffffff">Reddit (archive) 2</text>
 <rect x="324.0" y="92.0" width="12" height="12" rx="2" fill="#c98500"/>
-<text x="342.0" y="102.0" font-size="13" fill="#ffffff">X 2</text>
+<text x="342.0" y="102.0" font-size="13" fill="#ffffff">X 1</text>
 <line x1="64.0" y1="417.0" x2="928.0" y2="417.0" stroke="#383835" stroke-width="1"/>
 <text x="56.0" y="421.0" font-size="12" fill="#a3a29b" text-anchor="end">0</text>
-<line x1="64.0" y1="357.0" x2="928.0" y2="357.0" stroke="#2c2c2a" stroke-width="1"/>
-<text x="56.0" y="361.0" font-size="12" fill="#a3a29b" text-anchor="end">2</text>
-<line x1="64.0" y1="297.0" x2="928.0" y2="297.0" stroke="#2c2c2a" stroke-width="1"/>
-<text x="56.0" y="301.0" font-size="12" fill="#a3a29b" text-anchor="end">4</text>
-<line x1="64.0" y1="237.0" x2="928.0" y2="237.0" stroke="#2c2c2a" stroke-width="1"/>
-<text x="56.0" y="241.0" font-size="12" fill="#a3a29b" text-anchor="end">6</text>
+<line x1="64.0" y1="337.0" x2="928.0" y2="337.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="56.0" y="341.0" font-size="12" fill="#a3a29b" text-anchor="end">2</text>
+<line x1="64.0" y1="257.0" x2="928.0" y2="257.0" stroke="#2c2c2a" stroke-width="1"/>
+<text x="56.0" y="261.0" font-size="12" fill="#a3a29b" text-anchor="end">4</text>
 <line x1="64.0" y1="177.0" x2="928.0" y2="177.0" stroke="#2c2c2a" stroke-width="1"/>
-<text x="56.0" y="181.0" font-size="12" fill="#a3a29b" text-anchor="end">8</text>
+<text x="56.0" y="181.0" font-size="12" fill="#a3a29b" text-anchor="end">6</text>
 <line x1="64.0" y1="417.0" x2="64.0" y2="421.0" stroke="#383835" stroke-width="1"/>
 <text x="64.0" y="435.0" font-size="12" fill="#a3a29b" text-anchor="middle">day 0</text>
 <text x="64.0" y="449.0" font-size="12" fill="#a3a29b" text-anchor="middle">Sep 7</text>
@@ -44,9 +42,9 @@
 <text x="899.0" y="449.0" font-size="12" fill="#a3a29b" text-anchor="middle">Oct 19</text>
 <text x="496.0" y="467.0" font-size="12" fill="#c3c2b7" text-anchor="middle">Days from the baseline start (Sep 7) to Oct 20 2026 (UTC)</text>
 <text transform="translate(20.0 297.0) rotate(-90)" font-size="12" fill="#c3c2b7" text-anchor="middle">Accounts (cumulative)</text>
-<polygon points="64.0,417.0 64.0,417.0 670.6,417.0 670.6,417.0 671.0,417.0 671.0,417.0 683.6,417.0 683.6,417.0 684.6,417.0 684.6,387.0 724.4,387.0 724.4,357.0 726.3,357.0 726.3,357.0 928.0,357.0 928.0,417.0 726.3,417.0 726.3,417.0 724.4,417.0 724.4,417.0 684.6,417.0 684.6,417.0 683.6,417.0 683.6,417.0 671.0,417.0 671.0,417.0 670.6,417.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#3987e5" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
-<polygon points="64.0,417.0 64.0,417.0 670.6,417.0 670.6,387.0 671.0,387.0 671.0,357.0 683.6,357.0 683.6,327.0 684.6,327.0 684.6,297.0 724.4,297.0 724.4,267.0 726.3,267.0 726.3,267.0 928.0,267.0 928.0,357.0 726.3,357.0 726.3,357.0 724.4,357.0 724.4,387.0 684.6,387.0 684.6,417.0 683.6,417.0 683.6,417.0 671.0,417.0 671.0,417.0 670.6,417.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#199e70" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
-<polygon points="64.0,417.0 64.0,387.0 670.6,387.0 670.6,357.0 671.0,357.0 671.0,327.0 683.6,327.0 683.6,297.0 684.6,297.0 684.6,267.0 724.4,267.0 724.4,237.0 726.3,237.0 726.3,207.0 928.0,207.0 928.0,267.0 726.3,267.0 726.3,267.0 724.4,267.0 724.4,297.0 684.6,297.0 684.6,327.0 683.6,327.0 683.6,357.0 671.0,357.0 671.0,387.0 670.6,387.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#c98500" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
+<polygon points="64.0,417.0 64.0,417.0 670.6,417.0 670.6,417.0 671.0,417.0 671.0,417.0 684.6,417.0 684.6,377.0 724.4,377.0 724.4,337.0 928.0,337.0 928.0,417.0 724.4,417.0 724.4,417.0 684.6,417.0 684.6,417.0 671.0,417.0 671.0,417.0 670.6,417.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#3987e5" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
+<polygon points="64.0,417.0 64.0,417.0 670.6,417.0 670.6,377.0 671.0,377.0 671.0,337.0 684.6,337.0 684.6,297.0 724.4,297.0 724.4,257.0 928.0,257.0 928.0,337.0 724.4,337.0 724.4,377.0 684.6,377.0 684.6,417.0 671.0,417.0 671.0,417.0 670.6,417.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#199e70" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
+<polygon points="64.0,417.0 64.0,377.0 670.6,377.0 670.6,337.0 671.0,337.0 671.0,297.0 684.6,297.0 684.6,257.0 724.4,257.0 724.4,217.0 928.0,217.0 928.0,257.0 724.4,257.0 724.4,297.0 684.6,297.0 684.6,337.0 671.0,337.0 671.0,377.0 670.6,377.0 670.6,417.0 64.0,417.0 64.0,417.0" fill="#c98500" stroke="#1a1a19" stroke-width="1" stroke-linejoin="round"/>
 <line x1="670.3" y1="137.0" x2="670.3" y2="417.0" stroke="#c3c2b7" stroke-width="1"/>
 <text x="664.3" y="133.0" font-size="12" fill="#c3c2b7" text-anchor="end">First strike, Oct 8 00:56 UTC</text>
 <line x1="684.5" y1="154.0" x2="684.5" y2="417.0" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="5 4"/>
@@ -56,11 +54,11 @@
 <text x="24.0" y="501.0" font-size="14" fill="#ffffff">Stop times in hours relative to the cutoff (6-hour bins). Accounts that stopped together show as a spike.</text>
 <text x="24.0" y="521.0" font-size="13" fill="#c3c2b7">Nearest to:</text>
 <rect x="106.0" y="511.0" width="12" height="12" rx="2" fill="#9085e9"/>
-<text x="124.0" y="521.0" font-size="13" fill="#ffffff">Main outage (cutoff) 2</text>
+<text x="124.0" y="521.0" font-size="13" fill="#ffffff">Main outage (cutoff) 1</text>
 <rect x="308.8" y="511.0" width="12" height="12" rx="2" fill="#d55181"/>
 <text x="326.8" y="521.0" font-size="13" fill="#ffffff">First strike 2</text>
 <rect x="452.4" y="511.0" width="12" height="12" rx="2" fill="#008300"/>
-<text x="470.4" y="521.0" font-size="13" fill="#ffffff">Second strike 2</text>
+<text x="470.4" y="521.0" font-size="13" fill="#ffffff">Second strike 1</text>
 <line x1="64.0" y1="677.0" x2="928.0" y2="677.0" stroke="#383835" stroke-width="1"/>
 <text x="56.0" y="681.0" font-size="12" fill="#a3a29b" text-anchor="end">0</text>
 <line x1="64.0" y1="607.0" x2="928.0" y2="607.0" stroke="#2c2c2a" stroke-width="1"/>
@@ -82,14 +80,13 @@
 <line x1="928.0" y1="677.0" x2="928.0" y2="681.0" stroke="#383835" stroke-width="1"/>
 <text x="928.0" y="695.0" font-size="12" fill="#a3a29b" text-anchor="middle">+72h</text>
 <rect x="134.1" y="537.0" width="32.6" height="140.0" fill="#d55181" stroke="#1a1a19" stroke-width="1"/>
-<rect x="203.2" y="537.0" width="32.6" height="140.0" fill="#008300" stroke="#1a1a19" stroke-width="1"/>
+<rect x="203.2" y="607.0" width="32.6" height="70.0" fill="#008300" stroke="#1a1a19" stroke-width="1"/>
 <rect x="479.7" y="607.0" width="32.6" height="70.0" fill="#9085e9" stroke="#1a1a19" stroke-width="1"/>
-<rect x="514.3" y="607.0" width="32.6" height="70.0" fill="#9085e9" stroke="#1a1a19" stroke-width="1"/>
 <line x1="135.6" y1="537.0" x2="135.6" y2="677.0" stroke="#c3c2b7" stroke-width="1"/>
 <line x1="233.9" y1="537.0" x2="233.9" y2="677.0" stroke="#c3c2b7" stroke-width="1" stroke-dasharray="5 4"/>
 <line x1="513.3" y1="537.0" x2="513.3" y2="677.0" stroke="#ffffff" stroke-width="1.5"/>
 <text x="64.0" y="713.0" font-size="12" fill="#c3c2b7">Outside the range: 1 earlier, 0 later.</text>
-<text x="24.0" y="737.0" font-size="13" fill="#ffffff">Silence alone is not proof that an account is a bot. “Candidate” and “silent since takedown” are automatic labels</text>
-<text x="24.0" y="755.0" font-size="13" fill="#ffffff">that mark leads for human review; only “verified” means a person checked the evidence. Dashed lines are approximate times.</text>
+<text x="24.0" y="737.0" font-size="13" fill="#ffffff">Silence alone is not proof that an account is a bot. “Candidate” is an automatic label that marks leads for human review;</text>
+<text x="24.0" y="755.0" font-size="13" fill="#ffffff">only “verified” means a person checked the evidence. Scanned records are not charted. Dashed lines are approximate times.</text>
 <text x="24.0" y="781.0" font-size="12" fill="#a3a29b">Last updated 2026-10-20 (UTC) from 9 records in fixture-strikes at commit 0123456.</text>
 </svg>
