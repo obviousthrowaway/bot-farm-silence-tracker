@@ -17,3 +17,5 @@ build-gui/
 report-drafts/
 *-ids.csv
 *-ids.json
+# A report written by report --out holds real account names (see scripts/add_run_to_chart.py).
+run-*.json

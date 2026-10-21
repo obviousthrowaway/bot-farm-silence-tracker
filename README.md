@@ -10,6 +10,9 @@
 Provisional share of eligible Reddit accounts that went silent after the cutoff of the
 2026-10-takedown event (2026-10-11 00:30 UTC), per run and pooled once per distinct
 account, as of 2026-10-20. Run 4 is partial and still being scanned, so its row will change.
+Results from every platform (Reddit, Bluesky and X) go on this one chart, each platform in
+its own group and never pooled. It currently shows the Reddit archive, the only platform
+scanned so far.
 Silence alone is not proof that an account is a bot. The tables, the method and the
 caveats are in [data-analysis.md](data-analysis.md).
 

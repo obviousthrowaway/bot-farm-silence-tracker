@@ -19,6 +19,7 @@ Contents:
 - [Method](#method)
   - [Placebo cutoffs](#placebo-cutoffs)
 - [Limitations](#limitations)
+- [The main graph: every platform](#the-main-graph-every-platform)
 - [Shared registry chart](#shared-registry-chart)
 
 ## Results
@@ -356,6 +357,9 @@ does not update it:
 uv run python scripts/render_run_chart.py docs/charts/runs-provisional.json docs/charts
 ```
 
+Results from every platform go on this same chart, each platform in its own group; see
+[The main graph: every platform](#the-main-graph-every-platform).
+
 ## Method
 
 1. **Discover.** The platform adapter lists accounts seen active in the seed
@@ -610,6 +614,115 @@ lowers the placebo rate a little. Read a small excess with that in mind.
   with `--from-run` to retry them.
 - The seed list is a starting point. Curate it, and cover the political spectrum:
   the signal is behavioral, not ideological.
+
+## The main graph: every platform
+
+The chart at the top of the README is the one main graph for results from every
+platform: the Reddit archive (`reddit-archive`), Reddit (`reddit`), Bluesky (`bluesky`)
+and X (`x`). Only the Reddit archive has been scanned so far, so it is the only group on
+the chart today. A run on any platform is added to the same file,
+[`docs/charts/runs-provisional.json`](docs/charts/runs-provisional.json), and the chart is
+redrawn from it. There is no separate chart per platform.
+
+How the chart keeps platforms apart:
+
+- Each row of the file names its platform in `platform`. A row without one is a
+  `reddit-archive` row, so the rows written before platforms were added keep their
+  meaning.
+- Each platform that has at least one row gets its own labelled group ("Reddit
+  archive", "Reddit", "Bluesky", "X"), in that order, with its rows under it. A platform
+  with no rows gets no group, so there is never an empty or placeholder row.
+- Rates are never pooled across platforms. Each platform samples a different
+  population, with different posting habits and a different ordinary-week base rate, so
+  a cross-platform total would mean nothing. A distinct-account or pooled row combines
+  runs of one platform only, and the file has no way to express a row that spans
+  platforms.
+- A platform's ordinary-week rows, and the rough matched base of its runs (the hollow
+  markers and short bars), come from that platform's own base rates only. `base_rate`
+  holds the base rates of the Reddit archive; `base_rates` maps any other platform to
+  its own, with a `note` that says how they were measured. A platform without measured
+  base rates gets no ordinary-week rows and no matched base, and its rows say "no
+  ordinary-week base rate for ... yet". No base rate has been measured for Reddit,
+  Bluesky or X yet.
+- The axis runs from 0 to 6%, and it grows in whole steps when a row needs more room.
+
+To add a run on any platform, from the `report` JSON of that run, run these commands from
+the repository's folder. The report holds account names, so it is written outside the
+repository (here in the home folder); the script refuses a report inside a git work tree,
+and `run-*.json` files are ignored by git as a second guard.
+
+Replace `RUN_ID` with the run number and `YYYY-MM-DD` with today's date (UTC). On macOS
+or Linux:
+
+```bash
+uv run bot-farm-silence-tracker report --run-id RUN_ID --out ~/run-RUN_ID.json
+uv run python scripts/add_run_to_chart.py ~/run-RUN_ID.json --label "Run 1" --as-of YYYY-MM-DD
+```
+
+On Windows (PowerShell):
+
+```powershell
+uv run bot-farm-silence-tracker report --run-id RUN_ID --out "$HOME\run-RUN_ID.json"
+uv run python scripts/add_run_to_chart.py "$HOME\run-RUN_ID.json" --label "Run 1" --as-of YYYY-MM-DD
+```
+
+`scripts/add_run_to_chart.py` reads only the run's metadata and summary counts from the
+report (the platform, the status, the cutoff, the time the data was scored to, and the
+numbers of eligible and silent accounts), adds one row for that platform, and redraws the
+light and dark charts. `--as-of` is required and becomes the chart's "as of" date; it may
+not be in the future or earlier than the day any row of the chart was scored to. The
+report's counts must be whole numbers and its times must carry a UTC offset. The report itself must stay private
+and is never committed. The script refuses, with the reason, a run it cannot turn into an
+honest row: a platform the chart does not know (such as the `fake` demo platform), a
+two-phase run (its counts are weighted estimates, not counts), a provisional, failed,
+cost-only or still running run, a cutoff other than the chart's, a run with no eligible
+accounts, and a run in which some accounts' data ended early unless `--min-window-days`
+gives the shortest window. It also refuses a run scored with another method than the
+published rows and base rates: other baseline, eligibility or cliff-window parameters
+than the scoring defaults, or other markers or marker margin than the event's in
+`events.toml`. Such a run changes who counts as eligible or silent, so it is not
+comparable. `--allow-nondefault-method` charts it anyway, with a `method_note` that
+lists the differences, and the chart then gives it no matched base. A stopped run is
+added as a partial row. A label that is
+already used on the same platform is refused unless `--replace` is given, so "Run 1" on
+Bluesky and "Run 1" on the Reddit archive are different rows.
+
+Distinct-account and pooled rows combine several runs, so they cannot come from one
+report and are added to the file by hand, one platform at a time. A hand-written row
+looks like this (a row without `platform` is a Reddit archive row):
+
+```json
+{
+  "label": "Run 1",
+  "platform": "bluesky",
+  "kind": "run",
+  "status": "complete",
+  "scored_through": "2026-10-15 00:00 UTC",
+  "eligible": 3000,
+  "silent": 60,
+  "windows": [{"days": 3.98, "eligible": 3000}]
+}
+```
+
+Besides the keys in the example, a row may have `fetched` and `planned` (for a partial
+row; `fetched` may not exceed `planned`), `distinct_accounts`, `mixed_windows` and
+`method_note`. `kind` is `run`, `partial`, `union` (distinct accounts of complete runs) or `pooled`
+(distinct accounts across runs with different windows, which also needs
+`"mixed_windows": true`). A row gives either `windows`, the number of eligible accounts
+scored over each silence window, which must add up to `eligible`, or `window_range`,
+the shortest and longest window in days. After a hand edit, redraw the chart with
+`scripts/render_run_chart.py` as above. The renderer checks the whole file first. It
+accepts only the keys this section describes, at every level, and refuses any other key
+(so account names or IDs cannot ride along under a new key), any text that looks like a
+handle (`u/name`, `/user/name` or `@name`), a Bluesky DID, a Reddit account ID (`t2_`), or a
+link to a profile or post on Reddit, X or Bluesky, an
+unknown platform, counts that are
+not whole numbers or where `silent` is above `eligible`, windows that are not finite and
+positive, a pooled row without `"mixed_windows": true`, a duplicate label on one
+platform, base rates given twice for the Reddit archive, and a pooled base rate that lies
+outside its own weekly rates. These checks catch mistakes; they cannot prove that a
+number is right, so a reviewer still checks the counts. The test suite fails when the committed charts do
+not match the file, so a pull request cannot change one without the other.
 
 ## Shared registry chart
 

@@ -271,6 +271,48 @@ expect from the checks:
 The full rules are in [Checks on registry pull requests](docs/USAGE.md#checks-on-registry-pull-requests)
 and [Repository rules](docs/USAGE.md#repository-rules).
 
+### Add your run to the main graph
+
+The chart at the top of the README is the one main graph for every platform: a run on
+the Reddit archive, Reddit, Bluesky or X goes on the same chart, in its platform's own
+group. Rates are never pooled across platforms. To add your run, use a second pull
+request, separate from the registry one, because the gate fails a pull request that
+mixes registry data with other files. In your clone, after `uv sync`, run the commands
+below from the clone's folder. The report holds account names, so write it outside the
+clone, for example in your home folder, as shown; the script refuses a report inside a
+git work tree, and `run-*.json` files are ignored by git as a second guard.
+
+Replace `RUN_ID` with the run number and `YYYY-MM-DD` with today's date (UTC). On macOS
+or Linux:
+
+```bash
+uv run bot-farm-silence-tracker report --run-id RUN_ID --out ~/run-RUN_ID.json
+uv run python scripts/add_run_to_chart.py ~/run-RUN_ID.json --label "Run 1" --as-of YYYY-MM-DD
+```
+
+On Windows (PowerShell):
+
+```powershell
+uv run bot-farm-silence-tracker report --run-id RUN_ID --out "$HOME\run-RUN_ID.json"
+uv run python scripts/add_run_to_chart.py "$HOME\run-RUN_ID.json" --label "Run 1" --as-of YYYY-MM-DD
+```
+
+`--as-of` is the date you add the run, which becomes the chart's "as of" date. The script
+adds one row of counts for your run's platform to `docs/charts/runs-provisional.json` and
+redraws the two chart files next to it. Commit only those three files, never the report.
+The script refuses a run it cannot chart honestly and says why, for example a two-phase
+run, a run that is still running, a run scored with other parameters or markers than the
+published runs (unless you pass `--allow-nondefault-method`, which marks the row and
+drops its matched base), or the `fake` demo platform.
+
+In the pull request description, give what a reviewer needs to check the row: the
+platform, the run id, the tool version, the seed and seed list digest (`seed` and
+`seeds_sha256` in the report), the cutoff, the time the data was scored to, the numbers
+of eligible and silent accounts, and a link to your registry pull request for the same
+run. Describe the figures as accounts with no activity seen up to their last scan, never
+as bots: silence alone is not proof. The details, including how to add rows by hand, are
+in [The main graph: every platform](data-analysis.md#the-main-graph-every-platform).
+
 ## 5. Privacy and framing
 
 - **Registry records name real accounts.** Usernames and IDs are stored base64-encoded,
