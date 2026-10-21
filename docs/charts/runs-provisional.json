@@ -1,6 +1,6 @@
 {
   "event": "2026-10-takedown",
-  "as_of": "2026-10-17 14:42 UTC",
+  "as_of": "2026-10-20",
   "cutoff": "2026-10-11 00:30 UTC",
   "base_rate": {
     "silent_3d": {
@@ -22,107 +22,89 @@
       ]
     }
   },
-  "runs": [
+  "rows": [
     {
-      "run_id": 1,
+      "label": "Run 1",
+      "kind": "run",
       "status": "main sample complete",
       "scored_through": "2026-10-14 07:10 UTC",
-      "planned": 10000,
-      "fetched": 9999,
+      "eligible": 6398,
+      "silent": 287,
       "windows": [
         {
           "days": 3.28,
-          "eligible": 6399
+          "eligible": 6398
         }
-      ],
-      "eligible": 6399,
-      "silent": 288,
-      "independent_signal": 9,
-      "clusters_tested": 57,
-      "clusters_significant": 0,
-      "smallest_adjusted_p": 0.0115
+      ]
     },
     {
-      "run_id": 2,
+      "label": "Run 2",
+      "kind": "run",
       "status": "complete",
       "scored_through": "2026-10-15 00:30 UTC",
-      "planned": 10000,
-      "fetched": 10000,
-      "windows": [
-        {
-          "days": 3.28,
-          "eligible": 1550
-        },
-        {
-          "days": 4.0,
-          "eligible": 4774
-        }
-      ],
       "eligible": 6324,
-      "silent": 214,
-      "independent_signal": 6,
-      "clusters_tested": 38,
-      "clusters_significant": 0,
-      "smallest_adjusted_p": 0.4394,
-      "scan_console_silent": 205
+      "silent": 213,
+      "window_range": [
+        3.28,
+        4.0
+      ]
     },
     {
-      "run_id": 3,
-      "status": "partial",
+      "label": "Run 3",
+      "kind": "run",
+      "status": "complete",
       "scored_through": "2026-10-15 00:30 UTC",
-      "planned": 20000,
-      "fetched": 9119,
+      "eligible": 12733,
+      "silent": 421,
       "windows": [
         {
           "days": 4.0,
-          "eligible": 5943
+          "eligible": 12733
         }
-      ],
-      "eligible": 5943,
-      "silent": 182,
-      "independent_signal": 7,
-      "clusters_tested": 30,
-      "clusters_significant": 0,
-      "smallest_adjusted_p": 0.9894
+      ]
+    },
+    {
+      "label": "Runs 1 to 3, distinct accounts",
+      "kind": "union",
+      "status": "complete",
+      "distinct_accounts": 31396,
+      "eligible": 19868,
+      "silent": 698,
+      "window_range": [
+        3.28,
+        4.0
+      ]
+    },
+    {
+      "label": "Run 4 (partial, in progress)",
+      "kind": "partial",
+      "status": "partial",
+      "scored_through": "2026-10-18 21:10 UTC",
+      "fetched": 11201,
+      "planned": 30000,
+      "eligible": 7179,
+      "silent": 103,
+      "windows": [
+        {
+          "days": 7.86,
+          "eligible": 7179
+        }
+      ]
+    },
+    {
+      "label": "All runs pooled, distinct accounts",
+      "kind": "pooled",
+      "status": "partial",
+      "distinct_accounts": 37425,
+      "eligible": 23745,
+      "silent": 681,
+      "mixed_windows": true,
+      "window_range": [
+        3.28,
+        7.86
+      ]
     }
   ],
-  "union": {
-    "distinct_accounts": 23631,
-    "eligible": 15002,
-    "silent": 550,
-    "independent_signal": 18,
-    "windows": [
-      {
-        "days": 3.28,
-        "eligible": 5027
-      },
-      {
-        "days": 4.0,
-        "eligible": 9975
-      }
-    ],
-    "rule": "key platform and account ID; for an account scored in more than one run, the record with the longest scored window (ties: lowest run id)",
-    "silent_first_run_rule": 563
-  },
-  "new_only": {
-    "label": "Run 3, accounts not in runs 1 or 2",
-    "distinct_accounts": 5924,
-    "eligible": 3879,
-    "silent": 123,
-    "independent_signal": 6,
-    "windows": [
-      {
-        "days": 4.0,
-        "eligible": 3879
-      }
-    ]
-  },
-  "overlap": {
-    "runs_1_and_2": 2292,
-    "run_3_in_runs_1_or_2": 3195,
-    "run_3_and_1": 2055,
-    "run_3_and_2": 2025,
-    "in_all_three": 885
-  },
+  "union_rule": "key platform and account ID; for an account scored in more than one run, the record with the longest scored window (ties: lowest run id); records with a fetch error are not used",
   "rule_note": "every row is scored as of its run's stored data horizon (strict), never up to a later reference time"
 }

@@ -4,8 +4,9 @@ Usage: render_run_chart.py AGGREGATES_JSON OUTPUT_DIR
 
 Writes ``runs-provisional-light.svg`` and ``runs-provisional-dark.svg`` into OUTPUT_DIR.
 The input holds counts only, never an account name, handle or ID. The chart compares the
-share of eligible accounts that went silent in each run with the share in ordinary
-weeks, with 95% Wilson intervals. The same input always gives the same bytes.
+share of eligible accounts that went silent in each run, in the runs pooled once per
+distinct account, and in ordinary weeks, with 95% Wilson intervals. The same input always
+gives the same bytes.
 """
 
 from __future__ import annotations
@@ -20,7 +21,6 @@ from bot_farm_silence_tracker.registry.chart import FONT, PALETTES, THEMES, esc
 
 Z95 = 1.959963984540054
 WIDTH = 960
-HEIGHT = 592
 PLOT_LEFT = 340
 PLOT_RIGHT = 920
 AXIS_MAX = 0.06
@@ -28,6 +28,11 @@ AXIS_MAX = 0.06
 BANDS = {"light": "#e1e0d9", "dark": "#3f3f3b"}
 ROW_TOP = 172
 ROW_STEP = 56
+#: The matched base is interpolated between the 3-day and 7-day base rates only.
+MATCH_MIN_DAYS = 3.0
+MATCH_MAX_DAYS = 7.0
+#: Row kinds that get a series colour; the ordinary-week rows use the secondary text colour.
+KINDS = ("run", "union", "partial", "pooled")
 
 
 def wilson(successes: int, total: int, z: float = Z95) -> tuple[float, float]:
@@ -49,8 +54,15 @@ def _pct(rate: float, digits: int = 1) -> str:
     return f"{rate * 100:.{digits}f}%"
 
 
+def chart_height(rows: int) -> int:
+    """The height of the chart for a number of rows, leaving room for the axis label."""
+    return ROW_TOP + ROW_STEP * rows + 28
+
+
 def matched_base(data: dict[str, Any], days: float) -> float:
     """A rough straight-line interpolation of the base rate between 3 and 7 days."""
+    if not MATCH_MIN_DAYS <= days <= MATCH_MAX_DAYS:
+        raise ValueError(f"no matched base outside 3 to 7 days (got {days})")
     r3 = data["base_rate"]["silent_3d"]
     r7 = data["base_rate"]["silent_7d"]
     b3 = r3["events"] / r3["eligible"]
@@ -72,58 +84,74 @@ def matched_range(
     return weighted, min(values), max(values)
 
 
-def _matched_text(data: dict[str, Any], windows: list[dict[str, Any]]) -> str:
-    weighted, low, high = matched_range(data, windows)
+def window_days(entry: dict[str, Any]) -> list[float]:
+    """The silence windows of a row in days, sorted, from its windows or its range."""
+    if "windows" in entry:
+        return sorted({w["days"] for w in entry["windows"]})
+    low, high = entry["window_range"]
+    return [low, high] if high > low else [low]
+
+
+def row_matched(
+    data: dict[str, Any], entry: dict[str, Any]
+) -> tuple[float | None, float, float] | None:
+    """The matched base of a row as (weighted or None, lowest, highest), or None.
+
+    A row has no matched base when its windows mix scoring windows on purpose (a pooled
+    row) or reach past 7 days, where the base rates give nothing to interpolate. A row
+    that gives only the range of its windows, not how many accounts each window holds,
+    gets the range without a weighted value.
+    """
+    days = window_days(entry)
+    if entry.get("mixed_windows") or not all(MATCH_MIN_DAYS <= d <= MATCH_MAX_DAYS for d in days):
+        return None
+    if "windows" in entry:
+        return matched_range(data, entry["windows"])
+    values = [matched_base(data, d) for d in days]
+    return None, min(values), max(values)
+
+
+def _matched_text(matched: tuple[float | None, float, float]) -> str:
+    weighted, low, high = matched
+    if weighted is None:
+        return f"matched base ~{low * 100:.2f}-{high * 100:.2f}% (range only)"
     if high - low < 5e-5:
         return f"matched base ~{_pct(weighted, 2)}"
     return f"matched base ~{_pct(weighted, 2)} ({low * 100:.2f}-{high * 100:.2f})"
 
 
-def _days_text(windows: list[dict[str, Any]]) -> str:
-    days = sorted({w["days"] for w in windows})
+def _days_text(days: list[float]) -> str:
     if len(days) == 1:
         return f"{days[0]:.1f}"
     return f"{days[0]:.1f} to {days[-1]:.1f}"
 
 
-def _row(data: dict[str, Any], entry: dict[str, Any], label: str, kind: str) -> dict[str, Any]:
-    weighted, low, high = matched_range(data, entry["windows"])
+def _row(data: dict[str, Any], entry: dict[str, Any]) -> dict[str, Any]:
+    if entry["kind"] not in KINDS:
+        raise ValueError(f"unknown row kind {entry['kind']!r}")
+    matched = row_matched(data, entry)
+    counts = f"{entry['silent']:,} of {entry['eligible']:,}"
+    if entry.get("mixed_windows"):
+        sub = f"{counts}; mixed windows, compare with neither base rate"
+    elif matched is None:
+        sub = f"{counts}; compare with the 7-day row (no matched base past 7 days)"
+    else:
+        sub = f"{counts}; {_matched_text(matched)}"
     return {
-        "label": label,
-        "sub": f"{entry['silent']} of {entry['eligible']:,}; "
-        f"{_matched_text(data, entry['windows'])}",
+        "label": f"{entry['label']}: silent {_days_text(window_days(entry))} days",
+        "sub": sub,
         "events": entry["silent"],
         "total": entry["eligible"],
         "band": None,
-        "kind": kind,
-        "matched": (weighted, low, high),
+        "kind": entry["kind"],
+        "matched": matched,
     }
 
 
 def _row_spec(data: dict[str, Any]) -> list[dict[str, Any]]:
     base3 = data["base_rate"]["silent_3d"]
     base7 = data["base_rate"]["silent_7d"]
-    rows = []
-    for run in data["runs"]:
-        partial = " (partial)" if run["status"] == "partial" else ""
-        label = f"Run {run['run_id']}{partial}: silent {_days_text(run['windows'])} days"
-        rows.append(_row(data, run, label, "run"))
-    rows.append(
-        _row(
-            data,
-            data["union"],
-            f"All distinct accounts: silent {_days_text(data['union']['windows'])} days",
-            "union",
-        )
-    )
-    rows.append(
-        _row(
-            data,
-            data["new_only"],
-            f"{data['new_only']['label']}: silent {_days_text(data['new_only']['windows'])} days",
-            "new",
-        )
-    )
+    rows = [_row(data, entry) for entry in data["rows"]]
     rows += [
         {
             "label": "Ordinary weeks: silent 3 days",
@@ -132,14 +160,16 @@ def _row_spec(data: dict[str, Any]) -> list[dict[str, Any]]:
             "total": base3["eligible"],
             "band": (min(base3["weekly_rates"]), max(base3["weekly_rates"])),
             "kind": "base",
+            "matched": None,
         },
         {
             "label": "Ordinary weeks: silent 7 days",
-            "sub": "for the later re-score; no run is there yet",
+            "sub": "three Sundays in Sep 2026, pooled",
             "events": base7["events"],
             "total": base7["eligible"],
             "band": (min(base7["weekly_rates"]), max(base7["weekly_rates"])),
             "kind": "base",
+            "matched": None,
         },
     ]
     return rows
@@ -148,34 +178,37 @@ def _row_spec(data: dict[str, Any]) -> list[dict[str, Any]]:
 def render(data: dict[str, Any], theme: str) -> str:
     """The SVG text of the chart for one colour theme."""
     pal = PALETTES[theme]
-    colors = {"run": pal["platforms"][0], "union": pal["platforms"][1], "new": pal["platforms"][2]}
+    colors = dict(zip(KINDS, pal["platforms"], strict=True))
     base_color = pal["text2"]
     pal = {**pal, "band": BANDS[theme]}
     rows = _row_spec(data)
-    title = "Runs 1 to 3 (provisional): share of accounts that went silent"
-    run_text = "; ".join(
-        f"run {r['run_id']}: {r['silent']} of {r['eligible']:,} eligible accounts"
-        for r in data["runs"]
+    height = chart_height(len(rows))
+    title = "All runs (provisional): share of accounts that went silent"
+    row_text = "; ".join(
+        f"{e['label']}, {_days_text(window_days(e))} days: {e['silent']:,} of "
+        f"{e['eligible']:,} eligible accounts"
+        for e in data["rows"]
     )
-    union, new = data["union"], data["new_only"]
     desc = (
-        f"Event {data['event']}, as of {data['as_of']}. Went silent: {run_text}; all distinct "
-        f"accounts: {union['silent']} of {union['eligible']:,}; run 3 accounts not in runs 1 or "
-        f"2: {new['silent']} of {new['eligible']:,}. Runs overlap, so rows are never summed. "
-        "Compared with ordinary weeks, but the silence windows differ, so there is no verdict "
-        "yet. The grey band on each ordinary-weeks row is the range of the three weekly "
-        "rates. Hollow markers are a rough matched base rate, interpolated for each window. "
-        "Run 3 is partial and not a random draw. Run 1's top cluster has adjusted "
-        "p=0.0115, just above 0.01. "
-        "Counts only; silence alone is not proof that an account is a bot."
+        f"Event {data['event']}, cutoff {data['cutoff']}, as of {data['as_of']}. Went "
+        f"silent: {row_text}. Ordinary weeks: "
+        f"{_pct(rows[-2]['events'] / rows[-2]['total'], 2)} at 3 days and "
+        f"{_pct(rows[-1]['events'] / rows[-1]['total'], 2)} at 7 days. Each row is scored "
+        "as of its run's stored data horizon. Runs overlap, so rows are never summed; the "
+        "distinct-account rows count each account once, on its longest scored window. Run 4 "
+        "is partial, still being scanned, and not a random subsample of its draw. The pooled "
+        "row mixes windows and compares with neither base rate. The grey band on each "
+        "ordinary-weeks row is the range of the three weekly rates. Hollow markers and short "
+        "bars are a rough matched base rate, interpolated for each window. There is no "
+        "verdict. Counts only; silence alone is not proof that an account is a bot."
     )
     out = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" '
-        f'viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-labelledby="t d" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" '
+        f'viewBox="0 0 {WIDTH} {height}" role="img" aria-labelledby="t d" '
         f'font-family="{esc(FONT)}">',
         f'<title id="t">{esc(title)}</title>',
         f'<desc id="d">{esc(desc)}</desc>',
-        f'<rect width="{WIDTH}" height="{HEIGHT}" rx="8" fill="{pal["surface"]}"/>',
+        f'<rect width="{WIDTH}" height="{height}" rx="8" fill="{pal["surface"]}"/>',
     ]
 
     def text(
@@ -189,13 +222,13 @@ def render(data: dict[str, Any], theme: str) -> str:
 
     text(24, 34, title, 20, pal["text"], bold=True)
     notes = [
-        f"Event {data['event']}, as of {data['as_of']}. Dots are rates with 95% Wilson intervals.",
-        "Each row is scored as of its run's stored data horizon. Hollow marker: rough matched "
-        "base for its windows (bar: lowest to highest).",
-        "Windows differ from the base rates' 3 and 7 days, so no verdict. "
-        "Silence alone is not proof of a bot.",
-        "Runs overlap: rows are never summed. Run 3 is partial, not a random draw. "
-        "Run 1's top cluster: adj p=0.0115 (cut-off 0.01).",
+        f"Event {data['event']}, cutoff {data['cutoff']}, as of {data['as_of']}. "
+        "Dots are rates with 95% Wilson intervals.",
+        "Each row is scored as of its run's stored data horizon. Hollow marker or short bar: "
+        "rough matched base.",
+        "Runs overlap: rows are never summed. Run 4 is partial, still running, not a random "
+        "draw; its figures will change.",
+        "No verdict. Pooled row mixes windows. Silence alone is not proof of a bot.",
     ]
     for n, line in enumerate(notes):
         text(24, 56 + 20 * n, line, 13, pal["text2"])
@@ -255,22 +288,23 @@ def render(data: dict[str, Any], theme: str) -> str:
                 f'<line x1="{_x(edge):.1f}" y1="{y - 8}" x2="{_x(edge):.1f}" '
                 f'y2="{y + 4}" stroke="{color}" stroke-width="2"/>'
             )
-        if row.get("matched"):
+        if row["matched"]:
             weighted, m_low, m_high = row["matched"]
             if m_high - m_low >= 5e-5:
                 out.append(
                     f'<line x1="{_x(m_low):.1f}" y1="{y + 7}" x2="{_x(m_high):.1f}" y2="{y + 7}" '
                     f'stroke="{base_color}" stroke-width="2"/>'
                 )
-            out.append(
-                f'<circle cx="{_x(weighted):.1f}" cy="{y - 2}" r="4.5" fill="none" '
-                f'stroke="{base_color}" stroke-width="2"/>'
-            )
+            if weighted is not None:
+                out.append(
+                    f'<circle cx="{_x(weighted):.1f}" cy="{y - 2}" r="4.5" fill="none" '
+                    f'stroke="{base_color}" stroke-width="2"/>'
+                )
         out.append(f'<circle cx="{_x(rate):.1f}" cy="{y - 2}" r="6" fill="{color}"/>')
         label = f"{_pct(rate, 2)} ({_pct(low, 2)} to {_pct(high, 2)})"
         edge_low = min(low, row["band"][0]) if row["band"] else low
         edge_high = max(high, row["band"][1]) if row["band"] else high
-        if row.get("matched"):
+        if row["matched"]:
             edge_low = min(edge_low, row["matched"][1])
             edge_high = max(edge_high, row["matched"][2])
         if _x(edge_high) + 10 + 175 > PLOT_RIGHT + 30:

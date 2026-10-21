@@ -1,5 +1,17 @@
 # Bot Farm Silence Tracker
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/charts/runs-provisional-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/charts/runs-provisional-light.svg">
+  <img alt="Chart: the share of eligible accounts that went silent in the 2026-10-takedown Reddit scan, with a 95% Wilson interval for each row, every row scored as of its run's stored data horizon, as of 2026-10-20. Run 1, 3.3 days after the cutoff: 287 of 6,398, 4.49% (4.01% to 5.02%). Run 2, 3.3 to 4.0 days: 213 of 6,324, 3.37% (2.95% to 3.84%). Run 3, 4.0 days: 421 of 12,733, 3.31% (3.01% to 3.63%). Runs 1 to 3, each distinct account counted once: 698 of 19,868, 3.51% (3.27% to 3.78%). Run 4, partial and still being scanned, not a random subsample of its draw, 7.86 days: 103 of 7,179, 1.43% (1.18% to 1.74%). All runs pooled, each distinct account counted once on its longest window, mixed windows: 681 of 23,745, 2.87% (2.66% to 3.09%). Ordinary weeks: 4.20% at 3 days of silence and 0.86% at 7 days. Short bars and hollow markers show a rough base rate matched to each window of runs 1 to 3, about 3.4% to 4.0%. Run 4 has no matched base and compares with the 7-day row; the pooled row mixes windows and compares with neither. The runs overlap, so rows are never summed. All figures are provisional and there is no verdict; silence alone is not proof that an account is a bot." src="docs/charts/runs-provisional-light.svg">
+</picture>
+
+Provisional share of eligible Reddit accounts that went silent after the cutoff of the
+2026-10-takedown event (2026-10-11 00:30 UTC), per run and pooled once per distinct
+account, as of 2026-10-20. Run 4 is partial and still being scanned, so its row will change.
+Silence alone is not proof that an account is a bot. The figures and caveats are in the
+TL;DR below.
+
 ## TL;DR
 
 > ### Runs 1 to 3: **3.51%** of eligible (steady) posters in the sample went silent in the 3.3 to 4.0 days after the reported data center outage cutoff. Run 4 (partial, non-random prefix, stopped then resumed): **1.43%** over 7.86 days. There is no verdict, and these are not counts of bots. For comparison, ordinary weeks give 4.20% at 3 days of silence and 0.86% at 7 days; both comparisons are hints only.
@@ -13,20 +25,12 @@
 >
 > As of 2026-10-20.
 
-Every figure in this TL;DR is scored as of each run's stored data horizon, with no later activity counted. The per-window figures should not be compared directly: a longer window leaves fewer accounts silent, because some accounts that were quiet for 3 or 4 days post again later. Of the accounts that were also fetched in run 4, 120 are silent on their record in the de-duplicated runs 1 to 3 union (the record with the longest earlier window, 3.3 to 4.0 days), and 52 of those 120 were still silent at 7.86 days. See [Run 4 (partial) and all runs](#run-4-partial-and-all-runs) for the details. The chart below and the tables in [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) are an earlier snapshot, from 2026-10-17 when run 3 was still partial; the current per-run figures are listed under the chart.
+Every figure in this TL;DR is scored as of each run's stored data horizon, with no later activity counted. The per-window figures should not be compared directly: a longer window leaves fewer accounts silent, because some accounts that were quiet for 3 or 4 days post again later. Of the accounts that were also fetched in run 4, 120 are silent on their record in the de-duplicated runs 1 to 3 union (the record with the longest earlier window, 3.3 to 4.0 days), and 52 of those 120 were still silent at 7.86 days. See [Run 4 (partial) and all runs](#run-4-partial-and-all-runs) for the details. The chart at the top of this page shows the current figures. The tables in [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) are an earlier snapshot, from 2026-10-17 when run 3 was still partial; the current per-run figures are listed below.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/charts/runs-provisional-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="docs/charts/runs-provisional-light.svg">
-  <img alt="Chart: the share of eligible accounts that went silent in three Reddit runs, in all distinct accounts across them, and in the part of run 3 that is not in runs 1 or 2, with a 95% interval for each, every row scored as of its run's data horizon. Run 1, 3.3 days after the cutoff: 4.50% (4.02% to 5.04%). Run 2, complete, 3.3 to 4.0 days: 3.38% (2.97% to 3.86%). Run 3, partial and not a random draw, 4.0 days: 3.06% (2.65% to 3.53%). All distinct accounts: 3.67% (3.38% to 3.98%). Run 3 accounts not in runs 1 or 2: 3.17% (2.66% to 3.77%). Ordinary weeks: 4.20% at 3 days of silence and 0.86% at 7 days. Hollow markers show a rough matched base rate for each window, from about 3.4% to 4.0%, lower than the 3-day rate. Run 1 is slightly above its matched base and the other rows are consistent with theirs. No row is clearly above an ordinary week. The runs overlap, so there is no verdict yet." src="docs/charts/runs-provisional-light.svg">
-</picture>
-
-The chart shows a snapshot of three runs of the 2026-10-takedown Reddit scan, all
-provisional, scored from the cache as of 2026-10-17 14:42 UTC, when run 3 was still
-partial. It has not been redrawn yet. The cutoff was 2026-10-11 00:30 UTC, but each run is
-scored as of the archive's data horizon stored with it, so none of these three runs has
-reached 7 days of silence: run 1 is scored over 3.28 days, run 2 over 3.28 to 4.0 days,
-run 3 over 4.0 days.
+The chart at the top of this page shows these figures. Each run of the 2026-10-takedown
+Reddit scan is scored as of the archive's data horizon stored with it, not up to a later
+time, so runs 1 to 3 have not reached 7 days of silence: run 1 is scored over 3.28 days,
+run 2 over 3.28 to 4.0 days, and run 3 over 4.0 days. Run 4 is scored over 7.86 days.
 
 Re-scored on 2026-10-20 at each run's stored horizon, from a backup copy of the cache:
 
@@ -46,10 +50,10 @@ Re-scored on 2026-10-20 at each run's stored horizon, from a backup copy of the 
 Ordinary weeks give 4.20% for 3 days of silence. The windows of runs 1 to 3 are longer
 than 3 days, so a matched base rate is lower. A straight-line interpolation (a rough
 estimate, not a measurement) gives about 3.97% at 3.28 days and 3.37% at 4.0 days. The
-unmatched 4.20% comparison is therefore conservative. In the snapshot, against the matched
-values, run 1 was slightly higher (its interval sat just above 3.97%) and every other row
-had an interval that contained its matched value. No row is clearly above an ordinary
-week. Run 1 and run 3 differ partly because of their windows and sample makeup, and the
+unmatched 4.20% comparison is therefore conservative. In the chart, against the matched
+values, run 1 is slightly higher (its interval sits just above 3.97%) and the interval of
+every other row of runs 1 to 3 overlaps its matched value or range, as it did in the
+snapshot of 2026-10-17. No row of runs 1 to 3 is clearly above an ordinary week. Run 1 and run 3 differ partly because of their windows and sample makeup, and the
 rest is not explained. The runs share accounts, so they are not independent checks and
 their rows are never summed. There is no verdict: run 4 is the only run scored past 7
 days and it is partial, and runs 1 to 3 must be fetched again before they can be scored
@@ -653,15 +657,15 @@ record of the same account):
 
 ## Runs 1 to 3 (provisional)
 
-The chart is at the top of this page.
+The chart at the top of this page shows the current figures, re-scored on 2026-10-20.
 
 These are provisional results of three Reddit archive scans of event `2026-10-takedown`
-(different seeds). They show counts only. The tables in this section are the snapshot that
-the chart shows: all runs were scored from the cache as of 2026-10-17 14:42 UTC, against a
+(different seeds). They show counts only. The tables in this section are an earlier
+snapshot, which an earlier version of the chart showed: all runs were scored from the cache as of 2026-10-17 14:42 UTC, against a
 cutoff of 2026-10-11 00:30 UTC. At that time run 1 had fetched its whole main sample and was
 drawing placebo samples, run 2 was complete, and run 3 was partial (9,119 of 20,000
-fetched). Run 3 has since completed. The figures re-scored on 2026-10-20 are listed under
-the chart at the top of this page, and they replace the counts in this section where they
+fetched). Run 3 has since completed. The figures re-scored on 2026-10-20 are shown in the
+chart and listed below the TL;DR at the top of this page, and they replace the counts in this section where they
 differ.
 
 One rule applies to every row: each run is scored as of the archive data horizon stored
@@ -758,7 +762,7 @@ How to read it:
   community, so the first accounts fetched over-represent some communities (for example one
   community is 9.2% of run 1's first quarter and a different one leads its last). Run 2's
   silent rate among eligible accounts varies along that order (2.38%, 3.30%, 4.14% and
-  3.87% across its four quarters). At the snapshot, run 3 was partial; it has since completed (see the figures under the chart).
+  3.87% across its four quarters). At the snapshot, run 3 was partial; it has since completed (see the chart and the figures below the TL;DR).
 - Run 2 mixes windows. For 2,232 of its 10,000 scored accounts (1,550 of its 6,324
   eligible ones) the archive data ends earlier (2026-10-14 07:10 UTC), so they are scored
   over at most 3.28 days, and the rest over 4.0 days. Silent shares by window: 3.94% (61
@@ -780,8 +784,11 @@ How to read it:
   rules are meant to match this tool's but have not been checked to be identical, and the
   placebo samples of the runs have not been drawn yet. Treat the comparison as rough.
 
-The chart is rendered from [`docs/charts/runs-provisional.json`](docs/charts/runs-provisional.json)
-by `scripts/render_run_chart.py`:
+The chart at the top of this page is rendered from
+[`docs/charts/runs-provisional.json`](docs/charts/runs-provisional.json), a file of
+aggregate counts only, by `scripts/render_run_chart.py`. It is redrawn by hand when the
+figures change; it is not drawn from the shared registry, so the `Registry chart` workflow
+does not update it:
 
 ```sh
 uv run python scripts/render_run_chart.py docs/charts/runs-provisional.json docs/charts
@@ -2760,7 +2767,7 @@ inconclusive or failed record is a reason to look closely, not proof of tamperin
 
 ### Registry chart
 
-The chart at the top of this README is drawn from the registry files by
+The [shared registry chart](#shared-registry-chart) is drawn from the registry files by
 `bot-farm-silence-tracker registry chart`, which validates the registry with the same
 rules as the gate and then writes `docs/charts/<event>-light.svg` and
 `<event>-dark.svg` for every event, plus `default-light.svg` and `default-dark.svg` for

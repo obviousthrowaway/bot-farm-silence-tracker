@@ -1,85 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="592" viewBox="0 0 960 592" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Helvetica, Arial, sans-serif">
-<title id="t">Runs 1 to 3 (provisional): share of accounts that went silent</title>
-<desc id="d">Event 2026-10-takedown, as of 2026-10-17 14:42 UTC. Went silent: run 1: 288 of 6,399 eligible accounts; run 2: 214 of 6,324 eligible accounts; run 3: 182 of 5,943 eligible accounts; all distinct accounts: 550 of 15,002; run 3 accounts not in runs 1 or 2: 123 of 3,879. Runs overlap, so rows are never summed. Compared with ordinary weeks, but the silence windows differ, so there is no verdict yet. The grey band on each ordinary-weeks row is the range of the three weekly rates. Hollow markers are a rough matched base rate, interpolated for each window. Run 3 is partial and not a random draw. Run 1&#39;s top cluster has adjusted p=0.0115, just above 0.01. Counts only; silence alone is not proof that an account is a bot.</desc>
-<rect width="960" height="592" rx="8" fill="#fcfcfb"/>
-<text x="24.0" y="34.0" font-size="20" fill="#0b0b0b" font-weight="bold">Runs 1 to 3 (provisional): share of accounts that went silent</text>
-<text x="24.0" y="56.0" font-size="13" fill="#52514e">Event 2026-10-takedown, as of 2026-10-17 14:42 UTC. Dots are rates with 95% Wilson intervals.</text>
-<text x="24.0" y="76.0" font-size="13" fill="#52514e">Each row is scored as of its run&#39;s stored data horizon. Hollow marker: rough matched base for its windows (bar: lowest to highest).</text>
-<text x="24.0" y="96.0" font-size="13" fill="#52514e">Windows differ from the base rates&#39; 3 and 7 days, so no verdict. Silence alone is not proof of a bot.</text>
-<text x="24.0" y="116.0" font-size="13" fill="#52514e">Runs overlap: rows are never summed. Run 3 is partial, not a random draw. Run 1&#39;s top cluster: adj p=0.0115 (cut-off 0.01).</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="648" viewBox="0 0 960 648" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Helvetica, Arial, sans-serif">
+<title id="t">All runs (provisional): share of accounts that went silent</title>
+<desc id="d">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-20. Went silent: Run 1, 3.3 days: 287 of 6,398 eligible accounts; Run 2, 3.3 to 4.0 days: 213 of 6,324 eligible accounts; Run 3, 4.0 days: 421 of 12,733 eligible accounts; Runs 1 to 3, distinct accounts, 3.3 to 4.0 days: 698 of 19,868 eligible accounts; Run 4 (partial, in progress), 7.9 days: 103 of 7,179 eligible accounts; All runs pooled, distinct accounts, 3.3 to 7.9 days: 681 of 23,745 eligible accounts. Ordinary weeks: 4.20% at 3 days and 0.86% at 7 days. Each row is scored as of its run&#39;s stored data horizon. Runs overlap, so rows are never summed; the distinct-account rows count each account once, on its longest scored window. Run 4 is partial, still being scanned, and not a random subsample of its draw. The pooled row mixes windows and compares with neither base rate. The grey band on each ordinary-weeks row is the range of the three weekly rates. Hollow markers and short bars are a rough matched base rate, interpolated for each window. There is no verdict. Counts only; silence alone is not proof that an account is a bot.</desc>
+<rect width="960" height="648" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="34.0" font-size="20" fill="#0b0b0b" font-weight="bold">All runs (provisional): share of accounts that went silent</text>
+<text x="24.0" y="56.0" font-size="13" fill="#52514e">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-20. Dots are rates with 95% Wilson intervals.</text>
+<text x="24.0" y="76.0" font-size="13" fill="#52514e">Each row is scored as of its run&#39;s stored data horizon. Hollow marker or short bar: rough matched base.</text>
+<text x="24.0" y="96.0" font-size="13" fill="#52514e">Runs overlap: rows are never summed. Run 4 is partial, still running, not a random draw; its figures will change.</text>
+<text x="24.0" y="116.0" font-size="13" fill="#52514e">No verdict. Pooled row mixes windows. Silence alone is not proof of a bot.</text>
 <text x="24.0" y="136.0" font-size="13" fill="#52514e">Grey band: range of the three weekly rates (3-day row: 3.87% to 4.61%).</text>
-<line x1="340.0" y1="148" x2="340.0" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="340.0" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">0%</text>
-<line x1="436.7" y1="148" x2="436.7" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="436.7" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">1%</text>
-<line x1="533.3" y1="148" x2="533.3" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="533.3" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">2%</text>
-<line x1="630.0" y1="148" x2="630.0" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="630.0" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">3%</text>
-<line x1="726.7" y1="148" x2="726.7" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="726.7" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">4%</text>
-<line x1="823.3" y1="148" x2="823.3" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="823.3" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">5%</text>
-<line x1="920.0" y1="148" x2="920.0" y2="544" stroke="#e1e0d9" stroke-width="1"/>
-<text x="920.0" y="562.0" font-size="12" fill="#6b6a65" text-anchor="middle">6%</text>
-<line x1="340" y1="544" x2="920" y2="544" stroke="#c3c2b7" stroke-width="1"/>
-<text x="630.0" y="582.0" font-size="12" fill="#52514e" text-anchor="middle">Share of eligible accounts that went silent</text>
+<line x1="340.0" y1="148" x2="340.0" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="340.0" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">0%</text>
+<line x1="436.7" y1="148" x2="436.7" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="436.7" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">1%</text>
+<line x1="533.3" y1="148" x2="533.3" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="533.3" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">2%</text>
+<line x1="630.0" y1="148" x2="630.0" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="630.0" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">3%</text>
+<line x1="726.7" y1="148" x2="726.7" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="726.7" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">4%</text>
+<line x1="823.3" y1="148" x2="823.3" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="823.3" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">5%</text>
+<line x1="920.0" y1="148" x2="920.0" y2="600" stroke="#e1e0d9" stroke-width="1"/>
+<text x="920.0" y="618.0" font-size="12" fill="#6b6a65" text-anchor="middle">6%</text>
+<line x1="340" y1="600" x2="920" y2="600" stroke="#c3c2b7" stroke-width="1"/>
+<text x="630.0" y="638.0" font-size="12" fill="#52514e" text-anchor="middle">Share of eligible accounts that went silent</text>
 <text x="24.0" y="168.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 1: silent 3.3 days</text>
-<text x="24.0" y="186.0" font-size="12" fill="#6b6a65">288 of 6,399; matched base ~3.97%</text>
-<line x1="728.5" y1="170" x2="826.9" y2="170" stroke="#2a78d6" stroke-width="2.5"/>
-<line x1="728.5" y1="164" x2="728.5" y2="176" stroke="#2a78d6" stroke-width="2"/>
-<line x1="826.9" y1="164" x2="826.9" y2="176" stroke="#2a78d6" stroke-width="2"/>
+<text x="24.0" y="186.0" font-size="12" fill="#6b6a65">287 of 6,398; matched base ~3.97%</text>
+<line x1="727.2" y1="170" x2="825.4" y2="170" stroke="#2a78d6" stroke-width="2.5"/>
+<line x1="727.2" y1="164" x2="727.2" y2="176" stroke="#2a78d6" stroke-width="2"/>
+<line x1="825.4" y1="164" x2="825.4" y2="176" stroke="#2a78d6" stroke-width="2"/>
 <circle cx="723.6" cy="170" r="4.5" fill="none" stroke="#52514e" stroke-width="2"/>
-<circle cx="775.1" cy="170" r="6" fill="#2a78d6"/>
-<text x="705.6" y="175.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.50% (4.02% to 5.04%)</text>
+<circle cx="773.6" cy="170" r="6" fill="#2a78d6"/>
+<text x="705.6" y="175.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.49% (4.01% to 5.02%)</text>
 <text x="24.0" y="224.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 2: silent 3.3 to 4.0 days</text>
-<text x="24.0" y="242.0" font-size="12" fill="#6b6a65">214 of 6,324; matched base ~3.51% (3.37-3.97)</text>
-<line x1="626.7" y1="226" x2="713.0" y2="226" stroke="#2a78d6" stroke-width="2.5"/>
-<line x1="626.7" y1="220" x2="626.7" y2="232" stroke="#2a78d6" stroke-width="2"/>
-<line x1="713.0" y1="220" x2="713.0" y2="232" stroke="#2a78d6" stroke-width="2"/>
+<text x="24.0" y="242.0" font-size="12" fill="#6b6a65">213 of 6,324; matched base ~3.37-3.97% (range only)</text>
+<line x1="625.3" y1="226" x2="711.4" y2="226" stroke="#2a78d6" stroke-width="2.5"/>
+<line x1="625.3" y1="220" x2="625.3" y2="232" stroke="#2a78d6" stroke-width="2"/>
+<line x1="711.4" y1="220" x2="711.4" y2="232" stroke="#2a78d6" stroke-width="2"/>
 <line x1="665.5" y1="235" x2="723.6" y2="235" stroke="#52514e" stroke-width="2"/>
-<circle cx="679.8" cy="226" r="4.5" fill="none" stroke="#52514e" stroke-width="2"/>
-<circle cx="667.1" cy="226" r="6" fill="#2a78d6"/>
-<text x="733.6" y="231.0" font-size="12" fill="#0b0b0b">3.38% (2.97% to 3.86%)</text>
-<text x="24.0" y="280.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 3 (partial): silent 4.0 days</text>
-<text x="24.0" y="298.0" font-size="12" fill="#6b6a65">182 of 5,943; matched base ~3.37%</text>
-<line x1="596.5" y1="282" x2="681.4" y2="282" stroke="#2a78d6" stroke-width="2.5"/>
-<line x1="596.5" y1="276" x2="596.5" y2="288" stroke="#2a78d6" stroke-width="2"/>
-<line x1="681.4" y1="276" x2="681.4" y2="288" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="665.6" cy="226" r="6" fill="#2a78d6"/>
+<text x="733.6" y="231.0" font-size="12" fill="#0b0b0b">3.37% (2.95% to 3.84%)</text>
+<text x="24.0" y="280.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 3: silent 4.0 days</text>
+<text x="24.0" y="298.0" font-size="12" fill="#6b6a65">421 of 12,733; matched base ~3.37%</text>
+<line x1="630.9" y1="282" x2="691.0" y2="282" stroke="#2a78d6" stroke-width="2.5"/>
+<line x1="630.9" y1="276" x2="630.9" y2="288" stroke="#2a78d6" stroke-width="2"/>
+<line x1="691.0" y1="276" x2="691.0" y2="288" stroke="#2a78d6" stroke-width="2"/>
 <circle cx="665.5" cy="282" r="4.5" fill="none" stroke="#52514e" stroke-width="2"/>
-<circle cx="636.0" cy="282" r="6" fill="#2a78d6"/>
-<text x="691.4" y="287.0" font-size="12" fill="#0b0b0b">3.06% (2.65% to 3.53%)</text>
-<text x="24.0" y="336.0" font-size="14" fill="#0b0b0b" font-weight="bold">All distinct accounts: silent 3.3 to 4.0 days</text>
-<text x="24.0" y="354.0" font-size="12" fill="#6b6a65">550 of 15,002; matched base ~3.57% (3.37-3.97)</text>
-<line x1="666.5" y1="338" x2="724.6" y2="338" stroke="#eb6834" stroke-width="2.5"/>
-<line x1="666.5" y1="332" x2="666.5" y2="344" stroke="#eb6834" stroke-width="2"/>
-<line x1="724.6" y1="332" x2="724.6" y2="344" stroke="#eb6834" stroke-width="2"/>
+<circle cx="659.6" cy="282" r="6" fill="#2a78d6"/>
+<text x="701.0" y="287.0" font-size="12" fill="#0b0b0b">3.31% (3.01% to 3.63%)</text>
+<text x="24.0" y="336.0" font-size="14" fill="#0b0b0b" font-weight="bold">Runs 1 to 3, distinct accounts: silent 3.3 to 4.0 days</text>
+<text x="24.0" y="354.0" font-size="12" fill="#6b6a65">698 of 19,868; matched base ~3.37-3.97% (range only)</text>
+<line x1="655.7" y1="338" x2="705.2" y2="338" stroke="#eb6834" stroke-width="2.5"/>
+<line x1="655.7" y1="332" x2="655.7" y2="344" stroke="#eb6834" stroke-width="2"/>
+<line x1="705.2" y1="332" x2="705.2" y2="344" stroke="#eb6834" stroke-width="2"/>
 <line x1="665.5" y1="347" x2="723.6" y2="347" stroke="#52514e" stroke-width="2"/>
-<circle cx="685.0" cy="338" r="4.5" fill="none" stroke="#52514e" stroke-width="2"/>
-<circle cx="694.4" cy="338" r="6" fill="#eb6834"/>
-<text x="734.6" y="343.0" font-size="12" fill="#0b0b0b">3.67% (3.38% to 3.98%)</text>
-<text x="24.0" y="392.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 3, accounts not in runs 1 or 2: silent 4.0 days</text>
-<text x="24.0" y="410.0" font-size="12" fill="#6b6a65">123 of 3,879; matched base ~3.37%</text>
-<line x1="597.5" y1="394" x2="704.5" y2="394" stroke="#1baf7a" stroke-width="2.5"/>
-<line x1="597.5" y1="388" x2="597.5" y2="400" stroke="#1baf7a" stroke-width="2"/>
-<line x1="704.5" y1="388" x2="704.5" y2="400" stroke="#1baf7a" stroke-width="2"/>
-<circle cx="665.5" cy="394" r="4.5" fill="none" stroke="#52514e" stroke-width="2"/>
-<circle cx="646.5" cy="394" r="6" fill="#1baf7a"/>
-<text x="714.5" y="399.0" font-size="12" fill="#0b0b0b">3.17% (2.66% to 3.77%)</text>
-<text x="24.0" y="448.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 3 days</text>
-<text x="24.0" y="466.0" font-size="12" fill="#6b6a65">three Sundays in Sep 2026, pooled</text>
-<rect x="714.1" y="438" width="71.5" height="24" rx="3" fill="#e1e0d9"/>
-<line x1="741.6" y1="450" x2="750.8" y2="450" stroke="#52514e" stroke-width="2.5"/>
-<line x1="741.6" y1="444" x2="741.6" y2="456" stroke="#52514e" stroke-width="2"/>
-<line x1="750.8" y1="444" x2="750.8" y2="456" stroke="#52514e" stroke-width="2"/>
-<circle cx="746.2" cy="450" r="6" fill="#52514e"/>
-<text x="696.1" y="455.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.20% (4.15% to 4.25%)</text>
-<text x="24.0" y="504.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 7 days</text>
-<text x="24.0" y="522.0" font-size="12" fill="#6b6a65">for the later re-score; no run is there yet</text>
-<rect x="419.3" y="494" width="6.8" height="24" rx="3" fill="#e1e0d9"/>
-<line x1="421.5" y1="506" x2="425.7" y2="506" stroke="#52514e" stroke-width="2.5"/>
-<line x1="421.5" y1="500" x2="421.5" y2="512" stroke="#52514e" stroke-width="2"/>
-<line x1="425.7" y1="500" x2="425.7" y2="512" stroke="#52514e" stroke-width="2"/>
-<circle cx="423.6" cy="506" r="6" fill="#52514e"/>
-<text x="436.0" y="511.0" font-size="12" fill="#0b0b0b">0.86% (0.84% to 0.89%)</text>
+<circle cx="679.6" cy="338" r="6" fill="#eb6834"/>
+<text x="733.6" y="343.0" font-size="12" fill="#0b0b0b">3.51% (3.27% to 3.78%)</text>
+<text x="24.0" y="392.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 4 (partial, in progress): silent 7.9 days</text>
+<text x="24.0" y="410.0" font-size="12" fill="#6b6a65">103 of 7,179; compare with the 7-day row (no matched base past 7 days)</text>
+<line x1="454.5" y1="394" x2="507.9" y2="394" stroke="#1baf7a" stroke-width="2.5"/>
+<line x1="454.5" y1="388" x2="454.5" y2="400" stroke="#1baf7a" stroke-width="2"/>
+<line x1="507.9" y1="388" x2="507.9" y2="400" stroke="#1baf7a" stroke-width="2"/>
+<circle cx="478.7" cy="394" r="6" fill="#1baf7a"/>
+<text x="517.9" y="399.0" font-size="12" fill="#0b0b0b">1.43% (1.18% to 1.74%)</text>
+<text x="24.0" y="448.0" font-size="14" fill="#0b0b0b" font-weight="bold">All runs pooled, distinct accounts: silent 3.3 to 7.9 days</text>
+<text x="24.0" y="466.0" font-size="12" fill="#6b6a65">681 of 23,745; mixed windows, compare with neither base rate</text>
+<line x1="597.4" y1="450" x2="638.5" y2="450" stroke="#eda100" stroke-width="2.5"/>
+<line x1="597.4" y1="444" x2="597.4" y2="456" stroke="#eda100" stroke-width="2"/>
+<line x1="638.5" y1="444" x2="638.5" y2="456" stroke="#eda100" stroke-width="2"/>
+<circle cx="617.2" cy="450" r="6" fill="#eda100"/>
+<text x="648.5" y="455.0" font-size="12" fill="#0b0b0b">2.87% (2.66% to 3.09%)</text>
+<text x="24.0" y="504.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 3 days</text>
+<text x="24.0" y="522.0" font-size="12" fill="#6b6a65">three Sundays in Sep 2026, pooled</text>
+<rect x="714.1" y="494" width="71.5" height="24" rx="3" fill="#e1e0d9"/>
+<line x1="741.6" y1="506" x2="750.8" y2="506" stroke="#52514e" stroke-width="2.5"/>
+<line x1="741.6" y1="500" x2="741.6" y2="512" stroke="#52514e" stroke-width="2"/>
+<line x1="750.8" y1="500" x2="750.8" y2="512" stroke="#52514e" stroke-width="2"/>
+<circle cx="746.2" cy="506" r="6" fill="#52514e"/>
+<text x="696.1" y="511.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.20% (4.15% to 4.25%)</text>
+<text x="24.0" y="560.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 7 days</text>
+<text x="24.0" y="578.0" font-size="12" fill="#6b6a65">three Sundays in Sep 2026, pooled</text>
+<rect x="419.3" y="550" width="6.8" height="24" rx="3" fill="#e1e0d9"/>
+<line x1="421.5" y1="562" x2="425.7" y2="562" stroke="#52514e" stroke-width="2.5"/>
+<line x1="421.5" y1="556" x2="421.5" y2="568" stroke="#52514e" stroke-width="2"/>
+<line x1="425.7" y1="556" x2="425.7" y2="568" stroke="#52514e" stroke-width="2"/>
+<circle cx="423.6" cy="562" r="6" fill="#52514e"/>
+<text x="436.0" y="567.0" font-size="12" fill="#0b0b0b">0.86% (0.84% to 0.89%)</text>
 </svg>
