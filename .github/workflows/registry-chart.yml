@@ -1,6 +1,6 @@
 name: Registry chart
 
-# Redraws the README charts (docs/charts/*.svg, see "Registry chart" in the README)
+# Redraws the registry charts (docs/charts/*.svg, see "Registry chart" in docs/USAGE.md)
 # when registry data reaches main, but only data that passed the Registry gate, whose
 # spot-check re-fetches records from the live sources.
 #

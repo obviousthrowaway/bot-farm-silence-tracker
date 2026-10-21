@@ -7,7 +7,7 @@
 ;   OutputDir   where to write bot-farm-silence-tracker-<version>-windows-x64-setup.exe
 ;   RepoUrl     the project's GitHub address, shown in Settings > Apps. While it still
 ;               holds the owner placeholder (the copy has not been published, see
-;               "Publishing your copy" in the README), Setup names no address at all.
+;               "Publishing your copy" in docs/USAGE.md), Setup names no address at all.
 ;
 ; It installs for the current user only (no administrator rights) into
 ; %LOCALAPPDATA%\Programs\bot-farm-silence-tracker, the same folder install.ps1 uses, and
@@ -30,7 +30,7 @@
 #ifndef RepoUrl
   #define RepoUrl "https://github.com/obviousthrowaway/bot-farm-silence-tracker"
 #endif
-; The owner placeholder, written in two parts so that the README's replace command
+; The owner placeholder, written in two parts so that the replace command of docs/USAGE.md
 ; rewrites RepoUrl above but leaves this check intact.
 #define OwnerPlaceholder "_" + "_OWNER__"
 

@@ -36,7 +36,7 @@ class MissingCredentials(Exception):
         names = ", ".join(missing)
         super().__init__(
             f"Missing credentials for platform '{platform}': set {names} in the "
-            f"environment. See the '{platform}' section of the README for setup steps."
+            f"environment. See the '{platform}' section of docs/USAGE.md for setup steps."
         )
 
 

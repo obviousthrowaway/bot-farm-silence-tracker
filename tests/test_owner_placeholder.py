@@ -7,7 +7,7 @@ a GitHub account name, the installers refuse to run while it is unreplaced, and 
 User-Agent then names no project page.
 
 Both tokens are written in parts in this file, so it matches neither the check for the
-old token nor the README's replace command, and these tests pass before and after a
+old token nor the replace command of docs/USAGE.md, and these tests pass before and after a
 copy is published.
 """
 
@@ -45,7 +45,7 @@ DOCUMENTED_OLD_TOKEN: frozenset[str] = frozenset()
 #: The message both installers print when they refuse to run.
 REFUSAL = (
     f"This copy has not been published yet: replace {PLACEHOLDER} with the GitHub account "
-    "that hosts it (see Publishing your copy in the README)."
+    "that hosts it (see Publishing your copy in docs/USAGE.md)."
 )
 UNPUBLISHED_URL = f"https://github.com/{PLACEHOLDER}/bot-farm-silence-tracker"
 PUBLISHED_URL = "https://github.com/example-owner/bot-farm-silence-tracker"
@@ -227,8 +227,8 @@ def test_install_ps1_refuses_an_unpublished_copy_before_any_download(tmp_path: P
 
 
 def _replace_command() -> str:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    section = readme.split("## Publishing your copy", 1)[1].split("\n## ", 1)[0]
+    usage = (ROOT / "docs" / "USAGE.md").read_text(encoding="utf-8")
+    section = usage.split("## Publishing your copy", 1)[1].split("\n## ", 1)[0]
     (command,) = re.findall(r"^grep -rlI .*$", section, flags=re.MULTILINE)
     assert "your-name" in command
     return command
@@ -258,7 +258,7 @@ def test_publishing_a_copy_replaces_every_placeholder(tmp_path: Path) -> None:
             text = _text(path)
             if text is not None and owner in text:
                 path.write_bytes(text.replace(owner, PLACEHOLDER).encode("utf-8"))
-    readme_before = (copy / "README.md").read_text(encoding="utf-8")
+    readme_before = (copy / "docs" / "USAGE.md").read_text(encoding="utf-8")
     command = _replace_command().replace("your-name", "example-owner")
     subprocess.run(["sh", "-c", command], cwd=copy, check=True)
 
@@ -268,7 +268,7 @@ def test_publishing_a_copy_replaces_every_placeholder(tmp_path: Path) -> None:
         if text is not None and PLACEHOLDER in text:
             left.append(str(path.relative_to(copy)))
     assert not left, f"the placeholder is left in {left}"
-    readme = (copy / "README.md").read_text(encoding="utf-8")
+    readme = (copy / "docs" / "USAGE.md").read_text(encoding="utf-8")
     assert _replace_command() in readme, "the command rewrote its own text"
     assert readme.count("example-owner") > readme_before.count("example-owner")
 

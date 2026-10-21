@@ -30,7 +30,7 @@ jobs:
       - name: No old owner placeholder
         run: |
           if git grep -n -I -w -e '[O]WNER'; then
-            echo "::error::Use the unregistrable owner placeholder (see Publishing your copy in the README), not the bare word above."
+            echo "::error::Use the unregistrable owner placeholder (see Publishing your copy in docs/USAGE.md), not the bare word above."
             exit 1
           fi
       # Lints every workflow (actionlint 1.7.12, with shellcheck for run scripts),

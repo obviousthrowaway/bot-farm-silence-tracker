@@ -1,4 +1,4 @@
-"""The README chart: potential bot accounts that have stayed silent since they stopped.
+"""The registry chart: potential bot accounts that have stayed silent since they stopped.
 
 ``registry chart`` renders one SVG per outage event and colour theme from the registry
 files alone, after the same validation the registry gate uses
@@ -63,7 +63,7 @@ from bot_farm_silence_tracker.registry.verify import load_tree
 from bot_farm_silence_tracker.scoring import MAIN_OUTAGE, Marker, nearest_marker
 from bot_farm_silence_tracker.timeutil import ensure_utc, parse_datetime
 
-#: The file name stem of the default event's charts, which the README shows.
+#: The file name stem of the default event's charts, which data-analysis.md shows.
 DEFAULT_STEM = "default"
 THEMES = ("light", "dark")
 

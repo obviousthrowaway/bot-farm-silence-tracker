@@ -106,7 +106,7 @@ chmod 755 "$work/program" "$work/bin/gh" "$work/bin/uv" "$work/riscv/uname"
 
 # The installer under test is a published copy whose REPO names a test repository. A
 # copy that still holds the owner placeholder (written in two parts here, so that
-# publishing this copy with the README's replace command leaves the test intact) must
+# publishing this copy with the replace command of docs/USAGE.md leaves the test intact) must
 # refuse to run unless a download base override replaces GitHub.
 OWNER_PLACEHOLDER="_""_OWNER__"
 TEST_REPO="example-owner/bot-farm-silence-tracker"
@@ -116,7 +116,7 @@ UNPUBLISHED="$work/install-unpublished.sh"
 sed "s|^REPO=.*|REPO=\"$TEST_REPO\"|" "$ROOT/install.sh" >"$INSTALLER"
 sed "s|^REPO=.*|REPO=\"$UNPUBLISHED_REPO\"|" "$ROOT/install.sh" >"$UNPUBLISHED"
 grep -q "^REPO=\"$TEST_REPO\"\$" "$INSTALLER" || { echo "could not make the published copy" >&2; exit 1; }
-REFUSAL="This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in the README)."
+REFUSAL="This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in docs/USAGE.md)."
 
 files=""
 for name in bot-farm-silence-tracker-linux-x64 bot-farm-silence-tracker-linux-arm64 \

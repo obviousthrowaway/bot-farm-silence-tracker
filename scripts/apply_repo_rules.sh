@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Applies the main branch's ruleset (.github/rulesets/main.json) to a GitHub
 # repository, creating it or updating the ruleset with the same name, so it is safe to
-# run again. See "Contributing" in the README.
+# run again. See "Repository rules" in docs/USAGE.md.
 #
 # Usage: scripts/apply_repo_rules.sh [--dry-run] <owner/repo>
 #
@@ -46,11 +46,11 @@ if [ ! -f "$ruleset" ]; then
 fi
 
 # The owner placeholder, written in two parts so that the replace command in
-# "Publishing your copy" (README) rewrites CODEOWNERS but leaves this check intact.
+# "Publishing your copy" (docs/USAGE.md) rewrites CODEOWNERS but leaves this check intact.
 placeholder="_""_OWNER__"
 codeowners="$root/.github/CODEOWNERS"
 if [ -f "$codeowners" ] && grep -qF "$placeholder" "$codeowners"; then
-  echo "warning: .github/CODEOWNERS still names the @$placeholder placeholder. GitHub cannot resolve it, so it owns nothing and no file needs a code owner's review. Replace it first (see \"Publishing your copy\" in the README)." >&2
+  echo "warning: .github/CODEOWNERS still names the @$placeholder placeholder. GitHub cannot resolve it, so it owns nothing and no file needs a code owner's review. Replace it first (see \"Publishing your copy\" in docs/USAGE.md)." >&2
 fi
 
 # The ruleset file must be valid JSON with a name of plain characters (it is used in

@@ -1364,8 +1364,8 @@ def scan(
         list[str] | None,
         typer.Option(
             "--source-option",
-            help="Adapter option as key=value (repeatable). See the platform's README "
-            "section. Do not pass secrets here; use BOT_FARM_SILENCE_TRACKER_* "
+            help="Adapter option as key=value (repeatable). See the platform's section "
+            "of docs/USAGE.md. Do not pass secrets here; use BOT_FARM_SILENCE_TRACKER_* "
             "environment variables.",
         ),
     ] = None,
@@ -3057,7 +3057,7 @@ def registry_chart(
         str, typer.Option("--commit", help="Commit SHA named in the footer (first 7 shown).")
     ] = "",
 ) -> None:
-    """Draw the README charts: potential bot accounts silent since they stopped.
+    """Draw the registry charts: potential bot accounts silent since they stopped.
 
     Validates the registry with the gate's rules first, then writes
     ``<event>-light.svg`` and ``<event>-dark.svg`` per event, and

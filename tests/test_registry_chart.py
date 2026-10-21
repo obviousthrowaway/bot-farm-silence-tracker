@@ -1,4 +1,4 @@
-"""The README chart, the chart workflow's trust rule and the spot-check minimum."""
+"""The registry chart, the chart workflow's trust rule and the spot-check minimum."""
 
 from __future__ import annotations
 

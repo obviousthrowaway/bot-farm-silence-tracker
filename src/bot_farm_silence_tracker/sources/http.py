@@ -182,9 +182,9 @@ DEFAULT_MAX_TOTAL_WAIT = 1800.0
 DEFAULT_MAX_RESET_WAIT_TOTAL = 1800.0
 
 #: The project's page, named as the contact in the User-Agent. "Publishing your copy" in
-#: the README replaces the owner placeholder in it with the account that hosts the copy.
+#: docs/USAGE.md replaces the owner placeholder in it with the account that hosts the copy.
 PROJECT_URL = "https://github.com/obviousthrowaway/bot-farm-silence-tracker"
-#: The owner placeholder, written in two parts so that the README's replace command
+#: The owner placeholder, written in two parts so that the replace command of docs/USAGE.md
 #: rewrites PROJECT_URL but leaves this check intact.
 OWNER_PLACEHOLDER = "_" + "_OWNER__"
 

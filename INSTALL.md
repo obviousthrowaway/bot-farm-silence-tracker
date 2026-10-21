@@ -1,6 +1,6 @@
 # Installing Bot Farm Silence Tracker
 
-The [README](README.md#install) has the short version. This page has every option and
+[docs/USAGE.md](docs/USAGE.md#install) has the short version. This page has every option and
 the details. None of the options needs administrator rights.
 
 - [The double-click installers (macOS and Windows)](#the-double-click-installers)
@@ -193,7 +193,7 @@ irm https://raw.githubusercontent.com/obviousthrowaway/bot-farm-silence-tracker/
 ```
 
 The installer also asks which social platforms you want to scan (see
-[Choosing platforms](README.md#choosing-platforms)); press Enter for the default, Reddit through
+[Choosing platforms](docs/USAGE.md#choosing-platforms)); press Enter for the default, Reddit through
 the Arctic Shift archive. To choose without a prompt, pass `--platforms` (or set
 `BOT_FARM_SILENCE_TRACKER_PLATFORMS`) to the `sh` that runs the installer, or `-Platforms` to the
 PowerShell script block:

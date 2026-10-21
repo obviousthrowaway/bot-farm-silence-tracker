@@ -1,6 +1,6 @@
 # Run 1 scored accounts
 
-This folder holds the account-level results of run 1, the first 10,000-account Reddit scan of the default outage event (`2026-10-takedown`). The data is published so that other researchers can check and reproduce the counts reported in the main README.
+This folder holds the account-level results of run 1, the first 10,000-account Reddit scan of the default outage event (`2026-10-takedown`). The data is published so that other researchers can check and reproduce the counts reported in the main README and in [data-analysis.md](../../data-analysis.md).
 
 This is a provisional result of a single run, observed 3.3 days after the cutoff. It is not a verdict about any account or about the outage, and the 7-day test is still pending.
 
@@ -50,7 +50,7 @@ The following totals were recomputed from the CSV file itself:
 
 An earlier provisional local list of run 1's silent accounts also had 287 entries, but it is not the same set. It differs by one account in each direction. That list was built before the archive backfilled some late activity, and it counted activity after the horizon as evidence that an account was not silent. The file here follows the strict-horizon rule described above.
 
-The main README reports run 1 as 288 silent accounts out of 6,399 eligible accounts (4.50%), while this file has 287 out of 6,398 (4.49%). The difference comes from two accounts that were also drawn by a later run, which fetched them from the archive again on 2026-10-18 and replaced their cached histories. For one of them, the archive returned a comment made shortly before run 1's horizon that it had not returned at the first fetch, so that account is no longer silent. For the other, the archive returned no posts or comments at all at the second fetch, although it had returned a steady history at the first, so that account is no longer eligible. The main README's figures were computed from the cache before these re-fetches. They will be refreshed together with the 7-day rescore.
+The snapshot of 2026-10-17 in [data-analysis.md](../../data-analysis.md#runs-1-to-3-provisional) reports run 1 as 288 silent accounts out of 6,399 eligible accounts (4.50%), while this file has 287 out of 6,398 (4.49%). The difference comes from two accounts that were also drawn by a later run, which fetched them from the archive again on 2026-10-18 and replaced their cached histories. For one of them, the archive returned a comment made shortly before run 1's horizon that it had not returned at the first fetch, so that account is no longer silent. For the other, the archive returned no posts or comments at all at the second fetch, although it had returned a steady history at the first, so that account is no longer eligible. The snapshot's figures were computed from the cache before these re-fetches. They will be refreshed together with the 7-day rescore.
 
 ## What these results do and do not mean
 

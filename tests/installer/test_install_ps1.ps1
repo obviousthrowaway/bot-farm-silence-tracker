@@ -139,12 +139,12 @@ $asset = "bot-farm-silence-tracker-windows-x64.exe=$FakeProgram"
 $sourceScript = Join-Path $root 'install.ps1'
 # The installer under test is a published copy whose $Repo names a test repository. A
 # copy that still holds the owner placeholder (written in two parts here, so that
-# publishing this copy with the README's replace command leaves the test intact) must
+# publishing this copy with the replace command of docs/USAGE.md leaves the test intact) must
 # refuse to run unless a download base override replaces GitHub.
 $OwnerPlaceholder = '_' + '_OWNER__'
 $TestRepo = 'example-owner/bot-farm-silence-tracker'
 $UnpublishedRepo = "$OwnerPlaceholder/bot-farm-silence-tracker"
-$Refusal = "This copy has not been published yet: replace $OwnerPlaceholder with the GitHub account that hosts it (see Publishing your copy in the README)."
+$Refusal = "This copy has not been published yet: replace $OwnerPlaceholder with the GitHub account that hosts it (see Publishing your copy in docs/USAGE.md)."
 function New-InstallerCopy([string]$Folder, [string]$RepoValue) {
     $dir = Join-Path $work $Folder
     New-Item -ItemType Directory -Path $dir | Out-Null

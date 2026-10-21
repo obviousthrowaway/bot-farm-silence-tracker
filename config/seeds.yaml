@@ -65,7 +65,7 @@ x:
 bluesky:
   # Search queries (hashtags and keyword phrases), the same topics as the other
   # platforms. Quote hashtags in YAML, because an unquoted "#" starts a comment.
-  # Bluesky post search needs a login (see the README's Bluesky section), so without
+  # Bluesky post search needs a login (see the Bluesky section of docs/USAGE.md), so without
   # one only the lists below are used. With a login and these bundled seeds, discovery
   # uses search only, unless --source-option list_mode=... asks for the lists too. An entry may also be a public feed or list
   # (here, or under "feeds:" or "lists:"), as an AT-URI

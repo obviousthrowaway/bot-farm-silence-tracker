@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^[0-9A-Za-z.+-]+$') { throw "Bad version: $Version" }
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 # The owner placeholder, written in two parts so that the replace command in
-# "Publishing your copy" (README) rewrites $RepoUrl but leaves this check intact.
+# "Publishing your copy" (docs/USAGE.md) rewrites $RepoUrl but leaves this check intact.
 $ownerPlaceholder = '_' + '_OWNER__'
 $definitions = @(
     "/DAppVersion=$Version",
@@ -29,7 +29,7 @@ $definitions = @(
 if ($RepoUrl.Contains($ownerPlaceholder)) {
     # An unpublished copy has no project page: Setup then shows no address in
     # Settings > Apps rather than one that names no real repository.
-    Write-Warning "RepoUrl still holds the $ownerPlaceholder placeholder, so Setup names no project address. Replace it first (see Publishing your copy in the README)."
+    Write-Warning "RepoUrl still holds the $ownerPlaceholder placeholder, so Setup names no project address. Replace it first (see Publishing your copy in docs/USAGE.md)."
 } else {
     $definitions += "/DRepoUrl=$RepoUrl"
 }

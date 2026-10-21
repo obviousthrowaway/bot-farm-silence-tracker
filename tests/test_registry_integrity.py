@@ -1106,7 +1106,7 @@ def test_round2_workflow_rules() -> None:
         for block in text.split("run: ")[1:]:
             script = block.split("\n      - ", 1)[0].split("\n  ", 1)[0]
             assert "${{" not in script, script
-    readme = (REPO / "README.md").read_text(encoding="utf-8")
+    readme = (REPO / "docs" / "USAGE.md").read_text(encoding="utf-8")
     assert "dismisses stale approvals when new commits are pushed" in readme
     ruleset = json.loads((REPO / ".github" / "rulesets" / "main.json").read_text(encoding="utf-8"))
     review = next(r for r in ruleset["rules"] if r["type"] == "pull_request")["parameters"]

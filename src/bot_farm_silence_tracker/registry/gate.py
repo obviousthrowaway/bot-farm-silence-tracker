@@ -6,7 +6,7 @@ base commit only, fetches the pull request's head as git objects, and reads the 
 registry with ``git ls-tree`` and ``git cat-file``: the pull request's files are
 never checked out or run.
 
-The review policy (see "Contributing" in the README and SECURITY.md):
+The review policy (see "Repository rules" in docs/USAGE.md and SECURITY.md):
 
 * Account records (``registry/events/<event-id>/<platform>/<shard>.jsonl``) need no
   reviewer: CODEOWNERS leaves them without an owner, and this gate, a required

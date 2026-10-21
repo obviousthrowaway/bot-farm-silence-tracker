@@ -39,7 +39,7 @@ API facts this adapter relies on (https://github.com/ArthurHeitmann/arctic_shift
   reset). Any response with ``X-RateLimit-Remaining`` at or below 0 also waits for the
   reset before the next request. See :meth:`RedditArchiveSource._backoff`.
 
-Limits that cannot be fixed here (see the README section for the full list):
+Limits that cannot be fixed here (see its section in docs/USAGE.md for the full list):
 
 * The archive lags real time by hours to days, and its ingestion can have gaps.
   :meth:`RedditArchiveSource.data_horizon` reports how far it reaches, pulled back to

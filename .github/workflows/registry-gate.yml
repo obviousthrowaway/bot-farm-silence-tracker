@@ -1,7 +1,7 @@
 name: Registry gate
 
 # The required check for every pull request (see "Checks on registry pull requests" in
-# the README). It runs on pull_request_target, so this file and the code it runs come
+# docs/USAGE.md). It runs on pull_request_target, so this file and the code it runs come
 # from the base branch, never from the pull request:
 #
 # - Only the base commit is checked out (into trusted/). The pull request's head is

@@ -45,7 +45,7 @@
 #   BOT_FARM_SILENCE_TRACKER_INSECURE_TEST=1    For tests only: allow http:// URLs.
 #
 # A copy whose $Repo below still holds the owner placeholder has not been published (see
-# "Publishing your copy" in the README). The installer then refuses to run, unless
+# "Publishing your copy" in docs/USAGE.md). The installer then refuses to run, unless
 # BOT_FARM_SILENCE_TRACKER_GITHUB_URL or BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL replaces
 # GitHub as the download base, and even then it skips the attestation check with a warning.
 #
@@ -78,12 +78,12 @@
 
     $Repo = 'obviousthrowaway/bot-farm-silence-tracker'
     # The owner placeholder in $Repo above, written in two parts so that the replace
-    # command in "Publishing your copy" (README) rewrites $Repo but leaves this check intact.
+    # command in "Publishing your copy" (docs/USAGE.md) rewrites $Repo but leaves this check intact.
     $OwnerPlaceholder = '_' + '_OWNER__'
     # While $Repo holds the placeholder, it names no real repository: it must not be used
     # for downloads or attestation.
     $Unpublished = $Repo.Contains($OwnerPlaceholder)
-    $UnpublishedMessage = "This copy has not been published yet: replace $OwnerPlaceholder with the GitHub account that hosts it (see Publishing your copy in the README)."
+    $UnpublishedMessage = "This copy has not been published yet: replace $OwnerPlaceholder with the GitHub account that hosts it (see Publishing your copy in docs/USAGE.md)."
     # Refuse before anything is downloaded, unless a download base override (a test
     # server or a release folder) replaces GitHub.
     if ($Unpublished -and -not $env:BOT_FARM_SILENCE_TRACKER_GITHUB_URL -and -not $env:BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL) {

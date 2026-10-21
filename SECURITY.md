@@ -24,7 +24,7 @@ accounts:
 - the spend ledger (X only): the estimated USD spent per day and run.
 
 Everything is kept in local SQLite databases, one per outage event (see "Outage
-events" in the README), under the cache folder:
+events" in docs/USAGE.md), under the cache folder:
 
 | System | Default database path |
 |---|---|
@@ -79,7 +79,7 @@ so check them against `SHA256SUMS.txt` or with `gh attestation verify` (see
 [Verifying downloads](#verifying-downloads)).
 
 A copy whose installers still hold the owner placeholder has not been published
-(see "Publishing your copy" in the README). The placeholder cannot be a GitHub account
+(see "Publishing your copy" in docs/USAGE.md). The placeholder cannot be a GitHub account
 name, so no one else can serve files under it, and the installers refuse to run with it:
 they print "This copy has not been published yet" and exit with an error before they
 download anything. Only `BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL` or
@@ -286,7 +286,7 @@ SHA256 check; any other verification failure stops them.
 
 Every change to `main` goes through a pull request, under a ruleset kept in the
 repository as `.github/rulesets/main.json` and applied by
-`scripts/apply_repo_rules.sh <owner/repo>` (see "Contributing" in the README):
+`scripts/apply_repo_rules.sh <owner/repo>` (see "Repository rules" in docs/USAGE.md):
 
 - **Account records need no reviewer.** `.github/CODEOWNERS` leaves only
   `registry/events/<event-id>/<platform>/<shard>.jsonl` without an owner. The

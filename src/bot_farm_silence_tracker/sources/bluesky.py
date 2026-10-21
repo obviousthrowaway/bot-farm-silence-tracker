@@ -255,7 +255,7 @@ SEARCH_NEEDS_LOGIN = (
     "Bluesky post search needs a login: the public AppView host refuses unauthenticated "
     f"searches. Set {HANDLE_ENV} and {PASSWORD_ENV} (an app password, never the account "
     "password), or seed discovery from public feeds or lists with --source-option "
-    "seed_feeds=at://... or seed_lists=at://... (see the README's Bluesky section)."
+    "seed_feeds=at://... or seed_lists=at://... (see the Bluesky section of docs/USAGE.md)."
 )
 
 

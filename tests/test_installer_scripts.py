@@ -148,7 +148,7 @@ def test_setup_validates_the_platforms_parameter() -> None:
 
 # --- the owner placeholder: Setup names no address for an unpublished copy -------------
 
-# Written in two parts so that the README's replace command leaves these tests intact.
+# Written in two parts so that the replace command of docs/USAGE.md leaves these tests intact.
 OWNER_PLACEHOLDER = "_" + "_OWNER__"
 
 

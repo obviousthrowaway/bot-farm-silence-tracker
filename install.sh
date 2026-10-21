@@ -48,7 +48,7 @@
 #   BOT_FARM_SILENCE_TRACKER_INSECURE_TEST=1    For tests only: allow http:// URLs.
 #
 # A copy whose REPO below still holds the owner placeholder has not been published (see
-# "Publishing your copy" in the README). The installer then refuses to run, unless
+# "Publishing your copy" in docs/USAGE.md). The installer then refuses to run, unless
 # BOT_FARM_SILENCE_TRACKER_GITHUB_URL or BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL replaces
 # GitHub as the download base, and even then it skips the attestation check with a warning.
 #
@@ -62,7 +62,7 @@ set -eu
 
 REPO="obviousthrowaway/bot-farm-silence-tracker"
 # The owner placeholder in REPO above, written in two parts so that the replace command
-# in "Publishing your copy" (README) rewrites REPO but leaves this check intact.
+# in "Publishing your copy" (docs/USAGE.md) rewrites REPO but leaves this check intact.
 OWNER_PLACEHOLDER="_""_OWNER__"
 UV_INSTALLER_URL="https://astral.sh/uv/install.sh"
 TOOL_NAME="bot-farm-silence-tracker"
@@ -510,7 +510,7 @@ uv_fallback() {
     fi
     # Only a test server can stand in for the repository of an unpublished copy.
     if unpublished && [ -z "${BOT_FARM_SILENCE_TRACKER_GITHUB_URL:-}" ]; then
-        die "This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in the README)."
+        die "This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in docs/USAGE.md)."
     fi
     src="git+$GITHUB/$REPO"
     if [ -n "$tag" ]; then
@@ -652,7 +652,7 @@ main() {
     # download base override (a test server or a release folder) replaces GitHub.
     if unpublished && [ -z "${BOT_FARM_SILENCE_TRACKER_GITHUB_URL:-}" ] &&
         [ -z "${BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL:-}" ]; then
-        die "This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in the README)."
+        die "This copy has not been published yet: replace $OWNER_PLACEHOLDER with the GitHub account that hosts it (see Publishing your copy in docs/USAGE.md)."
     fi
     # Checked first, so a misspelled platform installs nothing.
     if [ -n "$PLATFORMS_ARG" ]; then normalize_platforms "$PLATFORMS_ARG"; fi

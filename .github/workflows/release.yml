@@ -66,7 +66,7 @@ jobs:
             ext: ""
           # Intel Macs. macos-13 has been retired; GitHub plans to retire macos-15-intel,
           # its last Intel image, around August 2027. Drop this entry (and the
-          # macos-x64 row in the README) then; install.sh falls back to uv for Intel Macs.
+          # macos-x64 row in docs/USAGE.md) then; install.sh falls back to uv for Intel Macs.
           - os: macos-15-intel
             asset: bot-farm-silence-tracker-macos-x64
             ext: ""

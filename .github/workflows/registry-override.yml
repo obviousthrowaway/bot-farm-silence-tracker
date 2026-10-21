@@ -1,7 +1,7 @@
 name: Registry override
 
 # Keeps the registry-override label tied to the one head commit a maintainer
-# reviewed (see "Checks on registry pull requests" in the README). It runs on
+# reviewed (see "Checks on registry pull requests" in docs/USAGE.md). It runs on
 # pull_request_target, so this file comes from the base branch, never from the pull
 # request.
 #
