@@ -46,7 +46,10 @@ def _run(job: P.ScanJob, *, cancel_at: int | None = None, timeout: float = 120) 
                 and not job.cancel_requested
             ):
                 job.cancel()
-        assert time.monotonic() < deadline, "the scan did not finish in time"
+        if time.monotonic() >= deadline:
+            progress = [e for e in events if isinstance(e, P.Progress)]
+            last = f"{progress[-1].done} of {progress[-1].total}" if progress else "none"
+            pytest.fail(f"the scan did not finish within {timeout:g} s (last progress: {last})")
         time.sleep(0.005)
     return events
 
@@ -196,8 +199,14 @@ def test_cancel_leaves_a_resumable_run_and_resume_finishes_it(
     tmp_path: Path, concurrency: str
 ) -> None:
     db = tmp_path / "scan.db"
+    # 300 accounts leave a wide margin after the cancel at 100 (the scan stops within a
+    # few accounts of it) while keeping the resume small. The resume commits about three
+    # times per account and each commit is synced to disk, which can take tens of
+    # milliseconds on a slow Windows runner: with 1500 accounts the resume alone could
+    # take longer than the two-minute limit in _run.
+    n = 300
     request, _ = P.validate_form(
-        P.ScanForm(platform="fake", n="1500", concurrency=concurrency), now=NOW
+        P.ScanForm(platform="fake", n=str(n), concurrency=concurrency), now=NOW
     )
     assert request is not None
     argv = [*P.scan_argv(request, out=tmp_path / "a.csv", db=db), "--seed", "2"]
@@ -208,7 +217,7 @@ def test_cancel_leaves_a_resumable_run_and_resume_finishes_it(
     assert stopped.run_status == "cancelled"  # What Ctrl-C leaves on the command line.
     assert "Resume" in stopped.message
     fetched = max(e.done for e in events if isinstance(e, P.Progress))
-    assert fetched < 1500
+    assert fetched < n
 
     resumable = P.resumable_runs(db)
     assert [r["run_id"] for r in resumable] == [1]
