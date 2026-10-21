@@ -106,7 +106,7 @@ is Reddit through the Arctic Shift archive, which needs no account (see
 [INSTALL.md](../INSTALL.md) has everything else: what the installers put where and how to
 uninstall, installing a specific version, downloading the program by hand, Python tools
 and Docker, the uv fallback, BusyBox, checking where a download came from, the
-environment variables, and installing while the repository is private.
+environment variables, and installing from downloaded release files.
 
 ## Quick start
 
@@ -528,9 +528,10 @@ Useful flags: `--seeds path.yaml`, repeatable `--subreddit` / `--query`,
 `--pool-factor F` (discovery pool = F x n; default 3, or 1 on X and 1.2 on reddit-archive),
 `--active-within-days D` (reddit-archive only: discover authors active in the last D days,
 clipped to the baseline window before the cutoff, see the archive section),
-`--concurrency K` (reddit-archive only, 1 to 3: fetch K accounts at once behind the one
-shared pacer, see "Concurrency" in the archive section),
-`--baseline-sample-rate P` (reddit-archive only, opt in: pre-check every account with
+`--concurrency K` (reddit-archive and bluesky, 1 to 3; every other platform accepts only 1:
+fetch K accounts at once behind the one shared pacer, see "Concurrency" in the archive
+section),
+`--baseline-sample-rate P` (reddit-archive and bluesky, opt in: pre-check every account with
 existence queries, then fetch the full baseline only for cliff candidates and a
 fraction P (0.1 to 0.2 recommended) of the rest, see
 [Two-phase baseline sampling](#two-phase-baseline-sampling---baseline-sample-rate)),
@@ -674,7 +675,8 @@ fetches, and its spend counts against the same cap as the run it continues (see
 ### Two-phase baseline sampling (`--baseline-sample-rate`)
 
 Off by default: without the flag every scan is a full census, exactly as before.
-With `--baseline-sample-rate P` (reddit-archive only, `0 < P <= 1`) the scan fetches
+With `--baseline-sample-rate P` (reddit-archive and bluesky, `0 < P <= 1`; the steps
+below are the archive's, and the [Bluesky](#bluesky) section describes its pre-check) the scan fetches
 in two phases, because most sampled accounts can never be cliffs. In the n=300
 archive validation run, 174 of 300 accounts (58%) had activity after the cutoff, yet
 each one got a full baseline fetch.
@@ -1949,8 +1951,9 @@ again and again.
 
 **The registry is not anonymous.** Usernames and IDs are stored base64-encoded
 (URL-safe, without padding). That hides names from casual search, but it is
-reversible by anyone with one line of code. It is meant for a trusted research group
-working in a private repository, not for publication. Treat every registry file as
+reversible by anyone with one line of code. This repository is public, so anyone can
+read the registry and decode the names. That is by design: anyone can check each record
+against the public sources, and the registry gate checks a sample of them. Treat every registry file as
 containing real account names.
 
 ### Format

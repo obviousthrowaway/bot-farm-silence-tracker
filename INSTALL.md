@@ -8,7 +8,7 @@ the details. None of the options needs administrator rights.
 - [Download the program by hand](#download-the-program-by-hand)
 - [With Python tools](#with-python-tools)
 - [With Docker](#with-docker)
-- [While the repository is private](#while-the-repository-is-private)
+- [Installing from downloaded release files](#installing-from-downloaded-release-files)
 
 ## The double-click installers
 
@@ -136,18 +136,19 @@ For a silent install, for example on many computers:
 kept). A silent uninstall (`unins000.exe /VERYSILENT` in the program folder) always keeps
 your scans and settings.
 
-## While the repository is private
+## Installing from downloaded release files
 
-> The one-line installers fetch `install.sh`,
-> `install.ps1` and the release files from public GitHub addresses, so they cannot reach
-> a private repository, and the Releases page needs access to it. Until the repository is
-> public, use the [GitHub CLI](https://cli.github.com/) with an account that has access:
+> The repository is public, so the one-line installers and the
+> [Releases page](https://github.com/obviousthrowaway/bot-farm-silence-tracker/releases/latest)
+> work without a GitHub account. If the one-line installer cannot reach GitHub from your
+> computer, download the release files another way (in a browser, or with the
+> [GitHub CLI](https://cli.github.com/) as below) and install from them:
 >
 > ```bash
-> gh release download v0.1.0 -R obviousthrowaway/bot-farm-silence-tracker -D release
-> gh repo clone obviousthrowaway/bot-farm-silence-tracker && cd bot-farm-silence-tracker
+> gh release download v0.2.1 -R obviousthrowaway/bot-farm-silence-tracker -D release
+> git clone https://github.com/obviousthrowaway/bot-farm-silence-tracker.git && cd bot-farm-silence-tracker
 > # Install the Python package from the downloaded wheel (needs uv):
-> sh install.sh ../release/bot_farm_silence_tracker-0.1.0-py3-none-any.whl
+> sh install.sh ../release/bot_farm_silence_tracker-0.2.1-py3-none-any.whl
 > # Or install the prebuilt program from the downloaded folder. The installer only
 > # accepts https:// addresses, or http:// ones when BOT_FARM_SILENCE_TRACKER_INSECURE_TEST=1
 > # is set (it does not accept file://), so serve the folder on this computer:
@@ -157,12 +158,15 @@ your scans and settings.
 >
 > Installing a local wheel skips the installer's checksum check; compare it with
 > `SHA256SUMS.txt` yourself. With `BOT_FARM_SILENCE_TRACKER_RELEASE_BASE_URL` the installer
-> checks the SHA256 checksums but skips the build provenance check.
+> checks the SHA256 checksums but skips the build provenance check, so run
+> `gh attestation verify` on the files yourself (see
+> [Check the download first](#check-the-download-first)).
 >
-> Releases made while the repository is private have no build provenance attestation
-> (GitHub offers attestations for private repositories only on GitHub Enterprise Cloud).
-> When `gh` is logged in and reports "no attestations found" for a downloaded release
-> file, the installers print a warning and continue after the SHA256 check.
+> Releases published while the repository is public have a build provenance attestation.
+> A release made while the repository was private has none, because GitHub offers
+> attestations for private repositories only on GitHub Enterprise Cloud. When `gh` is
+> logged in and reports "no attestations found" for a downloaded release file, the
+> installers print a warning and continue after the SHA256 check.
 
 ## The one-line installer
 

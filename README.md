@@ -21,6 +21,7 @@ caveats are in [data-analysis.md](data-analysis.md).
 > - One possible explanation that we have not tested: the targeted data centers may have had backups or regional redundancy, so some accounts that looked silent may have come back online. Of the 120 accounts that were silent in the earlier runs and were fetched again in run 4, 68 posted again by the 7-day scan.
 > - These are not counts of bots, and there is no verdict. Silence alone is not proof that an account is a bot, and the outage also cut off ordinary users.
 > - **You can help:** anyone can add data to these figures by installing the tool and running more scans of this event on their own computer. The default source, the Reddit archive, needs no account or API key, a scan that stops can be resumed, and the results are shared as registry records in a pull request. See [Run it yourself](#run-it-yourself) and [Open a PR](#open-a-pr).
+> - **Bluesky and X (Twitter) too:** the tool can also be run for Bluesky, which needs no account in its default mode, and for X, which needs your own paid X API access (a bearer token, full-archive search for this event, and a spending cap). Their records are kept as separate platforms in the registry, and the figures above so far are from Reddit only. See [Other platforms](CONTRIBUTING.md#other-platforms-bluesky-and-x).
 >
 > As of 2026-10-20.
 
@@ -40,41 +41,55 @@ caveats are in [data-analysis.md](data-analysis.md).
 
 ## Run it yourself
 
-Install (macOS or Linux; on Windows, in PowerShell, run
-`irm https://raw.githubusercontent.com/obviousthrowaway/bot-farm-silence-tracker/main/install.ps1 | iex`),
-press Enter to keep the default platform, and open a new terminal:
+The install step differs between [Windows](CONTRIBUTING.md#windows),
+[macOS](CONTRIBUTING.md#macos) and [Linux](CONTRIBUTING.md#linux) (full steps in
+CONTRIBUTING.md). On Windows, paste this into PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/obviousthrowaway/bot-farm-silence-tracker/main/install.ps1 | iex
+```
+
+On macOS or Linux, paste this into a terminal:
 
 ```bash
 curl -LsSf https://raw.githubusercontent.com/obviousthrowaway/bot-farm-silence-tracker/main/install.sh | sh
+```
+
+Press Enter to keep the default platform and open a new terminal. Then, on every system:
+
+```bash
 bot-farm-silence-tracker --version
 bot-farm-silence-tracker scan --platform reddit-archive --n 30
 bot-farm-silence-tracker scan --platform reddit-archive --n 1000 --concurrency 2 --source-option max_rps=1.0
 ```
 
 The Reddit archive needs no account or API key, and scans use the default event,
-`2026-10-takedown`. A scan that stops prints the command that resumes it
-(`scan --platform reddit-archive --from-run <run-id> --event 2026-10-takedown`). See
+`2026-10-takedown`. A scan that stops prints the command that resumes it. See
 [CONTRIBUTING.md](CONTRIBUTING.md#3-expect-a-long-scan) for how long a scan takes.
 
 ## Open a PR
 
-Fork the repository, clone your fork, create a branch, and run from its folder:
+Fork the repository, clone your fork, create a branch, bring your fork's `main` up to
+date with this repository, and run from the clone's folder, with your scan's run number
+in place of `RUN_ID`:
 
 ```bash
-bot-farm-silence-tracker registry add --run-id <run-id> --event 2026-10-takedown --registry registry
+bot-farm-silence-tracker registry add --run-id RUN_ID --event 2026-10-takedown --registry registry
 bot-farm-silence-tracker registry merge --registry registry
 bot-farm-silence-tracker registry validate --registry registry
-git add registry && git commit -m "Add scan results for 2026-10-takedown"
+git add registry
+git commit -m "Add scan results for 2026-10-takedown"
 bot-farm-silence-tracker registry verify --base origin/main --head HEAD
 ```
 
 Push and open a pull request into `main` that changes only files under `registry/`. The
 `Registry gate` check validates the records and re-fetches a sample of them. Up to 15
 `scanned` or `candidate` records on `reddit-archive` or `bluesky` need no review; a larger
-change needs the owner's approval of its head commit and the `registry-override` label,
-which is removed after every new push. Registry records hold real account names
-(base64-encoded, so anyone can check them). Never commit your local CSV, JSON or database
-files, and never describe a silent account as a bot.
+change, or any record on `x` or `reddit`, needs the owner's approval of its head commit and the
+`registry-override` label, which is removed after every new push
+([all rules](CONTRIBUTING.md#4-share-the-results-in-a-pull-request)). Registry records
+hold real account names (base64-encoded, so anyone can check them). Never commit your
+local CSV, JSON or database files, and never describe a silent account as a bot.
 
 More: [data-analysis.md](data-analysis.md), [CONTRIBUTING.md](CONTRIBUTING.md),
 [docs/USAGE.md](docs/USAGE.md), [INSTALL.md](INSTALL.md), [SECURITY.md](SECURITY.md).
