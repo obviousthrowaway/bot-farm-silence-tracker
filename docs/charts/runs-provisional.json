@@ -1,6 +1,6 @@
 {
   "event": "2026-10-takedown",
-  "as_of": "2026-10-20",
+  "as_of": "2026-10-22",
   "cutoff": "2026-10-11 00:30 UTC",
   "base_rate": {
     "silent_3d": {
@@ -80,14 +80,14 @@
       "kind": "partial",
       "status": "partial",
       "scored_through": "2026-10-18 21:10 UTC",
-      "fetched": 11201,
+      "fetched": 22083,
       "planned": 30000,
-      "eligible": 7179,
-      "silent": 103,
+      "eligible": 13838,
+      "silent": 189,
       "windows": [
         {
           "days": 7.86,
-          "eligible": 7179
+          "eligible": 13838
         }
       ]
     },
@@ -95,9 +95,9 @@
       "label": "All runs pooled, distinct accounts",
       "kind": "pooled",
       "status": "partial",
-      "distinct_accounts": 37425,
-      "eligible": 23745,
-      "silent": 681,
+      "distinct_accounts": 43735,
+      "eligible": 27674,
+      "silent": 667,
       "mixed_windows": true,
       "window_range": [
         3.28,
