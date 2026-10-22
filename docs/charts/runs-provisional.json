@@ -3,6 +3,7 @@
   "as_of": "2026-10-22",
   "cutoff": "2026-10-11 00:30 UTC",
   "base_rate": {
+    "definition": "48 h window, no markers",
     "silent_3d": {
       "events": 29088,
       "eligible": 692252,
@@ -35,7 +36,12 @@
           "days": 3.28,
           "eligible": 6398
         }
-      ]
+      ],
+      "matched_base": {
+        "rate": 0.0441,
+        "low": 0.0441,
+        "high": 0.0441
+      }
     },
     {
       "label": "Run 2",
@@ -47,7 +53,12 @@
       "window_range": [
         3.28,
         4.0
-      ]
+      ],
+      "matched_base": {
+        "rate": 0.0352,
+        "low": 0.0352,
+        "high": 0.0352
+      }
     },
     {
       "label": "Run 3",
@@ -61,7 +72,12 @@
           "days": 4.0,
           "eligible": 12733
         }
-      ]
+      ],
+      "matched_base": {
+        "rate": 0.0324,
+        "low": 0.0324,
+        "high": 0.0324
+      }
     },
     {
       "label": "Runs 1 to 3, distinct accounts",
@@ -73,10 +89,15 @@
       "window_range": [
         3.28,
         4.0
-      ]
+      ],
+      "matched_base": {
+        "rate": 0.0347,
+        "low": 0.0341,
+        "high": 0.0363
+      }
     },
     {
-      "label": "Run 4 (partial, in progress)",
+      "label": "Run 4 (partial, paused)",
       "kind": "partial",
       "status": "partial",
       "scored_through": "2026-10-18 21:10 UTC",

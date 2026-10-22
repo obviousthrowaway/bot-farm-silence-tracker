@@ -17,6 +17,13 @@ rate. A platform's ordinary-week rows and the rough matched base of its runs com
 that platform's own base rates only: ``base_rate`` holds those of ``reddit-archive``
 and ``base_rates`` maps any platform to its own. A platform without base rates gets no
 ordinary-week rows and no matched base, and its rows say so.
+
+A base may carry a ``definition``: text saying that it was counted with another
+definition than the runs (for example another window or no event markers). Its
+ordinary-week rows are then drawn as a reference only, and no matched base is
+interpolated from it. A row may instead give its own ``matched_base`` (``rate``, ``low``
+and ``high``), measured under the runs' own definition, which the chart draws as the
+row's matched base.
 """
 
 from __future__ import annotations
@@ -82,10 +89,12 @@ ROW_KEYS = frozenset(
         "window_range",
         "mixed_windows",
         "method_note",
+        "matched_base",
     }
 )
 WINDOW_KEYS = frozenset({"days", "eligible"})
-BASE_KEYS = frozenset({"note", "silent_3d", "silent_7d"})
+BASE_KEYS = frozenset({"note", "definition", "silent_3d", "silent_7d"})
+MATCHED_KEYS = frozenset({"rate", "low", "high"})
 RATE_KEYS = frozenset({"events", "eligible", "weekly_rates"})
 #: Text that looks like an account identity: a Reddit ``u/name``, ``/u/name`` or
 #: ``/user/name`` (any case), an ``@name`` mention whose name has a letter (so a time such
@@ -147,6 +156,9 @@ def _is_days(value: Any) -> bool:
 def _check_base(platform: str, base: Any) -> None:
     if not isinstance(base, dict):
         raise ValueError(f"the base rates of {platform!r} must be an object")
+    definition = base.get("definition")
+    if definition is not None and (not isinstance(definition, str) or not definition):
+        raise ValueError(f"the base rates of {platform!r} need definition to be text")
     for key in ("silent_3d", "silent_7d"):
         rate = base.get(key)
         if not isinstance(rate, dict):
@@ -246,6 +258,8 @@ def _check_identities(data: dict[str, Any]) -> None:
     rows = data.get("rows")
     for n, entry in enumerate(rows if isinstance(rows, list) else []):
         _check_keys(entry, ROW_KEYS, f"rows[{n}]")
+        if isinstance(entry, dict):
+            _check_keys(entry.get("matched_base"), MATCHED_KEYS, f"rows[{n}].matched_base")
         windows = entry.get("windows") if isinstance(entry, dict) else None
         for m, window in enumerate(windows if isinstance(windows, list) else []):
             _check_keys(window, WINDOW_KEYS, f"rows[{n}].windows[{m}]")
@@ -312,6 +326,30 @@ def _check_row(entry: Any) -> None:
     if entry["kind"] == "pooled" and not mixed:
         raise ValueError(f"pooled row {label!r} mixes windows and needs mixed_windows: true")
     _check_windows(label, entry, eligible)
+    if mixed and "matched_base" in entry:
+        raise ValueError(f"row {label!r} mixes windows, so it cannot carry a matched_base")
+    if "matched_base" in entry:
+        given = entry["matched_base"]
+        values = [given.get(k) for k in ("low", "rate", "high")] if isinstance(given, dict) else []
+        if not (
+            len(values) == 3
+            and all(
+                isinstance(v, int | float) and not isinstance(v, bool) and 0 <= v <= 1
+                for v in values
+            )
+            and values[0] <= values[1] <= values[2]
+        ):
+            raise ValueError(
+                f"row {label!r} needs matched_base to give rate, low and high between 0 and 1, "
+                "with low <= rate <= high"
+            )
+
+
+def base_definition(data: dict[str, Any], platform: str) -> str | None:
+    """The ``definition`` of a platform's base rates when they were counted with another
+    definition than the runs, or None."""
+    base = base_rates(data).get(platform)
+    return base.get("definition") if base else None
 
 
 def validate(data: dict[str, Any]) -> None:
@@ -395,7 +433,9 @@ def row_matched(
 ) -> tuple[float | None, float, float] | None:
     """The matched base of a row as (weighted or None, lowest, highest), or None.
 
-    A row has no matched base when its platform has no base rates, when it was scored
+    A row's own ``matched_base`` is used as it is (unless the row has a ``method_note``).
+    Otherwise a row has no matched base when its platform has no base rates or its base
+    rates were counted with another definition (``definition``), when it was scored
     with another method than the base rates (``method_note``), when its windows mix
     scoring windows on purpose (a pooled row), or when they fall outside 3 to 7 days,
     where the base rates give nothing to interpolate. A row that gives only the range of
@@ -403,7 +443,12 @@ def row_matched(
     weighted value.
     """
     platform = row_platform(entry)
-    if platform not in base_rates(data) or entry.get("method_note"):
+    if entry.get("method_note"):
+        return None
+    if "matched_base" in entry:
+        given = entry["matched_base"]
+        return given["rate"], given["low"], given["high"]
+    if platform not in base_rates(data) or base_definition(data, platform):
         return None
     days = window_days(entry)
     if entry.get("mixed_windows") or not all(MATCH_MIN_DAYS <= d <= MATCH_MAX_DAYS for d in days):
@@ -438,10 +483,14 @@ def _row(data: dict[str, Any], entry: dict[str, Any]) -> dict[str, Any]:
     counts = f"{entry['silent']:,} of {entry['eligible']:,}"
     if entry.get("mixed_windows"):
         sub = f"{counts}; mixed windows, compare with neither base rate"
+    elif matched is not None and "matched_base" in entry:
+        sub = f"{counts}; {_matched_text(matched)}"
     elif platform not in base_rates(data):
         sub = f"{counts}; no ordinary-week base rate for {platform_label(platform)} yet"
     elif entry.get("method_note"):
         sub = f"{counts}; non-default method, no matched base"
+    elif base_definition(data, platform):
+        sub = f"{counts}; no matched base under the runs' definition"
     elif matched is None and days[0] < MATCH_MIN_DAYS and days[-1] > MATCH_MAX_DAYS:
         sub = f"{counts}; no matched base outside 3 to 7 days"
     elif matched is None and days[-1] > MATCH_MAX_DAYS:
@@ -469,7 +518,11 @@ def _base_rows(platform: str, base: dict[str, Any]) -> list[dict[str, Any]]:
         rows.append(
             {
                 "label": f"Ordinary weeks: silent {days} days",
-                "sub": base["note"],
+                "sub": (
+                    f"other definition ({base['definition']}), reference only"
+                    if base.get("definition")
+                    else base["note"]
+                ),
                 "events": rate["events"],
                 "total": rate["eligible"],
                 "band": (min(rate["weekly_rates"]), max(rate["weekly_rates"])),
@@ -539,6 +592,13 @@ def _desc(data: dict[str, Any], groups: list[tuple[str, list[dict[str, Any]]]]) 
                 f"{name}, ordinary weeks: {_pct(r3['events'] / r3['eligible'], 2)} at 3 days "
                 f"and {_pct(r7['events'] / r7['eligible'], 2)} at 7 days."
             )
+            definition = rates[platform].get("definition")
+            if definition:
+                parts.append(
+                    f"These ordinary-week rows were counted with another definition than the "
+                    f"runs ({definition}), so they are a reference only and not a matched "
+                    "comparison."
+                )
         else:
             parts.append(f"No ordinary-week base rate has been measured for {name} yet.")
     kinds = {e["kind"] for e in data["rows"]}
@@ -561,11 +621,21 @@ def _desc(data: dict[str, Any], groups: list[tuple[str, list[dict[str, Any]]]]) 
                 f"{platform_label(row_platform(e))} {e['label']} was scored with a "
                 f"non-default method ({e['method_note']}), so it has no matched base."
             )
+    if any("matched_base" in e for e in data["rows"]):
+        matched = (
+            "Hollow markers and short bars are a matched base rate: on a row that gives its "
+            "own, it was measured under the runs' own definition; otherwise it is a rough "
+            "interpolation for each window from the same platform's base rates."
+        )
+    else:
+        matched = (
+            "Hollow markers and short bars are a rough matched base rate, interpolated for "
+            "each window from the same platform's base rates."
+        )
     parts.append(
-        "The grey band on each ordinary-weeks row is the range of the weekly rates. Hollow "
-        "markers and short bars are a rough matched base rate, interpolated for each window "
-        "from the same platform's base rates. There is no verdict. Counts only; silence "
-        "alone is not proof that an account is a bot."
+        "The grey band on each ordinary-weeks row is the range of the weekly rates. "
+        f"{matched} There is no verdict. Counts only; silence alone is not proof that an "
+        "account is a bot."
     )
     return f"Event {data['event']}, cutoff {data['cutoff']}, as of {data['as_of']}. " + " ".join(
         parts
@@ -614,11 +684,15 @@ def render(data: dict[str, Any], theme: str) -> str:
     verdict = "No verdict. Platforms are never pooled."
     if any(e.get("mixed_windows") for e in data["rows"]):
         verdict += " Pooled rows mix windows."
+    if any("matched_base" in e for e in data["rows"]):
+        legend = "matched base, same definition as the runs."
+    else:
+        legend = "rough matched base."
     notes = [
         f"Event {data['event']}, cutoff {data['cutoff']}, as of {data['as_of']}. "
         "Dots are rates with 95% Wilson intervals.",
-        "Each row is scored as of its run's stored data horizon. Hollow marker or short bar: "
-        "rough matched base.",
+        f"Each row is scored as of its run's stored data horizon. Hollow marker or short bar: "
+        f"{legend}",
         overlap,
         f"{verdict} Silence alone is not proof of a bot.",
     ]

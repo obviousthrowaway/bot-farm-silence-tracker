@@ -81,6 +81,16 @@ def _rows(data: dict) -> dict[str, dict]:
     return {entry["label"]: entry for entry in data["rows"]}
 
 
+def _interpolated() -> dict:
+    """The committed file as if its base rates matched the runs' definition and no row
+    gave its own matched base, so the chart interpolates one from the base rates."""
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data["base_rate"].pop("definition", None)
+    for entry in data["rows"]:
+        entry.pop("matched_base", None)
+    return data
+
+
 def test_distinct_account_rows_are_not_sums_of_runs() -> None:
     data = json.loads(DATA.read_text(encoding="utf-8"))
     rows = _rows(data)
@@ -98,9 +108,9 @@ def test_distinct_account_rows_are_not_sums_of_runs() -> None:
 
 
 def test_rows_past_seven_days_or_mixed_get_no_matched_base() -> None:
-    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data = _interpolated()
     rows = _rows(data)
-    assert render_run_chart.row_matched(data, rows["Run 4 (partial, in progress)"]) is None
+    assert render_run_chart.row_matched(data, rows["Run 4 (partial, paused)"]) is None
     assert render_run_chart.row_matched(data, rows["All runs pooled, distinct accounts"]) is None
     weighted, low, high = render_run_chart.row_matched(data, rows["Run 2"])
     assert weighted is None
@@ -112,10 +122,11 @@ def test_rows_past_seven_days_or_mixed_get_no_matched_base() -> None:
 def test_chart_shows_all_rows_and_no_account_names() -> None:
     data = json.loads(DATA.read_text(encoding="utf-8"))
     svg = render_run_chart.render(data, "light")
-    for label in ("Run 1:", "Run 2:", "Run 3:", "Run 4 (partial, in progress)"):
+    for label in ("Run 1:", "Run 2:", "Run 3:", "Run 4 (partial, paused)"):
         assert label in svg
     assert "Runs 1 to 3, distinct accounts" in svg and "All runs pooled" in svg
-    assert "rough matched base" in svg and "No verdict" in svg and "never summed" in svg
+    assert "matched base, same definition as the runs" in svg
+    assert "No verdict" in svg and "never summed" in svg
     assert "mixed windows" in svg and "not a random" in svg
     assert "handle" not in json.dumps(data) and "user_id" not in json.dumps(data)
 
@@ -235,7 +246,7 @@ def test_a_platform_without_rows_gets_no_group() -> None:
 
 
 def test_a_platform_without_base_rates_has_no_ordinary_weeks() -> None:
-    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data = _interpolated()
     del data["base_rate"]
     svg = render_run_chart.render(data, "light")
     assert "Ordinary weeks" not in svg and "Grey band" not in svg
@@ -513,7 +524,7 @@ def test_malformed_values_are_refused_with_a_reason(change, message: str) -> Non
 def test_rows_outside_three_to_seven_days_say_why_they_have_no_matched_base(
     window_range: list[float], sub: str
 ) -> None:
-    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data = _interpolated()
     entry = data["rows"][1]
     entry["window_range"] = window_range
     row = render_run_chart._row(data, entry)
@@ -526,3 +537,70 @@ def test_the_partial_note_is_true_for_stopped_and_running_rows() -> None:
     assert "Partial rows cover part of a draw, not a random one" in svg
     assert "stopped or still being scanned" in svg
     assert "still running" not in svg and "will change" not in svg
+
+
+def test_a_base_of_another_definition_is_a_reference_only() -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    rows = _rows(data)
+    assert data["base_rate"]["definition"]
+    # Run 4 and the pooled row get no matched base from a base of another definition.
+    run4 = render_run_chart._row(data, rows["Run 4 (partial, paused)"])
+    assert run4["matched"] is None
+    assert "no matched base under the runs' definition" in run4["sub"]
+    assert "compare with the 7-day row" not in run4["sub"]
+    # Without its own matched base, a row of runs 1 to 3 gets none either.
+    entry = copy.deepcopy(rows["Run 3"])
+    entry.pop("matched_base")
+    assert render_run_chart.row_matched(data, entry) is None
+    svg = render_run_chart.render(data, "light")
+    assert svg.count("other definition (48 h window, no markers), reference only") == 2
+    assert "so they are a reference only and not a matched comparison" in svg
+    data["base_rate"]["definition"] = ""
+    with pytest.raises(ValueError, match="definition to be text"):
+        render_run_chart.validate(data)
+
+
+def test_a_rows_own_matched_base_is_drawn_as_given() -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    rows = _rows(data)
+    union = rows["Runs 1 to 3, distinct accounts"]
+    assert render_run_chart.row_matched(data, union) == (0.0347, 0.0341, 0.0363)
+    assert render_run_chart.row_matched(data, rows["Run 1"]) == (0.0441, 0.0441, 0.0441)
+    sub = render_run_chart._row(data, union)["sub"]
+    assert sub == "698 of 19,868; matched base ~3.47% (3.41-3.63)"
+    # A method note still drops the matched base.
+    entry = copy.deepcopy(rows["Run 1"])
+    entry["method_note"] = "min_posts 10 (default 20)"
+    assert render_run_chart.row_matched(data, entry) is None
+
+
+@pytest.mark.parametrize(
+    "given",
+    [
+        {"rate": 0.03, "low": 0.04, "high": 0.05},
+        {"rate": 0.03, "low": 0.02},
+        {"rate": True, "low": 0.0, "high": 0.1},
+        {"rate": 1.5, "low": 0.0, "high": 2.0},
+        [0.03, 0.02, 0.04],
+    ],
+)
+def test_a_malformed_matched_base_is_refused(given) -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data["rows"][0]["matched_base"] = given
+    with pytest.raises(ValueError, match="matched_base"):
+        render_run_chart.validate(data)
+
+
+def test_unknown_matched_base_keys_are_refused() -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data["rows"][0]["matched_base"]["source"] = "anything"
+    with pytest.raises(ValueError, match=r"rows\[0\]\.matched_base has a key"):
+        render_run_chart.validate(data)
+
+
+def test_a_mixed_window_row_with_a_matched_base_is_refused() -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    pooled = next(e for e in data["rows"] if e.get("mixed_windows"))
+    pooled["matched_base"] = {"rate": 0.03, "low": 0.02, "high": 0.04}
+    with pytest.raises(ValueError, match="mixes windows, so it cannot carry a matched_base"):
+        render_run_chart.validate(data)

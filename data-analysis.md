@@ -13,6 +13,7 @@ Contents:
 - [Results](#results)
 - [What the tool measures](#what-the-tool-measures)
 - [Current figures](#current-figures)
+- [Matched comparison under one definition](#matched-comparison-under-one-definition)
 - [Pending work](#pending-work)
 - [Run 4 (partial) and all runs](#run-4-partial-and-all-runs)
 - [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional)
@@ -39,17 +40,26 @@ horizon. The method is in [Method](#method).
 | Run 2 | 3.28 to 4.0 days (2026-10-15 00:30 UTC; 2026-10-14 07:10 UTC for accounts whose data ends early) | 6,324 | 213 | 3.37%, about 1 in 30 | 2.95% to 3.84% |
 | Run 3 | 4.0 days (2026-10-15 00:30 UTC) | 12,733 | 421 | 3.31%, about 1 in 30 | 3.01% to 3.63% |
 | Runs 1 to 3, each distinct account counted once | 3.3 to 4.0 days | 19,868 | 698 | 3.51%, about 1 in 28 | 3.27% to 3.78% |
-| Run 4, partial and still being scanned (22,083 of 30,000 accounts fetched and scored) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% |
+| Run 4, partial, scan paused (22,083 of 30,000 accounts fetched and scored) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% |
 | All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 667 | 2.41%, about 1 in 41 | 2.24% to 2.60% |
 
-Ordinary weeks, from placebo cutoffs on Sep 6, 13 and 20 2026 (692,252 eligible
-accounts), give 4.20% for 3 days of silence and 0.86% for 7 days.
+The ordinary-week rates counted from the archive dumps, 4.20% for 3 days of silence and
+0.86% for 7 days (placebo cutoffs on Sep 6, 13 and 20 2026, 692,252 eligible accounts), use
+another definition than the rows above (a 48-hour window and no event markers), so they
+cannot be compared with these rows directly. The comparisons under one definition are in
+[Matched comparison under one definition](#matched-comparison-under-one-definition).
 
 - The runs share accounts, so their rows are never added together. The rows that count
   each distinct account once use its record from the run with the longest scored window.
-- No row of runs 1 to 3 is clearly above an ordinary week.
-- Run 4 is the only run scored past 7 days. Its 1.37% is above the 7-day ordinary-week
-  rate of 0.86%, but this is a hint and not a finding: the run is still running and only
+- Runs 1 to 3 are consistent with an ordinary week. Against the tool's own placebo draws, with the same
+  sampler and rules and adjusted to each run's window, the expected share is 3.47% and the
+  observed share is 3.51%, a difference of +0.05 percentage points (from unrounded values;
+  95% interval -0.21 to +0.30), so there is no excess and no clear deficit.
+- Run 4 is the only run scored past 7 days. Its 1.37% uses the tool's definition, for which
+  no matched 7-day ordinary-week figure exists yet. Under the dump's definition for both,
+  run 4's accounts are silent at 1.13% at 7.00 days against 0.86% in ordinary weeks, a
+  possible small excess of about 0.27 percentage points (roughly 1 in 370) that is not
+  established beyond doubt. This is a hint and not a finding: the scan is paused and only
   22,083 of its 30,000 accounts (the first 22,084 positions in the order they were fetched,
   which is close to discovery order, less 1 fetch error) are fetched and scored, the scored
   part is not a random subsample of its draw (reweighted to the full draw's community mix,
@@ -107,13 +117,15 @@ Re-scored on 2026-10-20 at each run's stored horizon, from a backup copy of the 
 - Run 4 (partial, 7.86 days) and all runs pooled: see
   [Run 4 (partial) and all runs](#run-4-partial-and-all-runs).
 
-Ordinary weeks give 4.20% for 3 days of silence. The windows of runs 1 to 3 are longer
-than 3 days, so a matched base rate is lower. A straight-line interpolation (a rough
-estimate, not a measurement) gives about 3.97% at 3.28 days and 3.37% at 4.0 days. The
-unmatched 4.20% comparison is therefore conservative. In the chart, against the matched
-values, run 1 is slightly higher (its interval sits just above 3.97%) and the interval of
-every other row of runs 1 to 3 overlaps its matched value or range, as it did in the
-snapshot of 2026-10-17. No row of runs 1 to 3 is clearly above an ordinary week. Run 1 and run 3 differ partly because of their windows and sample makeup, and the
+The rows of runs 1 to 3 are compared with the tool's own placebo draws, which use the same
+sampler and the same rules, adjusted to each run's window (see
+[Matched comparison under one definition](#matched-comparison-under-one-definition)). The
+expected shares are 4.41% for run 1, 3.52% for run 2, 3.24% for run 3 and 3.47% for runs 1
+to 3 together, against observed shares of 4.49%, 3.37%, 3.31% and 3.51%. No row of runs 1
+to 3 is clearly above or clearly below an ordinary week. The ordinary-week rate of 4.20% from the
+archive dumps, and the straight-line interpolation from it that earlier versions of the
+chart drew (about 3.97% at 3.28 days and 3.37% at 4.0 days), use another definition and are
+not a matched comparison. Run 1 and run 3 differ partly because of their windows and sample makeup, and the
 rest is not explained. The runs share accounts, so they are not independent checks and
 their rows are never summed. There is no verdict: run 4 is the only run scored past 7
 days and it is partial, and runs 1 to 3 must be fetched again before they can be scored
@@ -121,9 +133,126 @@ over 7 days. Silence alone is not proof that an account is a bot. See
 [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) for the snapshot's numbers and
 caveats.
 
+## Matched comparison under one definition
+
+A share of silent accounts can only be compared with an ordinary week when both are
+counted the same way: the same definition of eligible and silent, the same silence window
+and a similar mix of communities. Earlier versions of the README and of this file compared
+the runs with the ordinary-week rates counted from the archive dumps, 4.20% at 3 days and
+0.8647% at 7 days. Those rates are not comparable with the runs' rows, for three reasons:
+
+1. **Window length.** 4.20% is for exactly 3.0 days of silence, but the runs are scored
+   over 3.28 to 4.0 days (runs 1 to 3) and 7.86 days (run 4). Silence falls fast in those
+   days: about a third of it ends between 3.0 and 4.0 days.
+2. **Definition.** The dump count uses a 48-hour window and no event markers. The tool uses
+   a 77.6-hour window counted from the first strike and the event's markers. On the same
+   accounts of runs 1 to 3, the tool's definition gives 3.51% and the dump's gives 2.50%.
+3. **Sampler and community mix.** The dump counts all eligible accounts, while the runs
+   sample from the seed communities. Reweighting the dump's rate to the runs' mix of
+   communities multiplies it by about 0.90 (factor 0.896).
+
+The comparisons below therefore use one definition for both sides: the tool's definition
+against the tool's own placebo draws, or the dump's definition against the dump's ordinary
+weeks. Differences are in percentage points and are computed from unrounded values, so they
+can differ by 0.01 from the difference of the rounded shares. All figures are aggregates,
+and silence alone is not proof that an account is a bot.
+
+### 3 days: runs 1 to 3 against the tool's own placebo draws
+
+The tool's placebo draws use the same sampler and the same rules as the runs, at placebo
+cutoffs in three ordinary weeks. At 3.28 days they give 4.41% (the three weeks give 4.20%,
+4.51% and 4.51%; the third week's 4.51% comes from a partial draw, reweighted to the
+community mix of runs 1 to 3 together). Each run is scored over its own window, so the expected share is adjusted
+to each run's actual window. The placebo draws stop at 3.28 days, so the 4.0-day value is
+extrapolated from the shape of the event week's curve (the ratio of the 4.0-day share to
+the 3.28-day share is 0.735, with a range of 0.72 to 0.78), and the expected share for
+runs 1 to 3 together is 3.47%, or 3.41% to 3.63% depending on the shape assumed.
+This borrows the event week's shape, but the 7-day comparison below suggests that the event
+week's curve may be flatter than an ordinary week's. If ordinary weeks fall faster between
+3.28 and 4.0 days, the ordinary 4.0-day share is lower than this ratio gives, so the
+expected share is too high, and a small excess at 3 days could be hidden. So the likely
+bias of this extrapolation runs toward hiding an excess, not toward creating one.
+
+| Row | Silence window | Observed | Expected from the placebo draws | Difference |
+| --- | --- | --- | --- | --- |
+| Run 1 | 3.28 days | 287 of 6,398, 4.49% | 4.41% | +0.08 |
+| Run 2 | 3.28 to 4.0 days | 213 of 6,324, 3.37% | 3.52% | -0.15 |
+| Run 3 | 4.0 days | 421 of 12,733, 3.31% | 3.24% | +0.07 |
+| Runs 1 to 3, each distinct account counted once | 3.28 to 4.0 days | 698 of 19,868, 3.51% (3.27% to 3.78%), about 1 in 28 | 3.47% (3.41% to 3.63% by shape assumption) | +0.05 (95% interval -0.21 to +0.30; about -0.65 to +0.75 with the week-to-week spread) |
+
+Runs 1 to 3 are consistent with an ordinary week: there is no excess at 3 days and no clear deficit.
+
+### 7 days: run 4 under one definition
+
+Run 4 is partial: the scored part is the first 22,083 accounts of its draw in discovery
+order (a prefix, not a random subsample), and its scan stopped at 22,147 of 30,000 fetched
+when the archive returned HTTP 500 errors; it can be resumed. Under the tool's definition
+it gives 189 of 13,838, 1.37% (1.19% to 1.57%), about 1 in 73, but the tool's placebo
+draws stop at 3.28 days, so there is no matched 7-day figure under that definition. The
+rows below score run 4's accounts under the dump's definition instead (a 48-hour window and
+no event markers), which gives 13,594 eligible accounts, and compare them with the dump's
+ordinary weeks.
+
+| Comparison | Observed | Ordinary-week base | Difference | About 1 in |
+| --- | --- | --- | --- | --- |
+| Dump definition, 3.0 days | 496 of 13,594, 3.65% (3.35% to 3.98%) | 4.20% | -0.55 | Below the base |
+| Dump definition, 3.0 days, base reweighted to the runs' mix (factor 0.896) | 3.65% | 3.77% | -0.12 | Below the base |
+| Dump definition, 7.00 days | 154 of 13,594, 1.13% (0.97% to 1.33%) | 0.865% (weeks 0.889%, 0.819% and 0.885%) | +0.27 (sampling interval +0.09 to +0.45; -0.17 to +0.70 with the week-to-week spread) | 373 (224 to 1,108) |
+| Dump definition, 7.00 days, base reweighted to the runs' mix (factor 0.896) | 1.13% | 0.775% | +0.36 | 279 |
+| Dump definition, 7.86 days, base extended log-linearly past 7 days | 129 of 13,594, 0.95% (0.80% to 1.13%) | 0.616% | +0.33 | 300 |
+| Dump definition, 7.86 days, base extended with the event week's shape | 0.95% | 0.724% | +0.23 | 445 |
+| Dump definition, 7.86 days, base assumed not to fall after 7 days | 0.95% | 0.865% | +0.08, not significant | Not estimated |
+| Tool definition, 3.28 days, against the tool's placebo draws | 616 of 13,838, 4.45% (4.12% to 4.81%) | 4.41% | +0.05 | No excess |
+| Tool definition, 7.86 days | 189 of 13,838, 1.37% (1.19% to 1.57%) | None: the placebo draws stop at 3.28 days | Not matchable | Not matchable |
+
+The 7.00-day interval with the week-to-week spread is a prediction interval for one more
+week, built from the three weeks' actual 7-day rates (0.889%, 0.819% and 0.885%), not from
+3-day rates scaled to 7 days: the difference plus or minus t with 2 degrees of freedom
+(4.30) times the square root of the sampling variance plus 4/3 of the variance of the three
+weekly rates. The figures in "About 1 in" are 100 divided by the difference and by the ends
+of its sampling interval.
+
+By part of the draw, under the dump's definition at 7.00 days, against 0.865%:
+
+| Part of the draw (positions in fetch order, counting from 0) | Observed | Difference |
+| --- | --- | --- |
+| A: before 11,207 | 84 of 7,059, 1.19% (0.96% to 1.47%) | +0.33 |
+| B: 11,207 to 18,864 | 48 of 4,627, 1.04% (0.78% to 1.37%) | +0.17 |
+| C: 18,865 and later | 22 of 1,908, 1.15% (0.76% to 1.74%) | +0.29 |
+
+The three parts add up to 154 of 13,594.
+
+At 3.0 days, the same accounts under the same definition are below the ordinary-week base
+(3.65% against 4.20%), while at 7.00 days they are above it. So the event week's curve may
+be flatter than the ordinary weeks' curve: silences that began at the outage may have ended
+more slowly. That reading is confounded by the community mix, which differs between the
+sample and the dump, and by the scored part being a non-random prefix of run 4's draw.
+The 7-day excess depends on an untested assumption, that the sampled population's
+silences end between 3 and 7 days at the same pace as the dump population's. In the dump,
+the 7-day share is about 0.21 of the 3-day share; if the sampled population's ratio were
+about 0.30 or more, the excess would vanish.
+
+Verdict: a possible small 7-day excess of roughly 0.3 percentage points (about 1 in 300 to
+400) under one definition, not established beyond doubt, and no excess at 3 days.
+
+### Caveats of the comparison
+
+- The tool's placebo draws are fetched weeks after their cutoffs, so more of their accounts
+  have been deleted or suspended by then than in the runs' own samples. When removals
+  follow stops, that lowers the placebo share a little.
+- The placebo cutoffs are offset in the calendar from the real one, and there are only
+  three of them, so the week-to-week spread is estimated from three values.
+- The archive can lag, so posts that it has not yet ingested look like silence. That biases
+  the runs toward more silence, not less, so lag cannot hide an excess, and it may
+  overstate one.
+- The 4.0-day expected share and the dump's 7.86-day bases are extrapolations, not
+  measurements. The ranges above show how much they depend on the shape assumed.
+- Run 4 is a partial prefix of its draw, not a random subsample, and its figures will
+  change when the scan completes.
+
 ## Pending work
 
-A 7-day rescore of runs 1 to 3 (their data ends at their stored horizons, so they must be fetched again), the rest of run 4 (resumed and running), a fifth, independent sample (10,000 accounts, for the same 2026-10-11 00:30 UTC cutoff), historical baseline samples from ordinary weeks of July to September 2024 to 2026, and a second event, the reported strike on a VK data center (cutoff about 2026-10-17 23:50 UTC, unverified). The fifth sample and the baseline samples are queued and deliberately paused until run 4 finishes. The run labels in the README and in this file are not the run IDs in the scan database.
+A 7-day rescore of runs 1 to 3 (their data ends at their stored horizons, so they must be fetched again), the rest of run 4 (paused when the archive returned server errors, and resumable), placebo draws of the tool past 3.28 days, so that a 7-day comparison under the tool's own definition becomes possible, a fifth sample (10,000 accounts, for the same 2026-10-11 00:30 UTC cutoff, drawn from the same activity-weighted pool, so it overlaps the earlier runs), historical baseline samples from ordinary weeks of July to September 2024 to 2026, and a second event, the reported strike on a VK data center (cutoff about 2026-10-17 23:50 UTC, unverified). The fifth sample and the baseline samples are queued and deliberately paused until run 4 finishes. The run labels in the README and in this file are not the run IDs in the scan database.
 
 ## Run 4 (partial) and all runs
 
@@ -144,8 +273,10 @@ whose fetch failed before the stop were fetched again successfully after the res
 were scored with the tool's own re-scoring and the run's stored rules (the same method,
 cutoff and markers as the other rows, at least 3 days of silence) as of its stored horizon.
 They come from a read-only copy of the scan database taken on 2026-10-22 at 01:12 UTC while
-the run was still running. The scored part is a prefix of the draw, not a random subsample,
-and the figures will change when the run completes.
+the run was still running. After that copy, the scan stopped at 22,147 of 30,000 accounts
+fetched, when the archive returned HTTP 500 errors; it can be resumed, and the figures here
+are for the 22,083 accounts scored in that copy. The scored part is a prefix of the draw,
+not a random subsample, and the figures will change when the run completes.
 
 | Measure | Run 4 (partial) |
 | --- | --- |
@@ -205,15 +336,17 @@ The scored part is not a random subsample of run 4's draw:
 
 How to read run 4:
 
-- The ordinary-week rate for 7 days of silence is 0.86% (weekly values 0.82% to 0.89%).
-  Run 4's 1.37% is above it, and its interval does not reach it. The parts fetched at
-  different times differ: the accounts fetched between the first two snapshots (1.13%,
-  0.86% to 1.47%) are closer to it, and their interval reaches down to it, while the
-  accounts fetched since the 18,865-account snapshot (1.70%, 1.21% to 2.37%) are further
-  above it. This is a hint only, not a finding: the subsample is not random; the archive
-  may lag, so posts that it has not yet ingested look like silence; the window is 7.86 days
-  rather than 7; and the ordinary-week rate comes from a separate script whose eligibility
-  rules have not been checked to be identical.
+- Run 4's 1.37% must not be compared with the dump's 7-day ordinary-week rate of 0.86%
+  (weekly values 0.82% to 0.89%): that rate uses another definition (a 48-hour window and
+  no event markers), it is for exactly 7 days rather than 7.86, and it comes from another
+  mix of communities. Under the dump's definition for both, run 4's accounts are silent
+  at 1.13% at 7.00 days, about 0.27 percentage points above 0.86%, and the three parts of
+  the draw give 1.19%, 1.04% and 1.15%. At 3 days the same accounts are below the dump's
+  rate (3.65% against 4.20%). This is a possible small excess, not a finding: the
+  subsample is not random; the archive may lag, so posts that it has not yet ingested look
+  like silence; and the excess rests on the untested assumption that silences in this
+  sample end at the same pace as in the dump's ordinary weeks. See
+  [Matched comparison under one definition](#matched-comparison-under-one-definition).
 - The overlap figures in this item come from the earlier snapshot, the first 11,201
   accounts fetched in run 4, and have not been re-computed for the later snapshots.
   In that snapshot, run 4 shared 5,172 of its fetched accounts with runs 1 to 3. Of these,
@@ -235,7 +368,7 @@ How to read run 4:
     covers only the uncertainty of the 43% share, not that of the 3.51%. The 120 are not a
     random draw from the 698: they are the silent accounts that run 4 happened to fetch,
     which is not a random part of its draw.
-- Silence alone is not proof that an account is a potential bot account. The outage also
+- Silence alone is not proof of anything about an account. The outage also
   silenced ordinary users, and a share of accounts goes quiet in any week. The archive keeps
   no account state, so deleted, suspended and abandoned accounts all look like silence.
 - Run 4's 61 stop-time clusters (the largest has 6 accounts) have not been permutation-tested
@@ -265,9 +398,11 @@ figures above.
   2.41% mainly because more accounts are now scored on run 4's longer window.
 - The pooled figure is lower than the runs 1 to 3 union (698 of 19,868) because run 4's
   accounts, including the ones it shares with runs 1 to 3, are scored on its longer window.
-- The per-window columns are the comparable figures: the 7.86-day column against the 7-day
-  ordinary-week rate, and the 3.3 to 4.0-day column against the 3-day rate, with the
-  caveats above.
+- The per-window columns are the figures to compare, but only with a base of the same
+  definition and window: the 3.3 to 4.0-day column with the tool's own placebo draws, and
+  the 7.86-day column with nothing yet under the tool's definition (the placebo draws stop
+  at 3.28 days). The dump's 4.20% and 0.86% use another definition; see
+  [Matched comparison under one definition](#matched-comparison-under-one-definition).
 
 ## Runs 1 to 3 (provisional)
 
@@ -326,8 +461,12 @@ Across runs, counted once per distinct account:
 | Rough base rate matched to the windows | mix-weighted 3.57% (3.37% to 3.97%) | about 3.37% |
 
 Ordinary weeks, from placebo cutoffs on Sep 6, 13 and 20 2026 (692,252 eligible
-accounts): silent 3 days, 4.20% (weekly values 3.87% to 4.61%); silent 7 days, 0.86%
-(weekly values 0.82% to 0.89%).
+accounts), counted in the archive dumps with a 48-hour window and no event markers: silent
+3 days, 4.20% (weekly values 3.87% to 4.61%); silent 7 days, 0.86% (weekly values 0.82% to
+0.89%). These rates use another definition than the runs, so the comparisons with them in
+this snapshot, and the rough matched base rates in the tables above, which were
+interpolated from them, are superseded by
+[Matched comparison under one definition](#matched-comparison-under-one-definition).
 
 How the distinct-account rows are built:
 
@@ -348,30 +487,33 @@ How the distinct-account rows are built:
 
 How to read it:
 
-- No row is clearly above an ordinary week. Run 1 (4.50%) is 0.30 percentage points above
-  the pooled 3-day ordinary-week value (4.20%), below the highest of the three ordinary
-  weeks (4.61%), and its interval contains the pooled value. Every other row is below it.
-  The windows differ (see the next bullets), so this is not a verdict.
-- The windows are longer than 3 days, so a matched base rate is lower than 4.20%, and the
-  unmatched comparison is conservative: it is biased toward finding no excess.
-  Interpolating in a straight line between the 3-day rate (4.20%) and the 7-day rate
-  (0.86%) gives about 3.97% at 3.28 days and 3.37% at 4.0 days. That is a rough
-  estimate, not a measurement, and the true curve is unknown.
-- Against those rough matched values, run 1 is slightly higher: its interval (4.02% to
-  5.04%) sits just above 3.97%, by 0.05 points at its lower end. For every other row the
-  interval contains the matched value: run 2 (3.38%) against a mix-weighted 3.51%, run 3
-  (3.06%, 2.65% to 3.53%) and its new-only part (3.17%, 2.66% to 3.77%) against 3.37%, and
-  the distinct-account row (3.67%, 3.38% to 3.98%) against 3.57%. So nothing here shows a
-  clear excess, and nothing is clearly below the matched base either.
+- The comparisons in this bullet and the next two were made at the time of the snapshot
+  and are superseded: the 4.20% and 0.86% they use come from another definition (a
+  48-hour window and no event markers) and another mix of communities, so they are not a
+  matched comparison, and the current comparison is in
+  [Matched comparison under one definition](#matched-comparison-under-one-definition). At
+  the time, run 1 (4.50%) was 0.30 percentage points above the pooled 3-day ordinary-week
+  value (4.20%), below the highest of the three ordinary weeks (4.61%), and its interval
+  contained the pooled value. Every other row was below it.
+- Interpolating in a straight line between the dump's 3-day rate (4.20%) and 7-day rate
+  (0.86%) gave about 3.97% at 3.28 days and 3.37% at 4.0 days. That was a rough estimate,
+  not a measurement, and it inherits the dump's definition, so it is not the runs' matched
+  base either. The tool's own placebo draws, with the runs' definition, give 4.41% at 3.28
+  days.
+- Against those rough interpolated values, run 1 was slightly higher: its interval (4.02%
+  to 5.04%) sat just above 3.97%, by 0.05 points at its lower end. For every other row the
+  interval contained the interpolated value: run 2 (3.38%) against a mix-weighted 3.51%,
+  run 3 (3.06%, 2.65% to 3.53%) and its new-only part (3.17%, 2.66% to 3.77%) against
+  3.37%, and the distinct-account row (3.67%, 3.38% to 3.98%) against 3.57%.
 - Run 1 and run 3 differ (4.50% against 3.06%, with intervals that do not overlap), and
   only part of that is explained. On the 1,356 accounts that are eligible in both, run 1
   has 52 silent and run 3 has 39, and no account is silent in run 3 only; the 13 that
   differ posted again in run 3's longer window. Across the whole runs, the difference
-  between their matched base rates is 0.6 points, and reweighting run 3's communities to
+  between their interpolated base rates is 0.6 points, and reweighting run 3's communities to
   run 1's eligible mix moves its rate from 3.06% to 3.34%. About 0.9 of the 1.44 point gap
   is accounted for by window and sample makeup, and the rest is not explained by these
   checks. The window effect on the shared accounts (0.96 points) is larger than the 0.6
-  point matched-base interpolation adjustment, and the two adjustments may not simply
+  point interpolation adjustment, and the two adjustments may not simply
   add. The runs share accounts, so they are not independent checks.
 - Run 3 is a partial and not a random draw. The scan fetches in sample order, grouped by
   community, so the first accounts fetched over-represent some communities (for example one
@@ -391,13 +533,15 @@ How to read it:
   ordinary users, and a share of accounts goes quiet in any week.
 - Nothing here is a final verdict. A verdict needs at least 7 days of silence after the
   cutoff, scored on a complete run (the archive now covers 2026-10-18 00:30 UTC; runs 1 to
-  3 must be fetched again), when the runs are re-scored and compared with the 7-day
-  ordinary-week rate of 0.86%, and "verified" needs 21 days of silence. Run 4 so far is a
+  3 must be fetched again), when the runs are re-scored and compared with a 7-day
+  ordinary-week rate of the same definition, and "verified" needs 21 days of silence. Run 4 so far is a
   stopped-then-resumed, non-random prefix of its draw, so it does not meet this yet.
-- The ordinary-week rates come from placebo cutoffs on three Sundays (00:30 UTC), counted
-  in the Reddit dumps of August and September 2026 by a separate script. Its eligibility
-  rules are meant to match this tool's but have not been checked to be identical, and the
-  placebo samples of the runs have not been drawn yet. Treat the comparison as rough.
+- The dump's ordinary-week rates come from placebo cutoffs on three Sundays (00:30 UTC),
+  counted in the Reddit dumps of August and September 2026 by a separate script. Its
+  definition differs from this tool's (a 48-hour window and no event markers): on the same
+  accounts of runs 1 to 3 it gives 2.50% where the tool gives 3.51%. The tool's own placebo
+  draws have since been made; see
+  [Matched comparison under one definition](#matched-comparison-under-one-definition).
 
 The chart at the top of the README is rendered from
 [`docs/charts/runs-provisional.json`](docs/charts/runs-provisional.json), a file of
@@ -418,12 +562,23 @@ Results from every platform go on this same chart, each platform in its own grou
    communities (`config/seeds.yaml`, subreddits for Reddit and search queries for X).
    Discovery oversamples: pool size is `--pool-factor` (default 3, or the platform's
    own default: 1 on X, 1.2 on reddit-archive) times `--n`.
+   On reddit-archive, discovery reads random pages of each seed subreddit's archived posts
+   and comments in the window before the cutoff (`--active-within-days`; the published runs
+   used the 30 days before it), with an equal quota of the pool per subreddit. An author
+   with more posts and comments there is more likely to land on a random page, so the
+   chance of discovery is roughly proportional to activity: the pool is activity-weighted.
+   In the published runs, 21 of the 23 seed subreddits contributed accounts (r/russia and
+   r/estonia contributed none in any run). Every draw for the same event comes from this
+   same pool, so a new 3,000-account draw overlaps the published runs' accounts by roughly
+   70% (about 2,100 accounts) and adds roughly 900 new ones; subsets of new accounts only
+   are reported separately.
    Discovery is cutoff-aware. An account seen only after the cutoff can never be a
    cliff, so adapters prefer accounts with activity before the cutoff (ideally in the
    baseline window). When a platform cannot reach back that far, or a seed is skipped
    or invalid, the adapter emits a warning that is printed after the scan and stored
    in the run summary.
-2. **Sample.** Uniform reservoir sampling over the pool: 3000 accounts by default,
+2. **Sample.** Uniform reservoir sampling over the pool (uniform within the discovered,
+   activity-weighted pool, not among all accounts of the seed communities): 3000 accounts by default,
    `--n N` for a different size, `--seed S` for reproducibility. Without `--seed` a
    random seed is drawn, printed and recorded with the run, so every run can be
    repeated. The run also records the tool version, the SHA-256 of its seed list and
@@ -662,6 +817,8 @@ lowers the placebo rate a little. Read a small excess with that in mind.
   threads and subreddits that are quiet enough to page back to the cutoff. Authors
   who posted rarely, or only in threads outside the top of the chosen window, are
   under-sampled. The adapter warns when a listing hits the cap before the cutoff.
+  This item describes the live `reddit` adapter, not the `reddit-archive` runs published
+  here, whose discovery is described in [Method](#method) step 1.
 - **Fetch errors.** Accounts that failed with status `error` are not scored. Rerun
   with `--from-run` to retry them.
 - The seed list is a starting point. Curate it, and cover the political spectrum:
@@ -689,13 +846,26 @@ How the chart keeps platforms apart:
   a cross-platform total would mean nothing. A distinct-account or pooled row combines
   runs of one platform only, and the file has no way to express a row that spans
   platforms.
-- A platform's ordinary-week rows, and the rough matched base of its runs (the hollow
+- A platform's ordinary-week rows, and the rough matched base interpolated for its runs (the hollow
   markers and short bars), come from that platform's own base rates only. `base_rate`
   holds the base rates of the Reddit archive; `base_rates` maps any other platform to
   its own, with a `note` that says how they were measured. A platform without measured
   base rates gets no ordinary-week rows and no matched base, and its rows say "no
   ordinary-week base rate for ... yet". No base rate has been measured for Reddit,
   Bluesky or X yet.
+- A base may have a `definition`, text saying that it was counted with another definition
+  than the runs. The Reddit archive's base has one ("48 h window, no markers"), because
+  the dump count behind it uses a 48-hour window and no event markers. Its ordinary-week
+  rows then say "other definition (...), reference only", and no matched base is
+  interpolated from it, so a row without its own matched base says "no matched base under
+  the runs' definition".
+- A row may give its own matched base in `matched_base`, as `rate`, `low` and `high`
+  (shares between 0 and 1, with `low <= rate <= high`), measured under the runs' own
+  definition. The chart draws it as the hollow marker, and the short bar when `low` and
+  `high` differ. The rows of runs 1 to 3 give the matched base from the tool's own placebo
+  draws, adjusted to each run's window (see
+  [Matched comparison under one definition](#matched-comparison-under-one-definition)).
+  A row with a `method_note` gets no matched base, even with `matched_base`.
 - The axis runs from 0 to 6%, and it grows in whole steps when a row needs more room.
 
 To add a run on any platform, from the `report` JSON of that run, run these commands from
@@ -757,8 +927,8 @@ looks like this (a row without `platform` is a Reddit archive row):
 ```
 
 Besides the keys in the example, a row may have `fetched` and `planned` (for a partial
-row; `fetched` may not exceed `planned`), `distinct_accounts`, `mixed_windows` and
-`method_note`. `kind` is `run`, `partial`, `union` (distinct accounts of complete runs) or `pooled`
+row; `fetched` may not exceed `planned`), `distinct_accounts`, `mixed_windows`,
+`method_note` and `matched_base`. `kind` is `run`, `partial`, `union` (distinct accounts of complete runs) or `pooled`
 (distinct accounts across runs with different windows, which also needs
 `"mixed_windows": true`). A row gives either `windows`, the number of eligible accounts
 scored over each silence window, which must add up to `eligible`, or `window_range`,

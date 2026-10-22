@@ -58,7 +58,7 @@ A value of 1 in `silent` means only that an eligible account made no post or com
 
 The archive can lag behind Reddit by hours or days, and it can have ingestion gaps. It can also miss content that was deleted or removed, and it cannot tell a suspended account from a silent one. An account can therefore appear silent here when it was not.
 
-The sample is not all Reddit users. It is a random sample (discovery seed 1638893776) of accounts that were active in the seed communities listed in `config/seeds.yaml`: the 23 subreddits recorded with the run (seed list digest `306d69fa42e4b430e9b6821eca8e741c6a48e051fe252fd8abe6ad8fd129812f`, computed by the tool's `seeds_digest`). The results describe that sample only.
+The sample is not all Reddit users. It is a sample (discovery seed 1638893776) of accounts with archived activity in the 30 days before the cutoff in the seed communities listed in `config/seeds.yaml`: the 23 subreddits recorded with the run (seed list digest `306d69fa42e4b430e9b6821eca8e741c6a48e051fe252fd8abe6ad8fd129812f`, computed by the tool's `seeds_digest`), of which 21 contributed accounts (r/russia and r/estonia contributed none in any run). Discovery is activity-weighted, with an equal quota per subreddit, so an account's chance of discovery is roughly proportional to its activity there, and the draw is uniform only within the discovered pool. The results describe that sample only.
 
 ## How to reproduce or verify
 
