@@ -1,11 +1,16 @@
 # Contributing
 
 The figures in the [README](README.md) and in [data-analysis.md](data-analysis.md) come from a few large samples, and runs 1 to 3 overlap heavily. More
-independent scans, run by other people on their own computers, make the figures more
-reliable. Every scan draws its own random sample, so each new scan adds accounts that the
-earlier runs did not see. The published figures come from the public Reddit archive,
-which needs no account or API key. The tool can also scan Bluesky and X (formerly
-Twitter); see [Other platforms: Bluesky and X](#other-platforms-bluesky-and-x) for what
+scans, run by other people on their own computers, make the figures more reliable. A new
+scan is not independent of the earlier runs: every draw comes from the same pool of
+accounts active in the seed communities in the 30 days before the cutoff (21 of the 23 seed
+subreddits contributed accounts), weighted by activity, with an equal quota per subreddit
+and a uniform sample within the discovered pool, so a new draw overlaps the
+earlier runs heavily (a 3,000-account draw overlaps the existing set by roughly 70%). A
+contributed run still helps, because it measures the shared accounts again and adds new
+accounts, and subsets of new accounts only are reported separately. The published figures
+come from the public Reddit archive, which needs no account or API key. The tool can also
+scan Bluesky and X (formerly Twitter); see [Other platforms: Bluesky and X](#other-platforms-bluesky-and-x) for what
 each one needs.
 
 ## 1. Install the tool
@@ -101,8 +106,9 @@ bot-farm-silence-tracker scan --platform reddit-archive --n 30
 ```
 
 Then run a larger one. The published runs drew 10,000 to 30,000 accounts, and any size
-helps. Leave out `--seed`, so that your scan draws its own random sample; the seed it
-draws is printed and stored with the run.
+helps. Leave out `--seed`, so that your scan draws its own sample from the same
+activity-weighted pool as the earlier runs (it overlaps them heavily, and subsets of new
+accounts only are reported separately); the seed it draws is printed and stored with the run.
 
 ```bash
 bot-farm-silence-tracker scan --platform reddit-archive --n 1000 --concurrency 2 --source-option max_rps=1.0

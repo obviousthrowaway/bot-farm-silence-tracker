@@ -15,7 +15,7 @@ Contents:
 - [Current figures](#current-figures)
 - [Matched comparison under one definition](#matched-comparison-under-one-definition)
 - [Pending work](#pending-work)
-- [Run 4 (partial) and all runs](#run-4-partial-and-all-runs)
+- [Run 4 and all runs](#run-4-and-all-runs)
 - [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional)
 - [Method](#method)
   - [Placebo cutoffs](#placebo-cutoffs)
@@ -28,7 +28,7 @@ Contents:
 These are the provisional results of the Reddit archive scans of event `2026-10-takedown`
 (cutoff 2026-10-11 00:30 UTC). Runs 1 to 3 and their union were re-scored on 2026-10-20
 from a backup copy of the cache. Run 4 and the pooled row were re-scored on 2026-10-22 at
-01:12 UTC from a read-only copy of the scan database, while run 4 was still running.
+01:12 UTC from a read-only copy of the scan database, taken during run 4's scan.
 Every row is scored as of its run's stored data horizon, and no later activity counts. An
 eligible account posted steadily in the 30-day baseline window before the outage, and a
 silent one stopped posting around the outage and had no activity seen up to its run's
@@ -40,7 +40,7 @@ horizon. The method is in [Method](#method).
 | Run 2 | 3.28 to 4.0 days (2026-10-15 00:30 UTC; 2026-10-14 07:10 UTC for accounts whose data ends early) | 6,324 | 213 | 3.37%, about 1 in 30 | 2.95% to 3.84% |
 | Run 3 | 4.0 days (2026-10-15 00:30 UTC) | 12,733 | 421 | 3.31%, about 1 in 30 | 3.01% to 3.63% |
 | Runs 1 to 3, each distinct account counted once | 3.3 to 4.0 days | 19,868 | 698 | 3.51%, about 1 in 28 | 3.27% to 3.78% |
-| Run 4, partial, scan paused (22,083 of 30,000 accounts fetched and scored) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% |
+| Run 4 (22,083 of a 30,000-account draw scored, in discovery order, not a random subsample) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% |
 | All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 667 | 2.41%, about 1 in 41 | 2.24% to 2.60% |
 
 The ordinary-week rates counted from the archive dumps, 4.20% for 3 days of silence and
@@ -59,20 +59,21 @@ cannot be compared with these rows directly. The comparisons under one definitio
   no matched 7-day ordinary-week figure exists yet. Under the dump's definition for both,
   run 4's accounts are silent at 1.13% at 7.00 days against 0.86% in ordinary weeks, a
   possible small excess of about 0.27 percentage points (roughly 1 in 370) that is not
-  established beyond doubt. This is a hint and not a finding: the scan is paused and only
-  22,083 of its 30,000 accounts (the first 22,084 positions in the order they were fetched,
-  which is close to discovery order, less 1 fetch error) are fetched and scored, the scored
-  part is not a random subsample of its draw (reweighted to the full draw's community mix,
-  the rate is 1.35%), and the figure will change when the run finishes. Earlier snapshots
-  of run 4 gave 103 of 7,179 (1.43%) at 11,201 accounts fetched and 156 of 11,893 (1.31%)
-  at 18,865; they are superseded by the figures here.
+  established beyond doubt. This is a hint and not a finding: 22,083 of run 4's
+  30,000-account draw (the first 22,084 positions in the order they were fetched, which is
+  close to discovery order, less 1 fetch error) were fetched and scored, and the rest of
+  the draw was not scored (see [Run 4 and all runs](#run-4-and-all-runs)). The scored part
+  is not a random subsample of its draw (reweighted to the full draw's community mix, the
+  rate is 1.35%), and the 3.0-day and 7-day figures for run 4 describe the scored accounts
+  only. Earlier snapshots of run 4 gave 103 of 7,179 (1.43%) at 11,201 accounts fetched
+  and 156 of 11,893 (1.31%) at 18,865; they are superseded by the figures here.
 - The pooled row mixes windows, so it compares with neither ordinary-week rate.
 - These are not counts of bots, and there is no verdict. Silence alone is not proof that
   an account is a bot, and the outage also silenced ordinary users of the services it cut
   off.
 
 The details are in [Current figures](#current-figures),
-[Run 4 (partial) and all runs](#run-4-partial-and-all-runs) and
+[Run 4 and all runs](#run-4-and-all-runs) and
 [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional). The shared
 registry holds only `scanned` records so far, so its chart of potential bot accounts
 shows none yet (see [Shared registry chart](#shared-registry-chart)).
@@ -95,7 +96,7 @@ account becomes a candidate for review (see [Method](#method) and
 
 ## Current figures
 
-Every figure in the [README's TL;DR](README.md#tldr) is scored as of each run's stored data horizon, with no later activity counted. The per-window figures should not be compared directly: a longer window leaves fewer accounts silent, because some accounts that were quiet for 3 or 4 days post again later. Of the accounts that were also among the first 11,201 accounts fetched in run 4 (the earlier snapshot of run 4), 120 are silent on their record in the de-duplicated runs 1 to 3 union (the record with the longest earlier window, 3.3 to 4.0 days), and 52 of those 120 were still silent at 7.86 days. See [Run 4 (partial) and all runs](#run-4-partial-and-all-runs) for the details. The chart at the top of the README shows the current figures. The tables in [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) are an earlier snapshot, from 2026-10-17 when run 3 was still partial; the current per-run figures are listed below.
+Every figure in the [README's TL;DR](README.md#tldr) is scored as of each run's stored data horizon, with no later activity counted. The per-window figures should not be compared directly: a longer window leaves fewer accounts silent, because some accounts that were quiet for 3 or 4 days post again later. Of the accounts that were also among the first 11,201 accounts fetched in run 4 (the earlier snapshot of run 4), 120 are silent on their record in the de-duplicated runs 1 to 3 union (the record with the longest earlier window, 3.3 to 4.0 days), and 52 of those 120 were still silent at 7.86 days. See [Run 4 and all runs](#run-4-and-all-runs) for the details. The chart at the top of the README shows the current figures. The tables in [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) are an earlier snapshot, from 2026-10-17 when run 3 was still partial; the current per-run figures are listed below.
 
 The chart at the top of the README shows these figures. Each run of the 2026-10-takedown
 Reddit scan is scored as of the archive's data horizon stored with it, not up to a later
@@ -114,8 +115,8 @@ Re-scored on 2026-10-20 at each run's stored horizon, from a backup copy of the 
   snapshot, with 9,119 accounts fetched, gave 182 of 5,943 (3.06%).
 - All distinct accounts across runs 1 to 3 (31,396, counted once each, excluding fetch errors): 698 of 19,868,
   3.51% (3.27% to 3.78%).
-- Run 4 (partial, 7.86 days) and all runs pooled: see
-  [Run 4 (partial) and all runs](#run-4-partial-and-all-runs).
+- Run 4 (7.86 days, 22,083 of its 30,000-account draw scored) and all runs pooled: see
+  [Run 4 and all runs](#run-4-and-all-runs).
 
 The rows of runs 1 to 3 are compared with the tool's own placebo draws, which use the same
 sampler and the same rules, adjusted to each run's window (see
@@ -124,14 +125,15 @@ expected shares are 4.41% for run 1, 3.52% for run 2, 3.24% for run 3 and 3.47% 
 to 3 together, against observed shares of 4.49%, 3.37%, 3.31% and 3.51%. No row of runs 1
 to 3 is clearly above or clearly below an ordinary week. The ordinary-week rate of 4.20% from the
 archive dumps, and the straight-line interpolation from it that earlier versions of the
-chart drew (about 3.97% at 3.28 days and 3.37% at 4.0 days), use another definition and are
-not a matched comparison. Run 1 and run 3 differ partly because of their windows and sample makeup, and the
-rest is not explained. The runs share accounts, so they are not independent checks and
-their rows are never summed. There is no verdict: run 4 is the only run scored past 7
-days and it is partial, and runs 1 to 3 must be fetched again before they can be scored
-over 7 days. Silence alone is not proof that an account is a bot. See
-[Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) for the snapshot's numbers and
-caveats.
+chart drew (about 3.97% at 3.28 days and 3.37% at 4.0 days), use another definition and
+are not a matched comparison. Run 1 and run 3 differ partly because of their windows and
+sample makeup, and the rest is not explained. The runs share accounts, so they are not
+independent checks and their rows are never summed. There is no verdict: run 4 is the only
+run scored past 7 days and only 22,083 of its 30,000-account draw were scored, in
+discovery order, so the scored part is not a random subsample; runs 1 to 3 must be fetched
+again before they can be scored over 7 days. Silence alone is not proof that an account is
+a bot. See [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional) for the snapshot's
+numbers and caveats.
 
 ## Matched comparison under one definition
 
@@ -184,12 +186,12 @@ Runs 1 to 3 are consistent with an ordinary week: there is no excess at 3 days a
 
 ### 7 days: run 4 under one definition
 
-Run 4 is partial: the scored part is the first 22,083 accounts of its draw in discovery
-order (a prefix, not a random subsample), and its scan stopped at 22,147 of 30,000 fetched
-when the archive returned HTTP 500 errors; it can be resumed. Under the tool's definition
-it gives 189 of 13,838, 1.37% (1.19% to 1.57%), about 1 in 73, but the tool's placebo
-draws stop at 3.28 days, so there is no matched 7-day figure under that definition. The
-rows below score run 4's accounts under the dump's definition instead (a 48-hour window and
+Run 4's scored part is the first 22,083 accounts of its 30,000-account draw in discovery
+order (a prefix, not a random subsample), so every figure in this section, at 3.0 days and
+at 7 days alike, describes those scored accounts only. Under the tool's definition it
+gives 189 of 13,838, 1.37% (1.19% to 1.57%), about 1 in 73, but the tool's placebo draws
+stop at 3.28 days, so there is no matched 7-day figure under that definition. The rows
+below score run 4's accounts under the dump's definition instead (a 48-hour window and
 no event markers), which gives 13,594 eligible accounts, and compare them with the dump's
 ordinary weeks.
 
@@ -247,38 +249,41 @@ Verdict: a possible small 7-day excess of roughly 0.3 percentage points (about 1
   overstate one.
 - The 4.0-day expected share and the dump's 7.86-day bases are extrapolations, not
   measurements. The ranges above show how much they depend on the shape assumed.
-- Run 4 is a partial prefix of its draw, not a random subsample, and its figures will
-  change when the scan completes.
+- Run 4's scored part (22,083 of its 30,000-account draw) is a prefix of the draw in
+  discovery order, not a random subsample.
 
 ## Pending work
 
-A 7-day rescore of runs 1 to 3 (their data ends at their stored horizons, so they must be fetched again), the rest of run 4 (paused when the archive returned server errors, and resumable), placebo draws of the tool past 3.28 days, so that a 7-day comparison under the tool's own definition becomes possible, a fifth sample (10,000 accounts, for the same 2026-10-11 00:30 UTC cutoff, drawn from the same activity-weighted pool, so it overlaps the earlier runs), historical baseline samples from ordinary weeks of July to September 2024 to 2026, and a second event, the reported strike on a VK data center (cutoff about 2026-10-17 23:50 UTC, unverified). The fifth sample and the baseline samples are queued and deliberately paused until run 4 finishes. The run labels in the README and in this file are not the run IDs in the scan database.
+A 7-day rescore of runs 1 to 3 (their data ends at their stored horizons, so they must be fetched again), placebo draws of the tool past 3.28 days, so that a 7-day comparison under the tool's own definition becomes possible, a fifth sample (10,000 accounts, for the same 2026-10-11 00:30 UTC cutoff, drawn from the same activity-weighted pool, so it overlaps the earlier runs), historical baseline samples from ordinary weeks of July to September 2024 to 2026, and a second event, the reported strike on a VK data center (cutoff about 2026-10-17 23:50 UTC, unverified). The fifth sample and the baseline samples are queued. The run labels in the README and in this file are not the run IDs in the scan database.
 
-## Run 4 (partial) and all runs
+## Run 4 and all runs
 
 Run 4 is a fourth Reddit archive scan of event `2026-10-takedown` (cutoff 2026-10-11 00:30
 UTC), with its own seed and a draw of 30,000 accounts. Its data horizon is 2026-10-18
 21:10 UTC, 7.86 days after the cutoff, so it is the first run scored past 7 days of
-silence. The operator stopped it on 2026-10-20 at 20:28 UTC, at 11,201 of 30,000 accounts
+silence. The operator interrupted it on 2026-10-20 at 20:28 UTC, at 11,201 of 30,000 accounts
 fetched (excluding 6 fetch errors), because the archive had slowed down. The slowdown came
 from throttling on the archive's side: HTTP 422 timeout refusals rose from 5% to 7% of
 requests on October 15 to 17 to about 21% on October 20, and the scan's own waits between
 retries made it worse. The scan was resumed on 2026-10-20 at about 21:17 UTC, with a higher
 concurrency and shorter retry waits, and with the same data horizon (2026-10-18 21:10 UTC),
-so the accounts already fetched are reused and only the pending ones are being fetched. The
+so the accounts already fetched were reused and only the pending ones were fetched. The
 figures below are for the first 22,084 of its 30,000 positions, in the order they were
 fetched, which is close to discovery order. Of these, 22,083 were fetched and scored and 1
 (at position 21,203, counting from 0) had a fetch error and is not scored; the 6 accounts
 whose fetch failed before the stop were fetched again successfully after the resume. They
 were scored with the tool's own re-scoring and the run's stored rules (the same method,
 cutoff and markers as the other rows, at least 3 days of silence) as of its stored horizon.
-They come from a read-only copy of the scan database taken on 2026-10-22 at 01:12 UTC while
-the run was still running. After that copy, the scan stopped at 22,147 of 30,000 accounts
-fetched, when the archive returned HTTP 500 errors; it can be resumed, and the figures here
-are for the 22,083 accounts scored in that copy. The scored part is a prefix of the draw,
-not a random subsample, and the figures will change when the run completes.
+They come from a read-only copy of the scan database taken on 2026-10-22 at 01:12 UTC,
+during the scan. The figures here are for the 22,083 accounts scored in that copy, and they
+are final for run 4. After that copy, the scan fetched 64 more accounts, which are not
+scored, and then an archive outage with HTTP 500 errors interrupted it on 2026-10-22, after
+22,147 of the 30,000 accounts had been fetched. About 7,853 accounts of the draw were never
+fetched (about 7,841 still pending and 12 with fetch errors). The scan was not resumed,
+because the 22,083 scored accounts were judged enough. The scored part is a prefix of the
+draw in discovery order, not a random subsample.
 
-| Measure | Run 4 (partial) |
+| Measure | Run 4 |
 | --- | --- |
 | Accounts fetched and scored | 22,083 of the first 22,084 of 30,000 positions, in the order they were fetched, which is close to discovery order; 1 fetch error |
 | Scored through (data horizon) | 2026-10-18 21:10 UTC |
@@ -306,10 +311,10 @@ as history only:
 
 | Snapshot | Accounts fetched and scored | Eligible | Silent | Share | 95% Wilson interval | Reweighted | Stop-time clusters | Histories cut short by the platform cap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-10-20, run stopped (backup copy of the cache) | 11,201 of the first 11,207 (excluding 6 fetch errors) | 7,179 | 103 | 1.43%, about 1 in 70 | 1.18% to 1.74% | 1.44% (1.16% to 1.72%) | 31 (the largest has 4 accounts) | 6 |
+| 2026-10-20 snapshot (backup copy of the cache, before the scan was resumed that day) | 11,201 of the first 11,207 (excluding 6 fetch errors) | 7,179 | 103 | 1.43%, about 1 in 70 | 1.18% to 1.74% | 1.44% (1.16% to 1.72%) | 31 (the largest has 4 accounts) | 6 |
 | 2026-10-21 16:55 UTC, the same first 11,207 (the 6 fetched again successfully) | 11,207 | 7,185 | 103 | 1.43%, about 1 in 70 | 1.18% to 1.74% | Not computed | Not computed | Not recounted |
-| 2026-10-21 16:55 UTC, run still running (read-only copy of the scan database) | The first 18,865 of 30,000 (no fetch errors) | 11,893 | 156 | 1.31%, about 1 in 76 | 1.12% to 1.53% | 1.29% (1.07% to 1.49%) | 53 (the largest has 5 accounts) | Not recounted |
-| 2026-10-22 01:12 UTC, run still running (read-only copy of the scan database) | 22,083 of the first 22,084 of 30,000 (1 fetch error) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% | 1.35% (1.17% to 1.54%) | 61 (the largest has 6 accounts) | Not recounted |
+| 2026-10-21 16:55 UTC snapshot, taken while the scan was running (read-only copy of the scan database) | The first 18,865 of 30,000 (no fetch errors) | 11,893 | 156 | 1.31%, about 1 in 76 | 1.12% to 1.53% | 1.29% (1.07% to 1.49%) | 53 (the largest has 5 accounts) | Not recounted |
+| 2026-10-22 01:12 UTC snapshot, taken while the scan was running; these are the final figures for run 4 (read-only copy of the scan database) | 22,083 of the first 22,084 of 30,000 (1 fetch error) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% | 1.35% (1.17% to 1.54%) | 61 (the largest has 6 accounts) | Not recounted |
 
 In the earlier snapshot, the 6,029 accounts in no earlier run (fetched and scored, excluding
 3 fetch errors) gave 51 of 3,877 eligible silent, 1.32% (1.00% to 1.73%). That figure has not
@@ -325,12 +330,12 @@ The scored part is not a random subsample of run 4's draw:
   (01:12 UTC), for example, r/germany is 6.6% of the fetched part and 4.0% of the rest, and
   r/conspiracy 7.7% against 9.7%. In the re-score of 2026-10-21 (16:55 UTC), r/energy was
   4.2% of the fetched part and 6.7% of the rest; it is now 4.9% against 5.6%.
-- The full 30,000-account draw would be a valid random sample of the discovered pool once it
-  is fetched completely. The fetched part is a convenience subset.
+- The full 30,000-account draw is a random sample of the discovered pool, but only 22,083
+  of its accounts were scored, so the scored part is a convenience subset.
 - The reweighted figure post-stratifies by discovery community: within each of the 21
   discovery communities it takes the eligible share and the silent share of the fetched part,
   and weights the communities by their counts in the full draw (all 30,000 accounts, including
-  the ones not yet fetched). Its interval comes from 2,000 bootstrap resamples within
+  the ones that were not fetched). Its interval comes from 2,000 bootstrap resamples within
   communities. Reweighting corrects only the community mix, not other differences between
   early and late accounts, such as posting frequency within a community.
 
@@ -378,7 +383,7 @@ All runs pooled, counted once per distinct account (the key is platform and acco
 account in several runs counts once, using its record from the run with the longest scored
 window, with ties going to the lowest run number; rows of different runs are never added
 together; records with a fetch error are not used, so they never replace an earlier eligible
-record of the same account). These figures use run 4's 22,083 accounts fetched so far:
+record of the same account). These figures use run 4's 22,083 scored accounts:
 
 | Measure | All runs | Scored over 7.86 days (run 4) | Scored over 3.3 to 4.0 days (runs 1 to 3) |
 | --- | --- | --- | --- |
@@ -534,8 +539,9 @@ How to read it:
 - Nothing here is a final verdict. A verdict needs at least 7 days of silence after the
   cutoff, scored on a complete run (the archive now covers 2026-10-18 00:30 UTC; runs 1 to
   3 must be fetched again), when the runs are re-scored and compared with a 7-day
-  ordinary-week rate of the same definition, and "verified" needs 21 days of silence. Run 4 so far is a
-  stopped-then-resumed, non-random prefix of its draw, so it does not meet this yet.
+  ordinary-week rate of the same definition, and "verified" needs 21 days of silence. Run 4's scored
+  part is a non-random prefix of its draw (22,083 of 30,000 accounts), so it does not meet
+  this.
 - The dump's ordinary-week rates come from placebo cutoffs on three Sundays (00:30 UTC),
   counted in the Reddit dumps of August and September 2026 by a separate script. Its
   definition differs from this tool's (a 48-hour window and no event markers): on the same
@@ -927,10 +933,12 @@ looks like this (a row without `platform` is a Reddit archive row):
 ```
 
 Besides the keys in the example, a row may have `fetched` and `planned` (for a partial
-row; `fetched` may not exceed `planned`), `distinct_accounts`, `mixed_windows`,
-`method_note` and `matched_base`. `kind` is `run`, `partial`, `union` (distinct accounts of complete runs) or `pooled`
-(distinct accounts across runs with different windows, which also needs
-`"mixed_windows": true`). A row gives either `windows`, the number of eligible accounts
+row; `fetched` may not exceed `planned`; `fetched` counts the accounts fetched and scored
+for the row, so run 4's row gives 22,083, not the 22,147 accounts its scan fetched in
+all), `distinct_accounts`, `mixed_windows`, `method_note` and `matched_base`. `kind` is
+`run`, `partial`, `union` (distinct accounts of complete runs) or `pooled` (distinct
+accounts across runs with different windows, which also needs `"mixed_windows": true`).
+A row gives either `windows`, the number of eligible accounts
 scored over each silence window, which must add up to `eligible`, or `window_range`,
 the shortest and longest window in days. After a hand edit, redraw the chart with
 `scripts/render_run_chart.py` as above. The renderer checks the whole file first. It

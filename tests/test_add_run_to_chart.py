@@ -409,7 +409,7 @@ def test_as_of_may_not_move_before_any_rows_scored_date(tmp_path: Path, capsys) 
     without = args[:-2]
     assert add_run_to_chart.main([*without, "--as-of", "2026-10-16"]) == 1
     err = capsys.readouterr().err
-    assert "before row 'Run 4 (partial, paused)' was scored to (2026-10-18)" in err
+    assert "before row 'Run 4 (22,083 of 30,000 scored)' was scored to (2026-10-18)" in err
     assert data_path.read_text(encoding="utf-8") == DATA.read_text(encoding="utf-8")
     assert add_run_to_chart.main([*without, "--as-of", "2026-10-18"]) == 0
     # A replacement scored later moves the bound forward with it.

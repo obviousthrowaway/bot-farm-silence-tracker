@@ -610,8 +610,8 @@ def _desc(data: dict[str, Any], groups: list[tuple[str, list[dict[str, Any]]]]) 
     )
     if "partial" in kinds:
         parts.append(
-            "A partial row covers only part of its draw, stopped or still being scanned; "
-            "it is not a random subsample of the draw."
+            "A partial row covers only part of its draw, scored in the order the accounts "
+            "were fetched, so it is not a random subsample of the draw."
         )
     if any(e.get("mixed_windows") for e in data["rows"]):
         parts.append("A row that mixes windows compares with neither base rate.")
@@ -680,7 +680,10 @@ def render(data: dict[str, Any], theme: str) -> str:
     kinds = {e["kind"] for e in data["rows"]}
     overlap = "Runs overlap: rows are never summed."
     if "partial" in kinds:
-        overlap += " Partial rows cover part of a draw, not a random one; their figures may change."
+        overlap += (
+            " Partial rows cover part of a draw, scored in fetch order, so they are not a random"
+            " subsample."
+        )
     verdict = "No verdict. Platforms are never pooled."
     if any(e.get("mixed_windows") for e in data["rows"]):
         verdict += " Pooled rows mix windows."

@@ -110,7 +110,7 @@ def test_distinct_account_rows_are_not_sums_of_runs() -> None:
 def test_rows_past_seven_days_or_mixed_get_no_matched_base() -> None:
     data = _interpolated()
     rows = _rows(data)
-    assert render_run_chart.row_matched(data, rows["Run 4 (partial, paused)"]) is None
+    assert render_run_chart.row_matched(data, rows["Run 4 (22,083 of 30,000 scored)"]) is None
     assert render_run_chart.row_matched(data, rows["All runs pooled, distinct accounts"]) is None
     weighted, low, high = render_run_chart.row_matched(data, rows["Run 2"])
     assert weighted is None
@@ -122,7 +122,7 @@ def test_rows_past_seven_days_or_mixed_get_no_matched_base() -> None:
 def test_chart_shows_all_rows_and_no_account_names() -> None:
     data = json.loads(DATA.read_text(encoding="utf-8"))
     svg = render_run_chart.render(data, "light")
-    for label in ("Run 1:", "Run 2:", "Run 3:", "Run 4 (partial, paused)"):
+    for label in ("Run 1:", "Run 2:", "Run 3:", "Run 4 (22,083 of 30,000 scored)"):
         assert label in svg
     assert "Runs 1 to 3, distinct accounts" in svg and "All runs pooled" in svg
     assert "matched base, same definition as the runs" in svg
@@ -532,11 +532,20 @@ def test_rows_outside_three_to_seven_days_say_why_they_have_no_matched_base(
     assert (row["matched"] is None) == (sub != "matched base ~")
 
 
-def test_the_partial_note_is_true_for_stopped_and_running_rows() -> None:
+def test_the_partial_note_says_only_that_the_row_is_not_a_random_subsample() -> None:
     svg = render_run_chart.render(json.loads(DATA.read_text(encoding="utf-8")), "light")
-    assert "Partial rows cover part of a draw, not a random one" in svg
-    assert "stopped or still being scanned" in svg
-    assert "still running" not in svg and "will change" not in svg
+    assert "Partial rows cover part of a draw, scored in fetch order, so they are not a" in svg
+    assert "so it is not a random subsample of the draw" in svg
+    for text in (
+        "still running",
+        "will change",
+        "may change",
+        "paused",
+        "resum",
+        "stopped",
+        "in progress",
+    ):
+        assert text not in svg
 
 
 def test_a_base_of_another_definition_is_a_reference_only() -> None:
@@ -544,7 +553,7 @@ def test_a_base_of_another_definition_is_a_reference_only() -> None:
     rows = _rows(data)
     assert data["base_rate"]["definition"]
     # Run 4 and the pooled row get no matched base from a base of another definition.
-    run4 = render_run_chart._row(data, rows["Run 4 (partial, paused)"])
+    run4 = render_run_chart._row(data, rows["Run 4 (22,083 of 30,000 scored)"])
     assert run4["matched"] is None
     assert "no matched base under the runs' definition" in run4["sub"]
     assert "compare with the 7-day row" not in run4["sub"]
