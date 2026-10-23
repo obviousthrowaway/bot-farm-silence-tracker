@@ -104,7 +104,7 @@
       "fetched": 22083,
       "planned": 30000,
       "eligible": 13838,
-      "silent": 189,
+      "silent": 191,
       "windows": [
         {
           "days": 7.86,
@@ -118,7 +118,7 @@
       "status": "partial",
       "distinct_accounts": 43735,
       "eligible": 27674,
-      "silent": 667,
+      "silent": 669,
       "mixed_windows": true,
       "window_range": [
         3.28,

@@ -17,7 +17,7 @@ The lists contain public Reddit usernames only. They hold no post text, no subre
 | `scan-3d-a-scored-accounts.csv` | Scan a | 2026-10-14T02:27:03Z, 3.08 days | 3,000 | 3,000 | 1,925 | 80 | 4.16% |
 | `scan-3d-b-scored-accounts.csv` | Scan b, incomplete | 2026-10-14T02:27:03Z, 3.08 days | 3,000 | 2,338 | 1,510 | 62 | 4.11% |
 
-The row, eligible and silent counts were recomputed from the CSV files themselves. For runs 1 to 3 they equal the figures published in the main README and in [data-analysis.md](../../data-analysis.md). Scans a and b are not yet in those documents.
+The row, eligible and silent counts were recomputed from the CSV files themselves. For runs 1 to 4 they equal the figures published in the main README and in [data-analysis.md](../../data-analysis.md). Scans a and b are not yet in those documents.
 
 Each file is a UTF-8 CSV file with one row per scored account and a header row, sorted by `user_id`. Only scored accounts are listed: an account whose fetch from the archive failed, or that was never fetched, is not in the file.
 
@@ -93,7 +93,7 @@ The runs and scans draw from the same pool of accounts, so the same account can 
 
 ## What these results do and do not mean
 
-A value of 1 in `silent` means only that an eligible account had no activity seen up to this run's data end: it made no post or comment that the archive holds between the cutoff and its data end. It is not evidence that the account is automated or inauthentic, and silence alone is not proof of anything about an account. Ordinary users stop posting for many reasons, and in an ordinary week several percent of steady posters go quiet for three days. The outage itself also cut off ordinary users of the affected services. In a local spot check, 300 accounts were drawn at random from the silent accounts of runs 1 to 3 and fetched again on 2026-10-18, and 182 of them (60.7%, 95% Wilson interval 55.0% to 66.0%) had posted or commented after their run's horizon. The spot-check files are not published.
+A value of 1 in `silent` means only that an eligible account had no activity seen up to its data end: it made no post or comment that the archive holds between the cutoff and its data end. It is not evidence that the account is automated or inauthentic, and silence alone is not proof of anything about an account. Ordinary users stop posting for many reasons, and in an ordinary week several percent of steady posters go quiet for three days. The outage itself also cut off ordinary users of the affected services. In a local spot check, 300 accounts were drawn at random from the silent accounts of runs 1 to 3 and fetched again on 2026-10-18, and 182 of them (60.7%, 95% Wilson interval 55.0% to 66.0%) had posted or commented after their run's horizon. The spot-check files are not published.
 
 The archive can lag behind Reddit by hours or days, and it can have ingestion gaps. It can also miss content that was deleted or removed, and it cannot tell a suspended account from a silent one. An account can therefore appear silent here when it was not.
 

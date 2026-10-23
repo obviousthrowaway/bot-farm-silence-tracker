@@ -40,8 +40,8 @@ horizon. The method is in [Method](#method).
 | Run 2 | 3.28 to 4.0 days (2026-10-15 00:30 UTC; 2026-10-14 07:10 UTC for accounts whose data ends early) | 6,324 | 213 | 3.37%, about 1 in 30 | 2.95% to 3.84% |
 | Run 3 | 4.0 days (2026-10-15 00:30 UTC) | 12,733 | 421 | 3.31%, about 1 in 30 | 3.01% to 3.63% |
 | Runs 1 to 3, each distinct account counted once | 3.3 to 4.0 days | 19,868 | 698 | 3.51%, about 1 in 28 | 3.27% to 3.78% |
-| Run 4 (22,083 of a 30,000-account draw scored, in discovery order, not a random subsample) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% |
-| All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 667 | 2.41%, about 1 in 41 | 2.24% to 2.60% |
+| Run 4 (22,083 of a 30,000-account draw scored, in discovery order, not a random subsample) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 191 | 1.38%, about 1 in 72 | 1.20% to 1.59% |
+| All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 669 | 2.42%, about 1 in 41 | 2.24% to 2.61% |
 
 The ordinary-week rates counted from the archive dumps, 4.20% for 3 days of silence and
 0.86% for 7 days (placebo cutoffs on Sep 6, 13 and 20 2026, 692,252 eligible accounts), use
@@ -55,7 +55,7 @@ cannot be compared with these rows directly. The comparisons under one definitio
   sampler and rules and adjusted to each run's window, the expected share is 3.47% and the
   observed share is 3.51%, a difference of +0.05 percentage points (from unrounded values;
   95% interval -0.21 to +0.30), so there is no excess and no clear deficit.
-- Run 4 is the only run scored past 7 days. Its 1.37% uses the tool's definition, for which
+- Run 4 is the only run scored past 7 days. Its 1.38% uses the tool's definition, for which
   no matched 7-day ordinary-week figure exists yet. Under the dump's definition for both,
   run 4's accounts are silent at 1.13% at 7.00 days against 0.86% in ordinary weeks, a
   possible small excess of about 0.27 percentage points (roughly 1 in 370) that is not
@@ -64,7 +64,7 @@ cannot be compared with these rows directly. The comparisons under one definitio
   close to discovery order, less 1 fetch error) were fetched and scored, and the rest of
   the draw was not scored (see [Run 4 and all runs](#run-4-and-all-runs)). The scored part
   is not a random subsample of its draw (reweighted to the full draw's community mix, the
-  rate is 1.35%), and the 3.0-day and 7-day figures for run 4 describe the scored accounts
+  rate is 1.37%), and the 3.0-day and 7-day figures for run 4 describe the scored accounts
   only. Earlier snapshots of run 4 gave 103 of 7,179 (1.43%) at 11,201 accounts fetched
   and 156 of 11,893 (1.31%) at 18,865; they are superseded by the figures here.
 - The pooled row mixes windows, so it compares with neither ordinary-week rate.
@@ -189,7 +189,7 @@ Runs 1 to 3 are consistent with an ordinary week: there is no excess at 3 days a
 Run 4's scored part is the first 22,083 accounts of its 30,000-account draw in discovery
 order (a prefix, not a random subsample), so every figure in this section, at 3.0 days and
 at 7 days alike, describes those scored accounts only. Under the tool's definition it
-gives 189 of 13,838, 1.37% (1.19% to 1.57%), about 1 in 73, but the tool's placebo draws
+gives 191 of 13,838, 1.38% (1.20% to 1.59%), about 1 in 72, but the tool's placebo draws
 stop at 3.28 days, so there is no matched 7-day figure under that definition. The rows
 below score run 4's accounts under the dump's definition instead (a 48-hour window and
 no event markers), which gives 13,594 eligible accounts, and compare them with the dump's
@@ -205,7 +205,7 @@ ordinary weeks.
 | Dump definition, 7.86 days, base extended with the event week's shape | 0.95% | 0.724% | +0.23 | 445 |
 | Dump definition, 7.86 days, base assumed not to fall after 7 days | 0.95% | 0.865% | +0.08, not significant | Not estimated |
 | Tool definition, 3.28 days, against the tool's placebo draws | 616 of 13,838, 4.45% (4.12% to 4.81%) | 4.41% | +0.05 | No excess |
-| Tool definition, 7.86 days | 189 of 13,838, 1.37% (1.19% to 1.57%) | None: the placebo draws stop at 3.28 days | Not matchable | Not matchable |
+| Tool definition, 7.86 days | 191 of 13,838, 1.38% (1.20% to 1.59%) | None: the placebo draws stop at 3.28 days | Not matchable | Not matchable |
 
 The 7.00-day interval with the week-to-week spread is a prediction interval for one more
 week, built from the three weeks' actual 7-day rates (0.889%, 0.819% and 0.885%), not from
@@ -289,22 +289,22 @@ draw in discovery order, not a random subsample.
 | Scored through (data horizon) | 2026-10-18 21:10 UTC |
 | Silence window | 7.86 days |
 | Eligible (steady posters in the baseline) | 13,838 |
-| Went silent | 189, or 1.37%, about 1 in 73 (95% Wilson interval 1.19% to 1.57%) |
-| Reweighted to the full draw's community mix | 1.35% (bootstrap 95% interval 1.17% to 1.54%) |
+| Went silent | 191, or 1.38%, about 1 in 72 (95% Wilson interval 1.20% to 1.59%) |
+| Reweighted to the full draw's community mix | 1.37% (bootstrap 95% interval 1.18% to 1.56%) |
 | First 11,207 accounts (positions 0 to 11,206, including the 6 fetched again after the resume) | 103 of 7,185 eligible silent, 1.43%, about 1 in 70 (95% Wilson interval 1.18% to 1.74%) |
-| Fetched between the first two snapshots (positions 11,207 to 18,864, counting from 0) | 53 of 4,708 eligible silent, 1.13%, about 1 in 89 (95% Wilson interval 0.86% to 1.47%) |
+| Fetched between the first two snapshots (positions 11,207 to 18,864, counting from 0) | 55 of 4,708 eligible silent, 1.17%, about 1 in 86 (95% Wilson interval 0.90% to 1.52%) |
 | Newly fetched since the 18,865-account snapshot (positions 18,865 to 22,083, counting from 0; 3,218 fetched and scored, 1 fetch error) | 33 of 1,945 eligible silent, 1.70%, about 1 in 59 (95% Wilson interval 1.21% to 2.37%) |
 | Stop-time clusters | 61 (the largest has 6 accounts); not permutation-tested yet, unlike runs 1 to 3 |
 
-The three parts add up: 7,185 plus 4,708 plus 1,945 is 13,838 eligible, and 103 plus 53
-plus 33 is 189 silent.
+The three parts add up: 7,185 plus 4,708 plus 1,945 is 13,838 eligible, and 103 plus 55
+plus 33 is 191 silent.
 The earlier snapshot's 7,179 eligible excluded the 6 accounts whose fetch had failed, which
 have since been fetched again successfully.
 
 The newly fetched part is above the earlier parts, and its interval does not reach the
 7-day ordinary-week rate. It is small (1,945 eligible), it comes from a later stretch of the
 discovery order, and the parts of the draw fetched at different times have moved in both
-directions (1.43%, then 1.13%, now 1.70%), so this is not evidence of a trend.
+directions (1.43%, then 1.17%, now 1.70%), so this is not evidence of a trend.
 
 Snapshots of run 4. The figures above supersede the earlier snapshots, which are kept here
 as history only:
@@ -314,7 +314,7 @@ as history only:
 | 2026-10-20 snapshot (backup copy of the cache, before the scan was resumed that day) | 11,201 of the first 11,207 (excluding 6 fetch errors) | 7,179 | 103 | 1.43%, about 1 in 70 | 1.18% to 1.74% | 1.44% (1.16% to 1.72%) | 31 (the largest has 4 accounts) | 6 |
 | 2026-10-21 16:55 UTC, the same first 11,207 (the 6 fetched again successfully) | 11,207 | 7,185 | 103 | 1.43%, about 1 in 70 | 1.18% to 1.74% | Not computed | Not computed | Not recounted |
 | 2026-10-21 16:55 UTC snapshot, taken while the scan was running (read-only copy of the scan database) | The first 18,865 of 30,000 (no fetch errors) | 11,893 | 156 | 1.31%, about 1 in 76 | 1.12% to 1.53% | 1.29% (1.07% to 1.49%) | 53 (the largest has 5 accounts) | Not recounted |
-| 2026-10-22 01:12 UTC snapshot, taken while the scan was running; these are the final figures for run 4 (read-only copy of the scan database) | 22,083 of the first 22,084 of 30,000 (1 fetch error) | 13,838 | 189 | 1.37%, about 1 in 73 | 1.19% to 1.57% | 1.35% (1.17% to 1.54%) | 61 (the largest has 6 accounts) | Not recounted |
+| 2026-10-22 01:12 UTC snapshot, taken while the scan was running; these are the final figures for run 4 (read-only copy of the scan database) | 22,083 of the first 22,084 of 30,000 (1 fetch error) | 13,838 | 191 | 1.38%, about 1 in 72 | 1.20% to 1.59% | 1.37% (1.18% to 1.56%) | 61 (the largest has 6 accounts) | Not recounted |
 
 In the earlier snapshot, the 6,029 accounts in no earlier run (fetched and scored, excluding
 3 fetch errors) gave 51 of 3,877 eligible silent, 1.32% (1.00% to 1.73%). That figure has not
@@ -341,7 +341,7 @@ The scored part is not a random subsample of run 4's draw:
 
 How to read run 4:
 
-- Run 4's 1.37% must not be compared with the dump's 7-day ordinary-week rate of 0.86%
+- Run 4's 1.38% must not be compared with the dump's 7-day ordinary-week rate of 0.86%
   (weekly values 0.82% to 0.89%): that rate uses another definition (a 48-hour window and
   no event markers), it is for exactly 7 days rather than 7.86, and it comes from another
   mix of communities. Under the dump's definition for both, run 4's accounts are silent
@@ -389,7 +389,7 @@ record of the same account). These figures use run 4's 22,083 scored accounts:
 | --- | --- | --- | --- |
 | Distinct accounts scored (excluding fetch errors) | 43,735 | 22,083 | 21,652 |
 | Eligible | 27,674 | 13,838 | 13,836 |
-| Went silent | 667, or 2.41% (2.24% to 2.60%) | 189, or 1.37% (1.19% to 1.57%) | 478, or 3.45% (3.16% to 3.77%) |
+| Went silent | 669, or 2.42% (2.24% to 2.61%) | 191, or 1.38% (1.20% to 1.59%) | 478, or 3.45% (3.16% to 3.77%) |
 
 The earlier pooled snapshots gave 681 of 23,745 (2.87%, 2.66% to 3.09%) over 37,425
 distinct accounts, with run 4 at 11,201 accounts fetched, and 664 of 26,587 (2.50%, 2.32% to
@@ -400,7 +400,7 @@ figures above.
   It therefore matches neither the 3-day nor the 7-day ordinary-week rate, and it should
   not be compared with them or with the per-window columns. Its value depends mostly on how
   many accounts happen to come from each window. It fell from 2.87% to 2.50% and then to
-  2.41% mainly because more accounts are now scored on run 4's longer window.
+  2.42% mainly because more accounts are now scored on run 4's longer window.
 - The pooled figure is lower than the runs 1 to 3 union (698 of 19,868) because run 4's
   accounts, including the ones it shares with runs 1 to 3, are scored on its longer window.
 - The per-window columns are the figures to compare, but only with a base of the same

@@ -29,6 +29,7 @@ fails when the section for the tag's version is missing.
 - Known issue, not fixed here: `report` scores a completed run at its stored window end but a running run up to its later reference time, and the scan's console count can include posts after the horizon, so the three counts for the same run are not comparable (run 2: 205 in the scan, 214 in `report`). A follow-up in the tool is needed. The README scores every run as of its stored horizon.
 - The README now opens with the provisional runs chart and a short summary; the empty shared-registry chart moved below it.
 - The scored accounts of runs 2, 3 and 4 and of two new 3-day scans of 3,000 accounts each (scan a, complete, and scan b, stopped at 2,338 accounts fetched) are now published in `docs/data/`, one CSV file per run with the same columns as run 1's file (public Reddit usernames with their last activity time and eligible and silent flags), scored with the strict horizon rule. Run 2 has 213 of 6,324 eligible accounts silent, run 3 421 of 12,733, run 4 191 of 13,838 for its 22,083 scored accounts, scan a 80 of 1,925 and scan b 62 of 1,510. `docs/data/README.md` now describes every file, with each run's horizon, row counts and caveats: the accounts of run 4 and scan b are a prefix of their draws and not a random subsample, and the same account can appear in several files. Silence alone is not proof of anything about an account.
+- Run 4's silent count was corrected from 189 to 191 to use the same strict horizon rule as the other runs.
 
 ## [0.2.1]
 
