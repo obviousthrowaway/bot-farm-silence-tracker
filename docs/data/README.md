@@ -17,7 +17,7 @@ The lists contain public Reddit usernames only. They hold no post text, no subre
 | `scan-3d-a-scored-accounts.csv` | Scan a | 2026-10-14T02:27:03Z, 3.08 days | 3,000 | 3,000 | 1,925 | 80 | 4.16% |
 | `scan-3d-b-scored-accounts.csv` | Scan b, incomplete | 2026-10-14T02:27:03Z, 3.08 days | 3,000 | 2,338 | 1,510 | 62 | 4.11% |
 
-The row, eligible and silent counts were recomputed from the CSV files themselves. For runs 1 to 4 they equal the figures published in the main README and in [data-analysis.md](../../data-analysis.md). Scans a and b are not yet in those documents.
+The row, eligible and silent counts were recomputed from the CSV files themselves. For runs 1 to 4 they equal the figures published in the main README and in [data-analysis.md](../../data-analysis.md), and for scans a and b they equal the figures in data-analysis.md and on the README's chart.
 
 Each file is a UTF-8 CSV file with one row per scored account and a header row, sorted by `user_id`. Only scored accounts are listed: an account whose fetch from the archive failed, or that was never fetched, is not in the file.
 

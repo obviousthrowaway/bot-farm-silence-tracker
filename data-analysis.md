@@ -16,6 +16,7 @@ Contents:
 - [Matched comparison under one definition](#matched-comparison-under-one-definition)
 - [Pending work](#pending-work)
 - [Run 4 and all runs](#run-4-and-all-runs)
+- [Scans a and b (3 days)](#scans-a-and-b-3-days)
 - [Runs 1 to 3 (provisional)](#runs-1-to-3-provisional)
 - [Method](#method)
   - [Placebo cutoffs](#placebo-cutoffs)
@@ -29,6 +30,8 @@ These are the provisional results of the Reddit archive scans of event `2026-10-
 (cutoff 2026-10-11 00:30 UTC). Runs 1 to 3 and their union were re-scored on 2026-10-20
 from a backup copy of the cache. Run 4 and the pooled row were re-scored on 2026-10-22 at
 01:12 UTC from a read-only copy of the scan database, taken during run 4's scan.
+Scans a and b and their distinct-account row are counted from their scored-account files in
+[`docs/data/`](docs/data/README.md).
 Every row is scored as of its run's stored data horizon, and no later activity counts. An
 eligible account posted steadily in the 30-day baseline window before the outage, and a
 silent one stopped posting around the outage and had no activity seen up to its run's
@@ -42,6 +45,9 @@ horizon. The method is in [Method](#method).
 | Runs 1 to 3, each distinct account counted once | 3.3 to 4.0 days | 19,868 | 698 | 3.51%, about 1 in 28 | 3.27% to 3.78% |
 | Run 4 (22,083 of a 30,000-account draw scored, in discovery order, not a random subsample) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 191 | 1.38%, about 1 in 72 | 1.20% to 1.59% |
 | All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 669 | 2.42%, about 1 in 41 | 2.24% to 2.61% |
+| Scan a (3,000-account draw, all scored) | 3.08 days (2026-10-14 02:27 UTC) | 1,925 | 80 | 4.16%, about 1 in 24 | 3.35% to 5.14% |
+| Scan b (2,338 of a 3,000-account draw scored, in fetch order, not a random subsample) | 3.08 days (2026-10-14 02:27 UTC) | 1,510 | 62 | 4.11%, about 1 in 24 | 3.22% to 5.23% |
+| Scans a and b, each distinct account counted once | 3.08 days (2026-10-14 02:27 UTC) | 3,205 | 134 | 4.18%, about 1 in 24 | 3.54% to 4.93% |
 
 The ordinary-week rates counted from the archive dumps, 4.20% for 3 days of silence and
 0.86% for 7 days (placebo cutoffs on Sep 6, 13 and 20 2026, 692,252 eligible accounts), use
@@ -67,7 +73,13 @@ cannot be compared with these rows directly. The comparisons under one definitio
   rate is 1.37%), and the 3.0-day and 7-day figures for run 4 describe the scored accounts
   only. Earlier snapshots of run 4 gave 103 of 7,179 (1.43%) at 11,201 accounts fetched
   and 156 of 11,893 (1.31%) at 18,865; they are superseded by the figures here.
-- The pooled row mixes windows, so it compares with neither ordinary-week rate.
+- The pooled row mixes windows, so it compares with neither ordinary-week rate. It covers
+  runs 1 to 4 only, not the scans.
+- Scans a and b are two later 3,000-account draws, scored over 3.08 days. Scan b scored
+  2,338 of its 3,000 accounts in fetch order, and the rest were not scored (archive
+  outage). No expected share from the tool's placebo draws has been computed for a
+  3.08-day window, so the scan rows have no matched comparison yet (see
+  [Scans a and b (3 days)](#scans-a-and-b-3-days)).
 - These are not counts of bots, and there is no verdict. Silence alone is not proof that
   an account is a bot, and the outage also silenced ordinary users of the services it cut
   off.
@@ -117,6 +129,8 @@ Re-scored on 2026-10-20 at each run's stored horizon, from a backup copy of the 
   3.51% (3.27% to 3.78%).
 - Run 4 (7.86 days, 22,083 of its 30,000-account draw scored) and all runs pooled: see
   [Run 4 and all runs](#run-4-and-all-runs).
+- Scans a and b (3.08 days, two later 3,000-account draws, of which scan b scored 2,338 in
+  fetch order): see [Scans a and b (3 days)](#scans-a-and-b-3-days).
 
 The rows of runs 1 to 3 are compared with the tool's own placebo draws, which use the same
 sampler and the same rules, adjusted to each run's window (see
@@ -183,6 +197,10 @@ bias of this extrapolation runs toward hiding an excess, not toward creating one
 | Runs 1 to 3, each distinct account counted once | 3.28 to 4.0 days | 698 of 19,868, 3.51% (3.27% to 3.78%), about 1 in 28 | 3.47% (3.41% to 3.63% by shape assumption) | +0.05 (95% interval -0.21 to +0.30; about -0.65 to +0.75 with the week-to-week spread) |
 
 Runs 1 to 3 are consistent with an ordinary week: there is no excess at 3 days and no clear deficit.
+
+Scans a and b are scored over 3.08 days, shorter than the 3.28 days at which the placebo
+draws were measured, and no expected share has been computed for that window, so they are
+not in this table. Their figures are in [Scans a and b (3 days)](#scans-a-and-b-3-days).
 
 ### 7 days: run 4 under one definition
 
@@ -408,6 +426,45 @@ figures above.
   the 7.86-day column with nothing yet under the tool's definition (the placebo draws stop
   at 3.28 days). The dump's 4.20% and 0.86% use another definition; see
   [Matched comparison under one definition](#matched-comparison-under-one-definition).
+
+## Scans a and b (3 days)
+
+Scans a and b are two further Reddit archive scans of event `2026-10-takedown`, each with its
+own seed and a draw of 3,000 accounts, made with the reference time pinned to 2026-10-14
+03:00 UTC so that the archive's data horizon lands about 3 days after the cutoff. Their
+stored data horizon is 2026-10-14 02:27 UTC, 73.95 hours or 3.08 days after the cutoff.
+Every scan row here uses the same definition as the other rows: the strict horizon rule at
+the stored horizon, so only activity up to 2026-10-14 02:27 UTC can end an account's
+silence. The counts are computed from the published files
+[`scan-3d-a-scored-accounts.csv`](docs/data/scan-3d-a-scored-accounts.csv) and
+[`scan-3d-b-scored-accounts.csv`](docs/data/scan-3d-b-scored-accounts.csv), which are
+described in [`docs/data/README.md`](docs/data/README.md).
+
+Scan a is complete: all 3,000 accounts were fetched and scored. Scan b scored 2,338 of its
+3,000 accounts in fetch order, and the rest were not scored (archive outage): the first
+2,343 positions of the draw were fetched, of which 5 had a fetch error, and the other 657
+were not fetched. The scored part of scan b is a prefix of its draw in fetch order, not a
+random subsample, and its figures describe the scored accounts only.
+
+| Row | Accounts scored | Silence window (data horizon) | Eligible | Silent | Share | 95% Wilson interval |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scan a | 3,000 of 3,000 | 3.08 days (2026-10-14 02:27 UTC) | 1,925 | 80 | 4.16%, about 1 in 24 | 3.35% to 5.14% |
+| Scan b | 2,338 of 3,000, in fetch order | 3.08 days (2026-10-14 02:27 UTC) | 1,510 | 62 | 4.11%, about 1 in 24 | 3.22% to 5.23% |
+| Scans a and b, each distinct account counted once | 5,038 distinct accounts | 3.08 days (2026-10-14 02:27 UTC) | 3,205 | 134 | 4.18%, about 1 in 24 | 3.54% to 4.93% |
+
+- The two scans share 300 accounts, so their rows are never added together. The combined
+  row counts each distinct account once, with the same rule as the other distinct-account
+  rows. Both scans have the same horizon, and each of the 300 shared accounts has the same
+  last activity time and the same eligible and silent flags in both files, so the choice of
+  record does not change the combined counts.
+- The scans also share accounts with runs 1 to 4, which are scored over other windows.
+  The pooled row of [Run 4 and all runs](#run-4-and-all-runs) covers runs 1 to 4 only, and
+  the scans are not in it.
+- No expected share from the tool's placebo draws has been computed for a 3.08-day window
+  (the placebo draws were measured at 3.28 days), so the scan rows have no matched
+  comparison yet, and no difference from an ordinary week is given for them.
+- Silence alone is not proof of anything about an account. The outage also silenced
+  ordinary users, and a share of steady posters goes quiet in any week.
 
 ## Runs 1 to 3 (provisional)
 

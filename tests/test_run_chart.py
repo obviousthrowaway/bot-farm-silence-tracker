@@ -131,6 +131,33 @@ def test_chart_shows_all_rows_and_no_account_names() -> None:
     assert "handle" not in json.dumps(data) and "user_id" not in json.dumps(data)
 
 
+def test_scan_rows_are_charted_at_their_stored_horizon_without_a_matched_base() -> None:
+    data = json.loads(DATA.read_text(encoding="utf-8"))
+    rows = _rows(data)
+    scan_a = rows["Scan a"]
+    scan_b = rows["Scan b (2,338 of 3,000 scored)"]
+    both = rows["Scans a and b, distinct accounts"]
+    assert (scan_a["kind"], scan_a["eligible"], scan_a["silent"]) == ("run", 1925, 80)
+    assert (scan_b["kind"], scan_b["fetched"], scan_b["planned"]) == ("partial", 2338, 3000)
+    assert (scan_b["eligible"], scan_b["silent"]) == (1510, 62)
+    assert (both["kind"], both["distinct_accounts"]) == ("union", 5038)
+    assert (both["eligible"], both["silent"]) == (3205, 134)
+    # The scans share accounts, so the combined row is not the sum of the two scans.
+    assert both["eligible"] < scan_a["eligible"] + scan_b["eligible"]
+    assert both["silent"] < scan_a["silent"] + scan_b["silent"]
+    assert scan_a["scored_through"] == scan_b["scored_through"] == "2026-10-14 02:27 UTC"
+    for entry in (scan_a, scan_b, both):
+        assert render_run_chart.window_days(entry) == [3.08]
+        drawn = render_run_chart._row(data, entry)
+        assert drawn["matched"] is None
+        assert "no matched base under the runs' definition" in drawn["sub"]
+    svg = render_run_chart.render(data, "light")
+    for label in ("Scan a: silent 3.1 days", "Scan b (2,338 of 3,000 scored): silent 3.1 days"):
+        assert label in svg
+    assert "4.16% (3.35% to 5.14%)" in svg and "4.11% (3.22% to 5.23%)" in svg
+    assert "4.18% (3.54% to 4.93%)" in svg
+
+
 @pytest.mark.parametrize("extra", [0, 1, 2])
 def test_chart_height_fits_every_row(extra: int) -> None:
     data = _multi() if extra else json.loads(DATA.read_text(encoding="utf-8"))

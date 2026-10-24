@@ -1,30 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="674" viewBox="0 0 960 674" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="842" viewBox="0 0 960 842" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Helvetica, Arial, sans-serif">
 <title id="t">All runs (provisional): share of accounts that went silent</title>
-<desc id="d">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-22. Reddit archive, went silent: Run 1, 3.3 days: 287 of 6,398 eligible accounts; Run 2, 3.3 to 4.0 days: 213 of 6,324 eligible accounts; Run 3, 4.0 days: 421 of 12,733 eligible accounts; Runs 1 to 3, distinct accounts, 3.3 to 4.0 days: 698 of 19,868 eligible accounts; Run 4 (22,083 of 30,000 scored), 7.9 days: 191 of 13,838 eligible accounts; All runs pooled, distinct accounts, 3.3 to 7.9 days: 669 of 27,674 eligible accounts. Reddit archive, ordinary weeks: 4.20% at 3 days and 0.86% at 7 days. These ordinary-week rows were counted with another definition than the runs (48 h window, no markers), so they are a reference only and not a matched comparison. Each row is scored as of its run&#39;s stored data horizon. Each platform is its own group and rates are never pooled across platforms, because they sample different populations with different base rates. Runs overlap, so rows are never summed; the distinct-account rows count each account once, on its longest scored window. A partial row covers only part of its draw, scored in the order the accounts were fetched, so it is not a random subsample of the draw. A row that mixes windows compares with neither base rate. The grey band on each ordinary-weeks row is the range of the weekly rates. Hollow markers and short bars are a matched base rate: on a row that gives its own, it was measured under the runs&#39; own definition; otherwise it is a rough interpolation for each window from the same platform&#39;s base rates. There is no verdict. Counts only; silence alone is not proof that an account is a bot.</desc>
-<rect width="960" height="674" rx="8" fill="#fcfcfb"/>
+<desc id="d">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-24. Reddit archive, went silent: Run 1, 3.3 days: 287 of 6,398 eligible accounts; Run 2, 3.3 to 4.0 days: 213 of 6,324 eligible accounts; Run 3, 4.0 days: 421 of 12,733 eligible accounts; Runs 1 to 3, distinct accounts, 3.3 to 4.0 days: 698 of 19,868 eligible accounts; Run 4 (22,083 of 30,000 scored), 7.9 days: 191 of 13,838 eligible accounts; All runs pooled, distinct accounts, 3.3 to 7.9 days: 669 of 27,674 eligible accounts; Scan a, 3.1 days: 80 of 1,925 eligible accounts; Scan b (2,338 of 3,000 scored), 3.1 days: 62 of 1,510 eligible accounts; Scans a and b, distinct accounts, 3.1 days: 134 of 3,205 eligible accounts. Reddit archive, ordinary weeks: 4.20% at 3 days and 0.86% at 7 days. These ordinary-week rows were counted with another definition than the runs (48 h window, no markers), so they are a reference only and not a matched comparison. Each row is scored as of its run&#39;s stored data horizon. Each platform is its own group and rates are never pooled across platforms, because they sample different populations with different base rates. Runs overlap, so rows are never summed; the distinct-account rows count each account once, on its longest scored window. A partial row covers only part of its draw, scored in the order the accounts were fetched, so it is not a random subsample of the draw. A row that mixes windows compares with neither base rate. The grey band on each ordinary-weeks row is the range of the weekly rates. Hollow markers and short bars are a matched base rate: on a row that gives its own, it was measured under the runs&#39; own definition; otherwise it is a rough interpolation for each window from the same platform&#39;s base rates. There is no verdict. Counts only; silence alone is not proof that an account is a bot.</desc>
+<rect width="960" height="842" rx="8" fill="#fcfcfb"/>
 <text x="24.0" y="34.0" font-size="20" fill="#0b0b0b" font-weight="bold">All runs (provisional): share of accounts that went silent</text>
-<text x="24.0" y="56.0" font-size="13" fill="#52514e">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-22. Dots are rates with 95% Wilson intervals.</text>
+<text x="24.0" y="56.0" font-size="13" fill="#52514e">Event 2026-10-takedown, cutoff 2026-10-11 00:30 UTC, as of 2026-10-24. Dots are rates with 95% Wilson intervals.</text>
 <text x="24.0" y="76.0" font-size="13" fill="#52514e">Each row is scored as of its run&#39;s stored data horizon. Hollow marker or short bar: matched base, same definition as the runs.</text>
 <text x="24.0" y="96.0" font-size="13" fill="#52514e">Runs overlap: rows are never summed. Partial rows cover part of a draw, scored in fetch order, so they are not a random subsample.</text>
 <text x="24.0" y="116.0" font-size="13" fill="#52514e">No verdict. Platforms are never pooled. Pooled rows mix windows. Silence alone is not proof of a bot.</text>
 <text x="24.0" y="136.0" font-size="13" fill="#52514e">Grey band: range of the weekly rates (Reddit archive 3-day row: 3.87% to 4.61%).</text>
 <text x="24.0" y="164.0" font-size="15" fill="#0b0b0b" font-weight="bold">Reddit archive</text>
-<line x1="340.0" y1="148" x2="340.0" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="340.0" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">0%</text>
-<line x1="436.7" y1="148" x2="436.7" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="436.7" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">1%</text>
-<line x1="533.3" y1="148" x2="533.3" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="533.3" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">2%</text>
-<line x1="630.0" y1="148" x2="630.0" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="630.0" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">3%</text>
-<line x1="726.7" y1="148" x2="726.7" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="726.7" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">4%</text>
-<line x1="823.3" y1="148" x2="823.3" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="823.3" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">5%</text>
-<line x1="920.0" y1="148" x2="920.0" y2="626" stroke="#e1e0d9" stroke-width="1"/>
-<text x="920.0" y="644.0" font-size="12" fill="#6b6a65" text-anchor="middle">6%</text>
-<line x1="340" y1="626" x2="920" y2="626" stroke="#c3c2b7" stroke-width="1"/>
-<text x="630.0" y="664.0" font-size="12" fill="#52514e" text-anchor="middle">Share of eligible accounts that went silent</text>
+<line x1="340.0" y1="148" x2="340.0" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="340.0" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">0%</text>
+<line x1="436.7" y1="148" x2="436.7" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="436.7" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">1%</text>
+<line x1="533.3" y1="148" x2="533.3" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="533.3" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">2%</text>
+<line x1="630.0" y1="148" x2="630.0" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="630.0" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">3%</text>
+<line x1="726.7" y1="148" x2="726.7" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="726.7" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">4%</text>
+<line x1="823.3" y1="148" x2="823.3" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="823.3" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">5%</text>
+<line x1="920.0" y1="148" x2="920.0" y2="794" stroke="#e1e0d9" stroke-width="1"/>
+<text x="920.0" y="812.0" font-size="12" fill="#6b6a65" text-anchor="middle">6%</text>
+<line x1="340" y1="794" x2="920" y2="794" stroke="#c3c2b7" stroke-width="1"/>
+<text x="630.0" y="832.0" font-size="12" fill="#52514e" text-anchor="middle">Share of eligible accounts that went silent</text>
 <text x="24.0" y="194.0" font-size="14" fill="#0b0b0b" font-weight="bold">Run 1: silent 3.3 days</text>
 <text x="24.0" y="212.0" font-size="12" fill="#6b6a65">287 of 6,398; matched base ~4.41%</text>
 <line x1="727.2" y1="196" x2="825.4" y2="196" stroke="#2a78d6" stroke-width="2.5"/>
@@ -72,20 +72,41 @@
 <line x1="591.8" y1="470" x2="591.8" y2="482" stroke="#eda100" stroke-width="2"/>
 <circle cx="573.7" cy="476" r="6" fill="#eda100"/>
 <text x="601.8" y="481.0" font-size="12" fill="#0b0b0b">2.42% (2.24% to 2.61%)</text>
-<text x="24.0" y="530.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 3 days</text>
-<text x="24.0" y="548.0" font-size="12" fill="#6b6a65">other definition (48 h window, no markers), reference only</text>
-<rect x="714.1" y="520" width="71.5" height="24" rx="3" fill="#e1e0d9"/>
-<line x1="741.6" y1="532" x2="750.8" y2="532" stroke="#52514e" stroke-width="2.5"/>
-<line x1="741.6" y1="526" x2="741.6" y2="538" stroke="#52514e" stroke-width="2"/>
-<line x1="750.8" y1="526" x2="750.8" y2="538" stroke="#52514e" stroke-width="2"/>
-<circle cx="746.2" cy="532" r="6" fill="#52514e"/>
-<text x="696.1" y="537.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.20% (4.15% to 4.25%)</text>
-<text x="24.0" y="586.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 7 days</text>
-<text x="24.0" y="604.0" font-size="12" fill="#6b6a65">other definition (48 h window, no markers), reference only</text>
-<rect x="419.3" y="576" width="6.8" height="24" rx="3" fill="#e1e0d9"/>
-<line x1="421.5" y1="588" x2="425.7" y2="588" stroke="#52514e" stroke-width="2.5"/>
-<line x1="421.5" y1="582" x2="421.5" y2="594" stroke="#52514e" stroke-width="2"/>
-<line x1="425.7" y1="582" x2="425.7" y2="594" stroke="#52514e" stroke-width="2"/>
-<circle cx="423.6" cy="588" r="6" fill="#52514e"/>
-<text x="436.0" y="593.0" font-size="12" fill="#0b0b0b">0.86% (0.84% to 0.89%)</text>
+<text x="24.0" y="530.0" font-size="14" fill="#0b0b0b" font-weight="bold">Scan a: silent 3.1 days</text>
+<text x="24.0" y="548.0" font-size="12" fill="#6b6a65">80 of 1,925; no matched base under the runs&#39; definition</text>
+<line x1="664.0" y1="532" x2="837.1" y2="532" stroke="#2a78d6" stroke-width="2.5"/>
+<line x1="664.0" y1="526" x2="664.0" y2="538" stroke="#2a78d6" stroke-width="2"/>
+<line x1="837.1" y1="526" x2="837.1" y2="538" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="741.7" cy="532" r="6" fill="#2a78d6"/>
+<text x="646.0" y="537.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.16% (3.35% to 5.14%)</text>
+<text x="24.0" y="586.0" font-size="14" fill="#0b0b0b" font-weight="bold">Scan b (2,338 of 3,000 scored): silent 3.1 days</text>
+<text x="24.0" y="604.0" font-size="12" fill="#6b6a65">62 of 1,510; no matched base under the runs&#39; definition</text>
+<line x1="650.9" y1="588" x2="845.4" y2="588" stroke="#1baf7a" stroke-width="2.5"/>
+<line x1="650.9" y1="582" x2="650.9" y2="594" stroke="#1baf7a" stroke-width="2"/>
+<line x1="845.4" y1="582" x2="845.4" y2="594" stroke="#1baf7a" stroke-width="2"/>
+<circle cx="736.9" cy="588" r="6" fill="#1baf7a"/>
+<text x="632.9" y="593.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.11% (3.22% to 5.23%)</text>
+<text x="24.0" y="642.0" font-size="14" fill="#0b0b0b" font-weight="bold">Scans a and b, distinct accounts: silent 3.1 days</text>
+<text x="24.0" y="660.0" font-size="12" fill="#6b6a65">134 of 3,205; no matched base under the runs&#39; definition</text>
+<line x1="682.3" y1="644" x2="816.6" y2="644" stroke="#eb6834" stroke-width="2.5"/>
+<line x1="682.3" y1="638" x2="682.3" y2="650" stroke="#eb6834" stroke-width="2"/>
+<line x1="816.6" y1="638" x2="816.6" y2="650" stroke="#eb6834" stroke-width="2"/>
+<circle cx="744.2" cy="644" r="6" fill="#eb6834"/>
+<text x="664.3" y="649.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.18% (3.54% to 4.93%)</text>
+<text x="24.0" y="698.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 3 days</text>
+<text x="24.0" y="716.0" font-size="12" fill="#6b6a65">other definition (48 h window, no markers), reference only</text>
+<rect x="714.1" y="688" width="71.5" height="24" rx="3" fill="#e1e0d9"/>
+<line x1="741.6" y1="700" x2="750.8" y2="700" stroke="#52514e" stroke-width="2.5"/>
+<line x1="741.6" y1="694" x2="741.6" y2="706" stroke="#52514e" stroke-width="2"/>
+<line x1="750.8" y1="694" x2="750.8" y2="706" stroke="#52514e" stroke-width="2"/>
+<circle cx="746.2" cy="700" r="6" fill="#52514e"/>
+<text x="696.1" y="705.0" font-size="12" fill="#0b0b0b" text-anchor="end">4.20% (4.15% to 4.25%)</text>
+<text x="24.0" y="754.0" font-size="14" fill="#0b0b0b">Ordinary weeks: silent 7 days</text>
+<text x="24.0" y="772.0" font-size="12" fill="#6b6a65">other definition (48 h window, no markers), reference only</text>
+<rect x="419.3" y="744" width="6.8" height="24" rx="3" fill="#e1e0d9"/>
+<line x1="421.5" y1="756" x2="425.7" y2="756" stroke="#52514e" stroke-width="2.5"/>
+<line x1="421.5" y1="750" x2="421.5" y2="762" stroke="#52514e" stroke-width="2"/>
+<line x1="425.7" y1="750" x2="425.7" y2="762" stroke="#52514e" stroke-width="2"/>
+<circle cx="423.6" cy="756" r="6" fill="#52514e"/>
+<text x="436.0" y="761.0" font-size="12" fill="#0b0b0b">0.86% (0.84% to 0.89%)</text>
 </svg>

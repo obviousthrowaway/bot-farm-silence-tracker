@@ -1,6 +1,6 @@
 {
   "event": "2026-10-takedown",
-  "as_of": "2026-10-22",
+  "as_of": "2026-10-24",
   "cutoff": "2026-10-11 00:30 UTC",
   "base_rate": {
     "definition": "48 h window, no markers",
@@ -123,6 +123,50 @@
       "window_range": [
         3.28,
         7.86
+      ]
+    },
+    {
+      "label": "Scan a",
+      "kind": "run",
+      "status": "complete",
+      "scored_through": "2026-10-14 02:27 UTC",
+      "eligible": 1925,
+      "silent": 80,
+      "windows": [
+        {
+          "days": 3.08,
+          "eligible": 1925
+        }
+      ]
+    },
+    {
+      "label": "Scan b (2,338 of 3,000 scored)",
+      "kind": "partial",
+      "status": "partial",
+      "scored_through": "2026-10-14 02:27 UTC",
+      "fetched": 2338,
+      "planned": 3000,
+      "eligible": 1510,
+      "silent": 62,
+      "windows": [
+        {
+          "days": 3.08,
+          "eligible": 1510
+        }
+      ]
+    },
+    {
+      "label": "Scans a and b, distinct accounts",
+      "kind": "union",
+      "status": "partial",
+      "distinct_accounts": 5038,
+      "eligible": 3205,
+      "silent": 134,
+      "windows": [
+        {
+          "days": 3.08,
+          "eligible": 3205
+        }
       ]
     }
   ],
