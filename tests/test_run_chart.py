@@ -96,7 +96,7 @@ def test_distinct_account_rows_are_not_sums_of_runs() -> None:
     rows = _rows(data)
     runs = [rows["Run 1"], rows["Run 2"], rows["Run 3"]]
     union = rows["Runs 1 to 3, distinct accounts"]
-    pooled = rows["All runs pooled, distinct accounts"]
+    pooled = rows["Runs 1 to 4 pooled, distinct accounts"]
     assert union["eligible"] < sum(r["eligible"] for r in runs)
     assert union["silent"] < sum(r["silent"] for r in runs)
     assert pooled["mixed_windows"] is True
@@ -111,7 +111,7 @@ def test_rows_past_seven_days_or_mixed_get_no_matched_base() -> None:
     data = _interpolated()
     rows = _rows(data)
     assert render_run_chart.row_matched(data, rows["Run 4 (22,083 of 30,000 scored)"]) is None
-    assert render_run_chart.row_matched(data, rows["All runs pooled, distinct accounts"]) is None
+    assert render_run_chart.row_matched(data, rows["Runs 1 to 4 pooled, distinct accounts"]) is None
     weighted, low, high = render_run_chart.row_matched(data, rows["Run 2"])
     assert weighted is None
     assert low == pytest.approx(0.0337, abs=1e-4) and high == pytest.approx(0.0397, abs=1e-4)
@@ -124,7 +124,7 @@ def test_chart_shows_all_rows_and_no_account_names() -> None:
     svg = render_run_chart.render(data, "light")
     for label in ("Run 1:", "Run 2:", "Run 3:", "Run 4 (22,083 of 30,000 scored)"):
         assert label in svg
-    assert "Runs 1 to 3, distinct accounts" in svg and "All runs pooled" in svg
+    assert "Runs 1 to 3, distinct accounts" in svg and "Runs 1 to 4 pooled" in svg
     assert "matched base, same definition as the runs" in svg
     assert "No verdict" in svg and "never summed" in svg
     assert "mixed windows" in svg and "not a random" in svg

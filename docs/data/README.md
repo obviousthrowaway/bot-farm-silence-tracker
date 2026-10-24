@@ -81,9 +81,9 @@ After the scored copy was taken, the scan fetched 64 more accounts (at positions
 
 Two further 3,000-account draws (discovery seeds 1800391620 for scan a and 969146094 for scan b), each scanned with the reference time pinned to 2026-10-14T03:00:00Z, so that the archive's data horizon lands about 3 days after the cutoff (2026-10-14T02:27:03Z, 3.08 days). They were made with tool version 0.2.1; runs 1 to 4 were made with 0.2.0. The scoring rules are the same.
 
-Scan a is complete: all 3,000 accounts were fetched and scored. Its counts equal those of the tool's `report` on the run.
+Scan a is complete: all 3,000 accounts were fetched and scored. Its counts follow the strict horizon rule at its stored horizon, the same rule as every other file.
 
-Scan b is incomplete. It was stopped at 2,338 accounts fetched and scored; 5 fetches failed and 657 accounts were never fetched. The file holds only the 2,338 fetched accounts. They are the first 2,343 positions of the draw in fetch order, less the 5 failed fetches, so they are a prefix of the draw and not a random subsample of it.
+Scan b is incomplete. It scored 2,338 of its 3,000 accounts in fetch order, and the rest were not scored because of an archive outage: 5 fetches failed and 657 accounts were never fetched. The file holds only the 2,338 scored accounts. They are the first 2,343 positions of the draw in fetch order, less the 5 failed fetches, so they are a prefix of the draw and not a random subsample of it.
 
 One account in scan a and two in scan b made no post or comment between the cutoff and the horizon but did post or comment between the horizon and the pinned reference time. They are silent in these files, by the strict horizon rule; counting that later activity would give 79 of 1,925 for scan a and 60 of 1,510 for scan b.
 

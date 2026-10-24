@@ -113,7 +113,7 @@
       ]
     },
     {
-      "label": "All runs pooled, distinct accounts",
+      "label": "Runs 1 to 4 pooled, distinct accounts",
       "kind": "pooled",
       "status": "partial",
       "distinct_accounts": 43735,

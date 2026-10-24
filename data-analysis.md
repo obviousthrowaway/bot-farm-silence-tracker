@@ -44,7 +44,7 @@ horizon. The method is in [Method](#method).
 | Run 3 | 4.0 days (2026-10-15 00:30 UTC) | 12,733 | 421 | 3.31%, about 1 in 30 | 3.01% to 3.63% |
 | Runs 1 to 3, each distinct account counted once | 3.3 to 4.0 days | 19,868 | 698 | 3.51%, about 1 in 28 | 3.27% to 3.78% |
 | Run 4 (22,083 of a 30,000-account draw scored, in discovery order, not a random subsample) | 7.86 days (2026-10-18 21:10 UTC) | 13,838 | 191 | 1.38%, about 1 in 72 | 1.20% to 1.59% |
-| All runs pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 669 | 2.42%, about 1 in 41 | 2.24% to 2.61% |
+| Runs 1 to 4 pooled, each distinct account counted once | Mixed, 3.3 to 7.86 days | 27,674 | 669 | 2.42%, about 1 in 41 | 2.24% to 2.61% |
 | Scan a (3,000-account draw, all scored) | 3.08 days (2026-10-14 02:27 UTC) | 1,925 | 80 | 4.16%, about 1 in 24 | 3.35% to 5.14% |
 | Scan b (2,338 of a 3,000-account draw scored, in fetch order, not a random subsample) | 3.08 days (2026-10-14 02:27 UTC) | 1,510 | 62 | 4.11%, about 1 in 24 | 3.22% to 5.23% |
 | Scans a and b, each distinct account counted once | 3.08 days (2026-10-14 02:27 UTC) | 3,205 | 134 | 4.18%, about 1 in 24 | 3.54% to 4.93% |
@@ -73,12 +73,11 @@ cannot be compared with these rows directly. The comparisons under one definitio
   rate is 1.37%), and the 3.0-day and 7-day figures for run 4 describe the scored accounts
   only. Earlier snapshots of run 4 gave 103 of 7,179 (1.43%) at 11,201 accounts fetched
   and 156 of 11,893 (1.31%) at 18,865; they are superseded by the figures here.
-- The pooled row mixes windows, so it compares with neither ordinary-week rate. It covers
-  runs 1 to 4 only, not the scans.
+- The pooled row mixes windows, so it compares with neither ordinary-week rate.
 - Scans a and b are two later 3,000-account draws, scored over 3.08 days. Scan b scored
   2,338 of its 3,000 accounts in fetch order, and the rest were not scored (archive
   outage). No expected share from the tool's placebo draws has been computed for a
-  3.08-day window, so the scan rows have no matched comparison yet (see
+  3.08-day window, so the scan rows have no matched comparison (see
   [Scans a and b (3 days)](#scans-a-and-b-3-days)).
 - These are not counts of bots, and there is no verdict. Silence alone is not proof that
   an account is a bot, and the outage also silenced ordinary users of the services it cut
@@ -462,7 +461,7 @@ random subsample, and its figures describe the scored accounts only.
   the scans are not in it.
 - No expected share from the tool's placebo draws has been computed for a 3.08-day window
   (the placebo draws were measured at 3.28 days), so the scan rows have no matched
-  comparison yet, and no difference from an ordinary week is given for them.
+  comparison, and no difference from an ordinary week is given for them.
 - Silence alone is not proof of anything about an account. The outage also silenced
   ordinary users, and a share of steady posters goes quiet in any week.
 
