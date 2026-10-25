@@ -52,7 +52,7 @@ jobs:
           version="$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' src/bot_farm_silence_tracker/__init__.py)"
           test -n "$version"
           echo "VERSION=$version" >>"$GITHUB_ENV"
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         if: ${{ !inputs.release }}
       - name: Build the command-line program
         if: ${{ !inputs.release }}
@@ -116,7 +116,7 @@ jobs:
           if (-not $version) { throw 'No __version__ found' }
           "VERSION=$version" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
           "SETUP=bot-farm-silence-tracker-$version-windows-x64-setup.exe" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         if: ${{ !inputs.release }}
       - name: Build the command-line program
         if: ${{ !inputs.release }}
